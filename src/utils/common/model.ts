@@ -106,80 +106,14 @@ export namespace CommonModel {
             )
             return disjointSet.parents;
         }
-
-        // Deprecated
-        public static fromOntologyModel<N, E>(
-            name: string,
-            nodes: N[],
-            edges: E[],
-            transforms: {
-                inferNodeType: (n: N) => OntologyNodeType | undefined,
-                inferEdgeType: (e: E) => OntologyEdgeType | undefined,
-
-                inferPropertyParent: (e: E) => IdType,
-                inferProperty: (e: E) => IProperty,
-                inferRelationProperties: (e: E) => { from: IdType, to: IdType, direction: EdgeDirection }
-
-                identifyNode: (n: N) => IdType,
-                identifyEdge: (e: E) => IdType,
-
-                nameNode?: (n: N) => string,
-                nameEdge?: (e: E) => string,
-            }
-        ): Root {
-            const {
-                inferEdgeType,
-                inferNodeType,
-                inferPropertyParent,
-                inferProperty,
-                identifyEdge,
-                identifyNode,
-                nameEdge,
-                nameNode,
-                inferRelationProperties
-            } = transforms;
-            const {
-                [OntologyNodeType.Concept]: concepts,
-                [OntologyNodeType.Property]: properties
-            } = _.groupBy(nodes, inferNodeType)
-
-            const {
-                [OntologyEdgeType.HasProperty]: propertyLinks,
-                [OntologyEdgeType.HasRelationConcept]: connectLinks,
-                [OntologyEdgeType.HasSubConcept]: deriveLinks
-            } = _.groupBy(edges, inferEdgeType)
-
-            const propertyDict: Record<PropertyKey, [E, ...E[]]> = _.groupBy(propertyLinks, inferPropertyParent) as any
-
-            const classes: IClass[] = concepts.map(
-                con => {
-                    const id = identifyNode(con)
-                    return {
-                        id,
-                        name: nameNode?.(con) ?? String(id),
-                        properties: propertyDict[id]?.map(inferProperty) ?? []
-                    }
-                }
-            );
-
-            const relations = connectLinks.map(
-                link => {
-                    const id = identifyEdge(link)
-                    return {
-                        id,
-                        name: nameEdge?.(link) ?? String(id),
-                        ...inferRelationProperties(link)
-                    }
-                }
-            )
-
-            return new Root(
-                name,
-                classes,
-                relations
-            )
-        }
-
     }
 
+
+    export interface ISerializedRoot {
+        name: string, classes: IClass[], relations: IRelation[]
+    }
+
+    export const deserializeFromObject = (json: ISerializedRoot) => new Root(json.name, json.classes, json.relations)
+
+    export const serializeToObject = (root: Root) => ({ name: root.name, classes: root.classes, relations: root.relations })
 }

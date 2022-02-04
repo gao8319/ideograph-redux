@@ -2,7 +2,7 @@ import {
     createEntityAdapter,
     createSlice,
 } from '@reduxjs/toolkit'
-import { IPatternEdge } from '../common/graph'
+import { IPatternEdge } from '../../utils/common/graph'
 import { RootState } from '../store'
 
 const edgesAdapter = createEntityAdapter<IPatternEdge>({

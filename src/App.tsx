@@ -5,8 +5,8 @@ import { useAppDispatch, useAppSelector } from './store/hooks'
 
 import { nanoid } from '@reduxjs/toolkit';
 import { addNode, nodesSelectors } from './store/slice/nodeSlicer';
-import { ConstrainableElement } from './store/common/graph';
-import { ComparisonOperator } from './store/common/operator';
+import { ConstrainableElement } from './utils/common/graph';
+import { ComparisonOperator } from './utils/common/operator';
 import { addConstraint } from './store/slice/constraintSlicer';
 import { askGraphModel } from './utils/AskGraph';
 import { convertAskGraphOntModel } from './utils/AskGraphConverter';
