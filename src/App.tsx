@@ -8,8 +8,13 @@ import { addNode, nodesSelectors } from './store/slice/nodeSlicer';
 import { ConstrainableElement } from './store/common/graph';
 import { ComparisonOperator } from './store/common/operator';
 import { addConstraint } from './store/slice/constraintSlicer';
+import { askGraphModel } from './utils/AskGraph';
+import { convertAskGraphOntModel } from './utils/AskGraphConverter';
+
+convertAskGraphOntModel(askGraphModel);
 
 function App() {
+
     const dispatch = useAppDispatch();
     const nodes = useAppSelector(nodesSelectors.selectAll);
 
