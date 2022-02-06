@@ -1,5 +1,6 @@
 import { Dictionary } from "@reduxjs/toolkit";
 import _, { isNumber } from "lodash";
+import { figmaColorScheme } from "../../engine/visual/ColorSchemes";
 import { ColorSlot } from "../../engine/visual/ColorSlot";
 import { PrimitiveTypeName } from "./data";
 import { DisjointSet } from "./disjoint";
@@ -63,16 +64,16 @@ export namespace CommonModel {
     export class Root implements IRoot {
         public readonly name: string;
         public readonly classes: IClass[];
-        public readonly classDict: Dictionary<IClass>;
         public readonly relations: IRelation[];
 
         public connectable: Record<IdType, { to: IdType[], from: IdType[] }>;
+        public colorSlots: Record<IdType, { colorSlot: ColorSlot, item: IClass }>;
 
         constructor(name: string, classes: IClass[], relations: IRelation[]) {
 
             this.name = name;
             this.classes = classes;
-            this.classDict = _.keyBy(classes, it => it.id)
+            // this.classDict = _.keyBy(classes, it => it.id)
             this.relations = relations;
 
             this.connectable = Object.fromEntries(classes.map(
@@ -89,6 +90,10 @@ export namespace CommonModel {
             this.connectable = _.mapValues(this.connectable,
                 c => ({ from: _.uniq(c?.from), to: _.uniq(c?.to) })
             )
+
+            this.colorSlots = Object.fromEntries(classes.map(
+                (c, index) => [c.id, { colorSlot: new ColorSlot(figmaColorScheme[index]), item: c }]
+            ))
         }
 
         private $classIdSelector = (c: IClass) => c.id;
@@ -100,7 +105,7 @@ export namespace CommonModel {
             this.classes.forEach(
                 c => {
                     if (c.parent !== undefined && c.parent !== null) {
-                        const p = this.classDict[String(c.parent)]
+                        const p = this.colorSlots[String(c.parent)].item
                         p && disjointSet.union(p, c)
                     }
                 }
