@@ -1,5 +1,6 @@
 import { Dictionary } from "@reduxjs/toolkit";
 import _, { isNumber } from "lodash";
+import { ColorSlot } from "../../engine/visual/ColorSlot";
 import { PrimitiveTypeName } from "./data";
 import { DisjointSet } from "./disjoint";
 import { EdgeDirection } from "./graph";

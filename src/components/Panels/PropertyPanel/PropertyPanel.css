@@ -1,0 +1,26 @@
+.property-panel-root{
+    height: 100%;
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: #fff;
+    z-index: 2;
+    border-left: 1px solid var(--grey100);
+}
+
+.property-panel-handler {
+    height: 100%;
+    position: absolute;
+    /* right: -2px; */
+    width: 4px;
+    top: 0;
+    background-color: #ffffff00;
+    transition: background-color 0.2s;
+    cursor: ew-resize;
+    user-select: none;
+    transform: translateX(-2px)!important;
+}
+
+.property-panel-handler:hover {
+    background-color: var(--primary);
+}

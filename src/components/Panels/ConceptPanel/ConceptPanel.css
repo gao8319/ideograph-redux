@@ -1,0 +1,27 @@
+.concept-panel-root{
+    /* width: 320px; */
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: #fff;
+    z-index: 2;
+    border-right: 1px solid var(--grey100);
+    box-sizing: content-box;
+}
+
+.concept-panel-handler {
+    height: 100%;
+    position: absolute;
+    left: -2px;
+    width: 4px;
+    top: 0;
+    background-color: #ffffff00;
+    transition: background-color 0.2s;
+    cursor: ew-resize;
+    user-select: none;
+}
+
+.concept-panel-handler:hover {
+    background-color: var(--primary);
+}

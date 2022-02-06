@@ -1,0 +1,26 @@
+.panel-title-root {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 40px;
+    font-size: 14px;
+    font-weight: 600;
+    pointer-events: none;
+    padding: 0 0 0 16px;
+    box-sizing: initial;
+    user-select: none;
+}
+
+.panel-desc {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 14px;
+    /* font-weight: 600; */
+    pointer-events: none;
+    padding: 0 16px;
+    box-sizing: initial;
+    user-select: none;
+    line-height: 1.5em;
+    color: var(--grey200);
+}

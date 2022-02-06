@@ -11,17 +11,17 @@ import { askGraphModel } from './utils/AskGraph';
 import { convertAskGraphOntModel } from './utils/AskGraphConverter';
 import { WorkspaceHeader } from './components/WorkspaceHeader/WorkspaceHeader';
 import { usePatternGraphEngine } from './engine/hook';
-import { editModeSelector, modelSelector, setEditMode } from './store/slice/modelSlicer';
+import { editModeSelector, modelSelector, setEditMode, workspaceSelector } from './store/slice/modelSlicer';
 import { useIdeographShortcuts } from './utils/useIdeographShortcuts';
-
-convertAskGraphOntModel(askGraphModel);
+import { ConceptPanel } from './components/Panels/ConceptPanel/ConceptPanel';
+import { PropertyPanel } from './components/Panels/PropertyPanel/PropertyPanel';
+import { GlobalPanel } from './components/Panels/GlobalPanel/GlobalPanel';
 
 function App() {
-
     const dispatch = useAppDispatch();
     const model = useAppSelector(modelSelector);
     const editMode = useAppSelector(editModeSelector);
-
+    const workspace = useAppSelector(workspaceSelector);
 
     useIdeographShortcuts();
 
@@ -64,7 +64,13 @@ function App() {
         <>
             <WorkspaceHeader />
             <div className='workspace-container'>
+
                 <div ref={divContainerRef} style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: '100%' }} />
+
+
+                <ConceptPanel />
+                <PropertyPanel />
+                <GlobalPanel />
             </div>
         </>
     )

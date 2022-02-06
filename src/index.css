@@ -15,6 +15,7 @@ body {
     font-family: var(--font);
     --mono-font: 'Roboto Mono', 'SF Mono', -apple-system, BlinkMacSystemFont, monospace;
 
+    --primary: #1870fb;
 
     --grey50: #f1f2f4;
     --grey100: #e1e2e5;
@@ -29,4 +30,28 @@ code {
 * {
     box-sizing: border-box;
     font-family: var(--font);
+}
+
+
+body.cursor-ew{
+    cursor: ew-resize!important;
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
+}
+
+body.cursor-ns{
+    cursor: ns-resize!important;
+    user-select: none;
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
 }
