@@ -1,0 +1,13 @@
+g.a-g{--line-color:#919297;--line-width:2px;--opacity:1}
+g.a-g>path.a-body{opacity:var(--opacity);stroke-width:var(--line-width);stroke-linecap:round;stroke-linejoin:round;stroke:var(--line-color);transition:opacity .2s,stroke-width .2s,stroke .2s}
+g.a-g>path.a-head{opacity:var(--opacity);stroke-width:var(--line-width);stroke-linecap:round;stroke-linejoin:round;fill:none;stroke:var(--line-color);transition:opacity .2s,stroke-width .2s,stroke .2s;stroke-dasharray: none!important;}
+
+
+g.a-g.hover{--line-color:#e1e2e5;--line-width:10px;--opacity:0;mix-blend-mode: multiply;cursor: pointer;}
+g.a-g.hover:hover{--line-color:#e1e2e5;--line-width:10px;--opacity:0.4}
+g[focused=true]>g.a-g.hover{--line-color:#e1e2e5!important;--line-width:12px!important;--opacity:1!important}
+
+/* g.a-g>g.hover-layer{opacity:0;transition:opacity .16s}
+g.a-g:hover>g.hover-layer{opacity:.25}
+g.a-g>g.hover-layer>path.a-body-h{stroke-width:12px;stroke-linecap:round;stroke-linejoin:round;stroke:var(--line-color)}
+g.a-g>g.hover-layer>path.a-head-h{stroke-width:12px;stroke-linecap:round;stroke-linejoin:round;fill:none;stroke:var(--line-color)} */

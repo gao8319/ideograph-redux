@@ -1,0 +1,69 @@
+g.p-n>circle.constrain-ring{
+    opacity: 0;
+    stroke-width: 2px;
+    fill: transparent;
+}
+
+g.p-n>text.alias{
+    opacity: 0;
+    visibility: none;
+    text-anchor: middle;
+    dominant-baseline: central;
+    font-family: "JetBrains Mono";
+    font-size: 14px;
+    font-weight: 500;
+}
+
+
+g.p-n>circle.constrain-ring{
+    opacity: 0;
+    transition: opacity 0.16s, r 0.16s;
+    r: 19px!important;
+}
+
+g.p-n[constrained=true]>circle.constrain-ring{
+    r: 13px!important;
+    opacity: 1;
+}
+
+g.p-n>circle.node{
+    transition: r 0.16s;
+}
+
+g.p-n[constrained=true]>circle.node {
+    r: 10px!important;
+}
+
+g.p-n[aliased=true]>text.alias{
+    opacity: 1;
+    visibility: visible;
+}
+
+
+g.p-n>circle.selection {
+    stroke-width: 2px;
+    fill: #e1e2e5;
+    opacity: 0;
+    transition: opacity 0.16s, r 0.16s;
+    r: 12px;
+    mix-blend-mode: multiply;
+}
+
+g.p-n:hover>circle.selection {
+    opacity: 0.4;
+    r: 16px;
+}
+
+g.p-n[focused=true]:hover>circle.selection {
+    opacity: 1;
+    r: 18px;
+}
+
+g.p-n[focused=true]>circle.selection {
+    opacity: 1;
+    r: 18px;
+}
+
+g.p-n{
+    cursor: pointer;
+}

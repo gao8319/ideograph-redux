@@ -1,0 +1,4 @@
+.general-tooltip{color:#fff;display:inline-flex;align-items:center}
+.general-tooltip>code{font-family:var(--mono-font);background-color:#313030;border-radius:2px;display:inline-block;padding:2px 4px;margin:0 0 0 4px}
+.general-tooltip>.keyboard-shortcut{color:#636568;display:inline-flex;align-items:center;margin-left:16px;font-feature-settings:'ss02' 1}
+.general-tooltip>.keyboard-shortcut>svg{color:#636568;margin:0;display:inline-flex;align-items:center}

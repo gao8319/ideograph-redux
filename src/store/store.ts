@@ -2,14 +2,14 @@ import { configureStore } from '@reduxjs/toolkit'
 import constraintSlice from './slice/constraintSlicer'
 import nodeSlice from './slice/nodeSlicer'
 import edgeSlice from './slice/edgeSlicer'
-import modelSlice from './slice/modelSlicer'
+import workspaceSlice from './slice/modelSlicer'
 
 export const store = configureStore({
     reducer: {
         nodes: nodeSlice,
         edges: edgeSlice,
         constraints: constraintSlice,
-        model: modelSlice
+        workspace: workspaceSlice
     },
 })
 

@@ -1,5 +1,4 @@
-import { useState } from 'react'
-import logo from './logo.svg'
+import { useRef, useState } from 'react'
 import './App.css'
 import { useAppDispatch, useAppSelector } from './store/hooks'
 
@@ -10,12 +9,22 @@ import { ComparisonOperator } from './utils/common/operator';
 import { addConstraint } from './store/slice/constraintSlicer';
 import { askGraphModel } from './utils/AskGraph';
 import { convertAskGraphOntModel } from './utils/AskGraphConverter';
+import { WorkspaceHeader } from './components/WorkspaceHeader/WorkspaceHeader';
+import { usePatternGraphEngine } from './engine/hook';
+import { editModeSelector, modelSelector, setEditMode } from './store/slice/modelSlicer';
+import { useIdeographShortcuts } from './utils/useIdeographShortcuts';
 
 convertAskGraphOntModel(askGraphModel);
 
 function App() {
 
     const dispatch = useAppDispatch();
+    const model = useAppSelector(modelSelector);
+    const editMode = useAppSelector(editModeSelector);
+
+
+    useIdeographShortcuts();
+
     const nodes = useAppSelector(nodesSelectors.selectAll);
 
     const addNewNode = () => {
@@ -48,20 +57,16 @@ function App() {
         }))
     }
 
+    const divContainerRef = useRef<HTMLDivElement>(null);
+
+
     return (
-        <div>
-            <button onClick={addNewNode}>
-                addNewNode
-            </button>
-
-            {/* <button onClick={addNewEdge}>
-                addNewEdge
-            </button> */}
-
-            {nodes.length > 0 && <button onClick={_ => addNewConstraint(nodes[0].id)}>
-                addNewConstraint
-            </button>}
-        </div>
+        <>
+            <WorkspaceHeader />
+            <div className='workspace-container'>
+                <div ref={divContainerRef} style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: '100%' }} />
+            </div>
+        </>
     )
 }
 
