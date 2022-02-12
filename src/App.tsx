@@ -1,10 +1,9 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import './App.css'
 import { useAppDispatch, useAppSelector } from './store/hooks'
 
 import { nanoid } from '@reduxjs/toolkit';
 import { addNode, nodesSelectors } from './store/slice/nodeSlicer';
-import { ConstrainableElement } from './utils/common/graph';
 import { ComparisonOperator } from './utils/common/operator';
 import { addConstraint } from './store/slice/constraintSlicer';
 import { askGraphModel } from './utils/AskGraph';
@@ -16,6 +15,10 @@ import { useIdeographShortcuts } from './utils/useIdeographShortcuts';
 import { ConceptPanel } from './components/Panels/ConceptPanel/ConceptPanel';
 import { PropertyPanel } from './components/Panels/PropertyPanel/PropertyPanel';
 import { GlobalPanel } from './components/Panels/GlobalPanel/GlobalPanel';
+import React from 'react';
+import { PatternGraphEngine } from './engine/PatternGraphEngine';
+import { usePatternEngine } from './utils/usePatternEngine';
+import { CommonModel } from './utils/common/model';
 
 function App() {
     const dispatch = useAppDispatch();
@@ -24,49 +27,17 @@ function App() {
     const workspace = useAppSelector(workspaceSelector);
 
     useIdeographShortcuts();
-
-    const nodes = useAppSelector(nodesSelectors.selectAll);
-
-    const addNewNode = () => {
-        dispatch(addNode({
-            id: nanoid(),
-            position: { x: 0, y: 0 },
-            constraints: [],
-        }))
-    }
-
-    // const addNewEdge = () => {
-    //     dispatch(addEdge({
-    //         id: nanoid(),
-    //         from: '',
-    //         to: '',
-    //         constraints: [],
-    //         direction: EdgeDirection.Specified,
-    //     }))
-    // }
-
-    const addNewConstraint = (targetId: string) => {
-        dispatch(addConstraint({
-            id: nanoid(),
-            targetId,
-            targetType: ConstrainableElement.Node,
-            operator: ComparisonOperator.Equal,
-            expression: '',
-            value: 30,
-            position: { x: 0, y: 0 }
-        }))
-    }
-
-    const divContainerRef = useRef<HTMLDivElement>(null);
+    const { containerRef, engineRef } = usePatternEngine(
+        CommonModel.deserializeFromObject(model),
+        [model]
+    );
 
 
     return (
         <>
             <WorkspaceHeader />
             <div className='workspace-container'>
-
-                <div ref={divContainerRef} style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: '100%' }} />
-
+                <div ref={containerRef} className="engine-root-container" />
 
                 <ConceptPanel />
                 <PropertyPanel />

@@ -1,7 +1,5 @@
-import { Schema, SomeJTDSchemaType } from 'ajv/dist/core';
 import { ColorSlot } from '../visual/ColorSlot';
 import { PrimitiveTypeName } from './Constraints';
-import { IOntologyModel } from './OntologyModel';
 
 
 export interface ISchemaProperty {

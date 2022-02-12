@@ -5,9 +5,10 @@ import './ConceptPanel.css'
 import '../common/PanelCommon.css'
 import Draggable from 'react-draggable';
 import { ConceptPanelContent } from "./ConceptPanelContent";
+import { CommonModel } from "../../../utils/common/model";
 
 interface IConceptPanelProps {
-
+    
 }
 
 const resizeBound = { left: LEFT_MIN, right: LEFT_MAX }

@@ -1,9 +1,14 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { EditMode } from "../../engine/visual/EditMode";
+import { VisualElementType } from "../../engine/visual/VisualElement";
 import { askGraphModel } from "../../utils/AskGraph";
 import { convertAskGraphOntModel } from "../../utils/AskGraphConverter";
+import { IPatternEdge, IPatternNode } from "../../utils/common/graph";
 import { CommonModel } from "../../utils/common/model";
 import { RootState } from "../store";
+import { constraintsSelectors } from "./constraintSlicer";
+import { edgesSelectors } from "./edgeSlicer";
+import { nodesSelectors } from "./nodeSlicer";
 
 export const LEFT_DEFAULT = 320;
 export const LEFT_MIN = 200;
@@ -19,6 +24,14 @@ export const BOTTOM_DEFAULT = 420;
 export const BOTTOM_MIN = 360;
 export const BOTTOM_MAX = 720;
 
+type FocusElementPayload = {
+    type: VisualElementType.Edge,
+    payload: IPatternEdge,
+} | {
+    type: VisualElementType.Node,
+    payload: IPatternNode,
+}
+
 type WorkspaceState = {
     model: CommonModel.ISerializedRoot,
     editMode: EditMode,
@@ -30,6 +43,9 @@ type WorkspaceState = {
     leftPanelWidth: number,
     rightPanelWidth: number,
     bottomPanelHeight: number,
+
+    focusElement?: FocusElementPayload,
+    editPayload?: string | number
 }
 
 const initialState: WorkspaceState = {
@@ -83,7 +99,28 @@ const workspaceSlicer = createSlice({
             if (action.payload <= BOTTOM_MAX && action.payload >= BOTTOM_MIN)
                 state.bottomPanelHeight = action.payload
         },
-
+        // setEdgeFocused(state, action: PayloadAction<IPatternEdge>) {
+        //     state.focusElement = {
+        //         type: VisualElementType.Edge,
+        //         payload: action.payload
+        //     }
+        // },
+        // setNodeFocused(state, action: PayloadAction<IPatternNode>) {
+        //     state.focusElement = {
+        //         type: VisualElementType.Node,
+        //         payload: action.payload,
+        //     }
+        // },
+        // setNothingFocused(state) {
+        //     state.focusElement = undefined;
+        // },
+        setFocus(state, action: PayloadAction<FocusElementPayload | undefined>) {
+            state.focusElement = action.payload;
+        },
+        setEditModeWithPayload(state, action: PayloadAction<{ editMode: EditMode, payload: string | number | undefined }>) {
+            state.editMode = action.payload.editMode;
+            state.editPayload = action.payload.payload;
+        }
     }
 })
 
@@ -98,6 +135,8 @@ export const {
     setRightPanelWidth,
     setLeftPanelWidth,
     setBottomPanelHeight,
+    setFocus,
+    setEditModeWithPayload
 } = workspaceSlicer.actions;
 
 export const modelSelector = (state: RootState) => state.workspace.model
@@ -108,6 +147,33 @@ export const lastModifiedTimeSelector = (state: RootState) => state.workspace.la
 export const leftPanelWidthSelector = (state: RootState) => state.workspace.leftPanelWidth
 export const rightPanelWidthSelector = (state: RootState) => state.workspace.rightPanelWidth
 export const bottomPanelHeightSelector = (state: RootState) => state.workspace.bottomPanelHeight
+export const _focusElementSelector = (state: RootState) => state.workspace.focusElement
+
+export const focusElementSelector = createSelector(
+    nodesSelectors.selectEntities,
+    edgesSelectors.selectEntities,
+    _focusElementSelector,
+    (nodes, edges, fe) => {
+        if (fe?.type === VisualElementType.Node) {
+            return { ...nodes[fe.payload.id], type: VisualElementType.Node }
+        }
+        else if (fe?.type === VisualElementType.Edge) {
+            return { ...edges[fe.payload.id], type: VisualElementType.Edge }
+        }
+        else return undefined
+    }
+)
+
+
+export const elementConstraintsSelector = createSelector(
+    constraintsSelectors.selectAll,
+    _focusElementSelector,
+    (constraints, fe) => {
+        return constraints.filter(c => c.targetId === fe?.payload.id)
+    }
+)
+
+export const editPayloadSelector = (state: RootState) => state.workspace.editPayload
 
 export const workspaceSelector = (state: RootState) => state.workspace
 

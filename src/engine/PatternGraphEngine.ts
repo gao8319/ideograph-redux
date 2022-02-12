@@ -10,12 +10,14 @@ import { PatternNode } from "./visual/PatternNode";
 import { PatternEdge } from "./visual/PatternEdge";
 import { Arrow } from "./elements/Arrow";
 import { nanoid } from "@reduxjs/toolkit";
+import { CommonModel } from "../utils/common/model";
+import { IConstraint, IPatternEdge, IPatternNode } from "../utils/common/graph";
+import { isNotEmpty } from "../utils/common/utils";
 
 export class PatternGraphEngine {
 
     // TODO: Inject History Manager
-    public readonly model: IOntologyModel
-    public readonly coloredModel: Record<string, ColoredOntologyClass>
+    public readonly model: CommonModel.Root
     // public colorSlots: Record<string, ColorSlot>
 
     private _editMode = EditMode.Default;
@@ -32,7 +34,7 @@ export class PatternGraphEngine {
         this.nodeIndicator = undefined;
         this.connectionIndicator = undefined;
     }
-    public editPayload: string | null = null
+    public editPayload: string | number | null = null
 
 
     public renderContainer: HTMLDivElement
@@ -61,16 +63,17 @@ export class PatternGraphEngine {
         this._focusedElement = e;
     }
 
-    constructor(model: IOntologyModel, container: HTMLDivElement) {
+
+    private _onNodeCreatedCallback?: (n: IPatternNode) => void;
+    private _onEdgeCreatedCallback?: (e: IPatternEdge) => void;
+    private _onConstraintCreatedCallback?: (c: IConstraint) => void;
+    public setOnNodeCreatedCallback = (cb: typeof this._onNodeCreatedCallback) => { this._onNodeCreatedCallback = cb; }
+    public setOnEdgeCreatedCallback = (cb: typeof this._onEdgeCreatedCallback) => { this._onEdgeCreatedCallback = cb; }
+    public setOnConstraintCreatedCallback = (cb: typeof this._onConstraintCreatedCallback) => { this._onConstraintCreatedCallback = cb; }
+
+
+    constructor(model: CommonModel.Root, container: HTMLDivElement) {
         this.model = model;
-        this.coloredModel = Object.fromEntries(flattenOntologyTree(model).map(
-            (it, index) => [it.className, { ...it, colorSlot: new ColorSlot(figmaColorScheme[index]) }]
-        ));
-        // this.colorSlots = Object.fromEntries(
-        //     this.flattenedModel.map(
-        //         (it, index) => [it.className, new ColorSlot(figmaColorScheme[index])]
-        //     )
-        // );
         this.renderContainer = container;
         this.svgLayer = d3.select(container)
             .append('svg')
@@ -119,13 +122,13 @@ export class PatternGraphEngine {
                 break;
             }
             case EditMode.CreatingNode: {
-                if (!this.editPayload) {
+                if (!isNotEmpty(this.editPayload)) {
                     // Clear up works
                     this.nodeIndicator?.remove();
                     this.nodeIndicator = undefined;
                 }
                 else {
-                    const targetColorSet = this.coloredModel[this.editPayload].colorSlot ?? { primary: '#b0b1b4' };
+                    const targetColorSet = this.model.colorSlots[this.editPayload!].colorSlot ?? { primary: '#b0b1b4' };
                     this.mouseIndicatorLayer?.attr('transform', `translate(${ev.offsetX}, ${ev.offsetY})`)
                     if (!this.nodeIndicator) {
                         this.nodeIndicator = this.mouseIndicatorLayer
@@ -141,15 +144,15 @@ export class PatternGraphEngine {
                 }
                 break;
             }
-            case EditMode.CreatingEgdeFrom: {
+            case EditMode.CreatingEdgeFrom: {
                 break;
             }
-            case EditMode.CreatingEgdeTo: {
+            case EditMode.CreatingEdgeTo: {
                 if (!this.mouseIndicatorLayer) break;
-                if (this.createEdgeFrom) {
+                if (isNotEmpty(this.createEdgeFrom)) {
                     if (this.mouseHoveringAtNode) {
                         const newArrow = new Arrow(
-                            this.createEdgeFrom.logicPosition,
+                            this.createEdgeFrom!.logicPosition,
                             this.mouseHoveringAtNode.logicPosition,
                             18, true);
                         if (!this.connectionIndicator) {
@@ -167,7 +170,7 @@ export class PatternGraphEngine {
                     else {
                         if (!this.connectionIndicator) {
                             this.connectionIndicator = new Arrow(
-                                this.createEdgeFrom.logicPosition,
+                                this.createEdgeFrom!.logicPosition,
                                 { x: ev.offsetX, y: ev.offsetY },
                                 18, false);
                             this.connectionIndicator.attachTo(this.mouseIndicatorLayer)
@@ -202,14 +205,16 @@ export class PatternGraphEngine {
                 break;
             }
             case EditMode.CreatingNode: {
-                if (this.editPayload) {
-                    const oc = this.coloredModel[this.editPayload];
+                if (isNotEmpty(this.editPayload)) {
+                    const oc = this.model.colorSlots[this.editPayload!];
                     if (oc) {
+                        
                         const n = new PatternNode(
                             oc,
                             { x: ev.offsetX, y: ev.offsetY },
                             nanoid()
                         )
+                        this._onNodeCreatedCallback?.(n.asObject())
                         n.attachTo(this.coreLayer);
                         setTimeout(
                             () => {
@@ -235,13 +240,13 @@ export class PatternGraphEngine {
                 }
                 break;
             }
-            case EditMode.CreatingEgdeFrom: {
+            case EditMode.CreatingEdgeFrom: {
                 this.focusedElement = null;
                 break;
             }
-            case EditMode.CreatingEgdeTo: {
+            case EditMode.CreatingEdgeTo: {
                 this.focusedElement = null;
-                this.editMode = EditMode.CreatingEgdeFrom;
+                this.editMode = EditMode.CreatingEdgeFrom;
                 break;
             }
             default: {
@@ -254,19 +259,20 @@ export class PatternGraphEngine {
     private createEdgeFrom: PatternNode | null = null;
     private onNodeClick = (n: PatternNode, ev: MouseEvent) => {
         // console.log(this.editMode, this.createEdgeFrom);
-        if (this.editMode === EditMode.CreatingEgdeFrom) {
+        if (this.editMode === EditMode.CreatingEdgeFrom) {
             this.createEdgeFrom = n;
             this.focusedElement = n;
-            this.editMode = EditMode.CreatingEgdeTo;
+            this.editMode = EditMode.CreatingEdgeTo;
         }
-        else if (this.editMode === EditMode.CreatingEgdeTo) {
-            if (this.createEdgeFrom) {
+        else if (this.editMode === EditMode.CreatingEdgeTo) {
+            if (isNotEmpty(this.createEdgeFrom)) {
                 const e = new PatternEdge(
-                    this.createEdgeFrom,
+                    this.createEdgeFrom!,
                     n,
                     true,
                     nanoid()
                 )
+                this._onEdgeCreatedCallback?.(e.asObject())
                 e.attachTo(this.coreLayer);
                 e.on('click', clickEvent => {
                     this.onEdgeClick(e, clickEvent)
@@ -279,7 +285,7 @@ export class PatternGraphEngine {
             }
             this.createEdgeFrom = null;
             this.mouseHoveringAtNode = null;
-            this.editMode = EditMode.CreatingEgdeFrom;
+            this.editMode = EditMode.CreatingEdgeFrom;
         }
         else {
             this.focusedElement = n;
@@ -290,12 +296,12 @@ export class PatternGraphEngine {
 
     private mouseHoveringAtNode: PatternNode | null = null;
     private onNodePointerEnter = (n: PatternNode, ev: PointerEvent) => {
-        if (this.editMode === EditMode.CreatingEgdeTo && this.createEdgeFrom) {
+        if (this.editMode === EditMode.CreatingEdgeTo && this.createEdgeFrom) {
             this.mouseHoveringAtNode = n
         }
     }
     private onNodePointerLeave = (n: PatternNode, ev: PointerEvent) => {
-        if (this.editMode === EditMode.CreatingEgdeTo && this.createEdgeFrom) {
+        if (this.editMode === EditMode.CreatingEdgeTo && this.createEdgeFrom) {
             this.mouseHoveringAtNode = null
         }
     }
@@ -305,7 +311,7 @@ export class PatternGraphEngine {
     private onEdgeClick = (e: PatternEdge, ev: MouseEvent) => {
         if (this.editMode >= 2) {
             this.createEdgeFrom = null;
-            this.editMode = EditMode.CreatingEgdeFrom;
+            this.editMode = EditMode.CreatingEdgeFrom;
         }
         this.focusedElement = e;
         ev.stopPropagation();

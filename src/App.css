@@ -72,3 +72,7 @@ body {
               user-select: none; /* Non-prefixed version, currently
                                     supported by Chrome and Opera */
 }
+
+.engine-root-container {
+    position:absolute; left:0px; top:0px; height:100%; width:100%;
+}

@@ -1,3 +1,4 @@
+import { EdgeDirection, IPatternEdge } from "../../utils/common/graph";
 import { IVector } from "../../utils/common/layout";
 import { Arrow } from "../elements/Arrow";
 import { PatternNode } from "./PatternNode";
@@ -86,4 +87,14 @@ export class PatternEdge implements IFocusableElement<VisualElementType.Edge> {
         this._isFocused = false;
     }
     public get isFocused() { return this._isFocused }
+
+    public asObject(): IPatternEdge {
+        return {
+            id: this.uuid,
+            from: this.from.uuid,
+            to: this.to.uuid,
+            direction: this.isDirected ? EdgeDirection.Specified : EdgeDirection.Unspecified,
+            constraints: []
+        }
+    }
 }

@@ -1,9 +1,10 @@
 import { IFocusableElement, IVisualElement, VisualElementType } from "./VisualElement";
 import './PatternNode.css'
 import { PatternEdge } from "./PatternEdge";
-import { ColoredOntologyClass, IOntologyClass } from "../ontology/OntologyClass";
 import { IPoint } from "../../utils/common/layout";
 import { Constraint, PrimitiveTypeName } from '../ontology/Constraints'
+import { CommonModel } from "../../utils/common/model";
+import { IPatternNode } from "../../utils/common/graph";
 
 interface RenderElements {
     root: D3<SVGGElement>;
@@ -19,7 +20,7 @@ export class PatternNode implements IFocusableElement<VisualElementType.Node> {
     // public constraints: PatternConstraint[] = []
     public connections: PatternEdge[] = []
     public alias?: string
-    public ontologyClass: ColoredOntologyClass
+    public ontologyClass: CommonModel.IColoredClass
     public readonly uuid: string
     public logicPosition: IPoint
 
@@ -28,7 +29,7 @@ export class PatternNode implements IFocusableElement<VisualElementType.Node> {
     protected renderElements?: RenderElements
 
     constructor(
-        ontologyClass: ColoredOntologyClass,
+        ontologyClass: CommonModel.IColoredClass,
         position: IPoint,
         id: string
     ) {
@@ -67,7 +68,7 @@ export class PatternNode implements IFocusableElement<VisualElementType.Node> {
         const aliasText = elementGroup.append('text')
             .attr('class', 'alias')
             .attr('fill', this.ontologyClass.colorSlot.foreground)
-            .text(this.ontologyClass?.className[0] ?? '?')
+            .text(this.ontologyClass?.name[0] ?? '?')
 
         this.renderElements = {
             root: elementGroup,
@@ -137,5 +138,15 @@ export class PatternNode implements IFocusableElement<VisualElementType.Node> {
 
     public getAllConstraints() {
         return this.constraints;
+    }
+
+
+    public asObject(): IPatternNode {
+        return {
+            id: this.uuid,
+            constraints: [],
+            position: this.logicPosition,
+            classId: this.ontologyClass.id,
+        }
     }
 }

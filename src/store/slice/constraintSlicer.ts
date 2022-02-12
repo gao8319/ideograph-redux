@@ -2,10 +2,11 @@ import {
     createEntityAdapter,
     createSlice,
 } from '@reduxjs/toolkit'
-import { ConstrainableElement, IConstraint, IPatternConstraint, IPatternEdge, IPatternNode } from '../../utils/common/graph'
+import { VisualElementType } from '../../engine/visual/VisualElement'
+import { IConstraint, IPatternEdge, IPatternNode } from '../../utils/common/graph'
 import { RootState } from '../store'
 
-const constraintsAdapter = createEntityAdapter<IPatternConstraint<ConstrainableElement>>({
+const constraintsAdapter = createEntityAdapter<IConstraint>({
     selectId: c => c.id
 })
 

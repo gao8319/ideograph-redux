@@ -1,6 +1,8 @@
+import { VisualElementType } from "../../engine/visual/VisualElement"
 import { PrimitiveType } from "./data"
 import { IPoint } from "./layout"
-import { Operator } from "./operator"
+import { CommonModel } from "./model"
+import { ComparisonOperator, Operator } from "./operator"
 
 type NodeID = string
 type EdgeID = string
@@ -13,15 +15,12 @@ export enum EdgeDirection {
     Unspecified = 1,
 }
 
-export enum ConstrainableElement {
-    Node,
-    Edge,
-}
-
 export interface IPatternNode {
     id: NodeID,
     constraints: ConstraintID[],
     position: IPoint,
+
+    classId: CommonModel.IClass['id'],
 }
 
 export interface IPatternEdge {
@@ -32,21 +31,28 @@ export interface IPatternEdge {
     constraints: ConstraintID[],
 }
 
-export interface IConstraint {
+export type IConstraint = {
     id: ConstraintID,
-    targetType: ConstrainableElement
-}
-
-export interface IPatternConstraint<T extends ConstrainableElement> extends IConstraint {
-
-    targetType: T,
-    targetId: T extends ConstrainableElement.Node ? NodeID
-    : T extends ConstrainableElement.Edge ? EdgeID
-    : never,
-
     expression: string,
-    operator: Operator,
+    operator: ComparisonOperator,
     value: PrimitiveType,
-
-    position: IPoint,
+    position?: IPoint,
+    targetType: VisualElementType,
+    targetId: string,
 }
+
+
+
+// export interface IPatternConstraint<T extends VisualElementType> extends IConstraint {
+
+//     targetType: T,
+//     targetId: T extends VisualElementType.Node ? NodeID
+//     : T extends VisualElementType.Edge ? EdgeID
+//     : never,
+
+//     expression: string,
+//     operator: ComparisonOperator,
+//     value: PrimitiveType,
+
+//     position: IPoint,
+// }

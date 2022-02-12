@@ -22,7 +22,7 @@ export enum OntologyEdgeType {
 
 export namespace CommonModel {
 
-    type IdType = PropertyKey
+    type IdType = Exclude<PropertyKey, symbol>
 
     interface IIdentifiable {
         id: IdType,
@@ -42,6 +42,10 @@ export namespace CommonModel {
         properties: IProperty[],
         parent?: IdType,
         children?: IdType[],
+    }
+
+    export type IColoredClass = IClass & {
+        colorSlot: ColorSlot,
     }
 
     // export interface IClassTreeLike extends IIdentifiable, INamable {
@@ -67,7 +71,7 @@ export namespace CommonModel {
         public readonly relations: IRelation[];
 
         public connectable: Record<IdType, { to: IdType[], from: IdType[] }>;
-        public colorSlots: Record<IdType, { colorSlot: ColorSlot, item: IClass }>;
+        public colorSlots: Record<IdType, IColoredClass>;
 
         constructor(name: string, classes: IClass[], relations: IRelation[]) {
 
@@ -92,7 +96,7 @@ export namespace CommonModel {
             )
 
             this.colorSlots = Object.fromEntries(classes.map(
-                (c, index) => [c.id, { colorSlot: new ColorSlot(figmaColorScheme[index]), item: c }]
+                (c, index) => [c.id, { colorSlot: new ColorSlot(figmaColorScheme[index]), ...c }]
             ))
         }
 
@@ -105,7 +109,7 @@ export namespace CommonModel {
             this.classes.forEach(
                 c => {
                     if (c.parent !== undefined && c.parent !== null) {
-                        const p = this.colorSlots[String(c.parent)].item
+                        const p = this.colorSlots[String(c.parent)]
                         p && disjointSet.union(p, c)
                     }
                 }

@@ -1,3 +1,5 @@
+import _ from "lodash"
+
 type ILinkedTree<T> = {
     children?: ILinkedTree<T>[],
     // parent: ITree<T>,
@@ -19,10 +21,9 @@ export const flattenTree = <T>(node: ILinkedTree<T>): T[] => {
 }
 
 // assuming the first is the root
-const attachNode = <T, K extends PropertyKey>
-    (node: IIdentifiableTree<T, K>, nodeDict: Record<PropertyKey, T>)
-    : ILinkedTree<T> => {
-    const n: ILinkedTree<T> = { ...node, children: (node).children?.map(id => nodeDict[id]) }
+export const attachNode = <T, K extends PropertyKey>
+    (node: IIdentifiableTree<T, K>, nodeDict: Record<PropertyKey, T>) : ILinkedTree<T> => {
+    const n: ILinkedTree<T> = { ...node, children: (node).children?.map(id => nodeDict[id]) };
     return n;
 }
 
@@ -35,3 +36,5 @@ const buildTree = <T, K extends PropertyKey>
     const n: ILinkedTree<T> = { ...nodes[0], children: (nodes[0]).children?.map(id => nodeDict[id]) }
     return n;
 }
+
+export const isNotEmpty = <T>(value: T | null | undefined) => (value !== null) && (value !== undefined)

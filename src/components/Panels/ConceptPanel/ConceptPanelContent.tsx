@@ -3,8 +3,8 @@ import { CommandBarButton } from "@fluentui/react";
 import { useMemo } from "react";
 import { ColorSlot } from "../../../engine/visual/ColorSlot";
 import { EditMode } from "../../../engine/visual/EditMode";
-import { useAppSelector } from "../../../store/hooks";
-import { editModeSelector, modelSelector, projectNameSelector, workspaceNameSelector } from "../../../store/slice/modelSlicer";
+import { useAppDispatch, useAppSelector } from "../../../store/hooks";
+import { editModeSelector, modelSelector, projectNameSelector, setEditModeWithPayload, workspaceNameSelector } from "../../../store/slice/modelSlicer";
 import { CommonModel } from "../../../utils/common/model";
 import { PanelTitle } from "../common/PanelTitle";
 
@@ -16,8 +16,8 @@ const editModeMap = {
 }
 
 interface IPatternNodeItemProps {
-    item: CommonModel.IClass,
-    colorSlot: ColorSlot,
+    item: CommonModel.IColoredClass,
+    onClick?: React.MouseEventHandler<HTMLDivElement>
 }
 
 const PatternNodeItem = (props: IPatternNodeItemProps) => {
@@ -31,7 +31,7 @@ const PatternNodeItem = (props: IPatternNodeItemProps) => {
             fontSize: 14,
             cursor: 'pointer',
         }}
-        // onClick={_ => props.onCreateNodePattern(o.className)}
+        onClick={props.onClick}
         key={props.item.name}
     >
         <span style={{
@@ -44,7 +44,7 @@ const PatternNodeItem = (props: IPatternNodeItemProps) => {
                 <ChevronDown16 />
             </CommandBarButton>
             <svg width={24} height={40}>
-                <circle cx={8} cy={20} r={8} fill={props.colorSlot.primary} />
+                <circle cx={8} cy={20} r={8} fill={props.item.colorSlot.primary} />
             </svg>
             {props.item.name}
         </span>
@@ -55,8 +55,8 @@ const PatternNodeItem = (props: IPatternNodeItemProps) => {
 }
 
 export const ConceptPanelContent = () => {
+    const dispatch = useAppDispatch();
     const editMode = useAppSelector(editModeSelector);
-
     const modelObject = useAppSelector(modelSelector);
     const modelTree = useMemo(
         () => {
@@ -64,7 +64,7 @@ export const ConceptPanelContent = () => {
             const item = model.colorSlots
             return Object.values(item)
         }, [modelObject]
-    )
+    );
 
     return <div>
         <PanelTitle text={editModeMap[editMode]} />
@@ -72,7 +72,13 @@ export const ConceptPanelContent = () => {
         {editMode === EditMode.CreatingNode && <div>
             {
                 modelTree.map(
-                    m => <PatternNodeItem {...m} />
+                    m => <PatternNodeItem item={m} onClick={
+                        ev => {
+                            dispatch(setEditModeWithPayload(
+                                { editMode: EditMode.CreatingNode, payload: m.id }
+                            ))
+                        }
+                    } />
                 )
             }
         </div>}

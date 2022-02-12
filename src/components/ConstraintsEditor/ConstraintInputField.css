@@ -1,0 +1,81 @@
+.constraint-input-root{
+    border: 1px solid #e1e2e5;
+    /* box-sizing: border-box; */
+    display: grid;
+    grid-template-columns: 1fr 24px 1fr;
+    column-gap: 4px;
+    height: 32px;
+    font-family: var(--font);
+    font-size: 10px;
+    box-sizing: border-box;
+    padding: 0 8px;
+    border-radius: 4px;
+}
+
+.constraint-input-root.mono{
+    font-family: var(--mono-font);
+    /* font-size: 10px; */
+}
+
+.constraint-input-root:hover, .constraint-input-root.input-activated{
+    border: 1px solid rgb(24, 106, 239);
+}
+
+.constraint-input-root.menu-revealed {
+    border-radius: 4px 4px 0 0;
+}
+
+
+.constraint-intellisense-button {
+    width: 100%;
+    cursor: default;
+    height: 28px;
+    align-items: center;
+    padding: 0 9px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.constraint-intellisense-button:hover {
+    background-color: rgb(24, 106, 239);
+    color: #fff;
+}
+.constraint-intellisense-button:hover>.shimmed {
+    color: #20222a!important;
+    opacity: 0.6!important;
+}
+
+.hint-root{
+    max-height: 300px;
+    overflow: 'auto';
+    font-size: 14;
+    padding: 8px 0;
+    border-top: none;
+    overflow: auto;
+    background: #20222a;
+    color: #fff;
+    left: 0;
+    top: 32px;
+    z-index: 9999;
+    font-size: 14px;
+    box-shadow: rgba(0, 0, 0, 0.133) 0px 6.390625px 14px 0px, rgba(0, 0, 0, 0.11) 0px 1.1875px 3px 0px;
+}
+
+.contextual-menu-item{
+    width: 100%;
+    cursor: default;
+    height: 28px;
+    align-items: center;
+    padding: 0 8px;
+    display: flex;
+    justify-content: space-between;
+    color: #fff;
+}
+
+.contextual-menu-item:hover, .contextual-menu-item:active{
+    color: #fff;
+    background-color: rgb(24, 106, 239);
+    display: flex;
+    justify-content: space-between;
+}
+
