@@ -10,6 +10,7 @@ import { edgesSelectors } from '../../store/slice/edgeSlicer';
 import { applyQuery, editModeSelector, exportToJson, inspectGeneratedCode, lastModifiedTimeSelector, projectNameSelector, setEditMode, setWorkspaceName, workspaceNameSelector } from '../../store/slice/modelSlicer';
 import { nodesSelectors } from '../../store/slice/nodeSlicer';
 import { dateFormatterPrecised } from '../../utils/common/date';
+import { pangu } from '../../utils/common/pangu';
 import { ContextualCallout } from '../ContextualCallout/ContextualCallout';
 import { SpacedText } from '../SpacedSpan';
 import { AddNode20 } from './AddNodeCommand';
@@ -30,7 +31,7 @@ export interface IWorkspaceHeaderProps {
     // setEditMode?: (em: EditMode) => void,
 }
 
-const statisticPillStyle: React.CSSProperties = { backgroundColor: 'var(--primary)', padding: '2px 4px', borderRadius: 2, color: '#000' }
+const statisticPillStyle: React.CSSProperties = { backgroundColor: 'var(--grey700)', padding: '2px 4px', borderRadius: 2, color: '#000' }
 
 export const WorkspaceHeader = (props: IWorkspaceHeaderProps) => {
     // const [workspaceName, setWorkspaceHeader] = useState<string>(props.profile.name);

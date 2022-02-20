@@ -30,7 +30,7 @@ export const GlobalPanel = (props: IGlobalPanelProps) => {
             return <GlobalPanelContent />
         }, [])
 
-    return <div className="global-panel-root"
+    return <div className="global-panel-root panel"
         ref={rootRef}
         style={{ height: height, left: left, width: `calc(100% - ${right + left}px)` }}>
         {content}

@@ -76,3 +76,7 @@ body {
 .engine-root-container {
     position:absolute; left:0px; top:0px; height:100%; width:100%;
 }
+
+.panel {
+    /* padding-top: 4px; */
+}

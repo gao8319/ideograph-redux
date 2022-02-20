@@ -37,10 +37,10 @@ export const ConstraintsEditor = (props: IConstraintsEditorProps) => {
         <Dropdown options={typeOperators}
             calloutProps={{
                 theme: ideographMonoTheme,
-                styles: { root: { fontFamily: 'JetBrains Mono', fontFeatureSettings: '"liga" 1' } }
+                styles: { root: { fontFamily: 'var(--mono-font)', fontFeatureSettings: '"liga" 1' } }
             }}
             styles={{
-                root: { minWidth: 0, fontFamily: 'JetBrains Mono', fontFeatureSettings: '"liga" 1', border: 'none' },
+                root: { minWidth: 0, fontFamily: 'var(--mono-font)', fontFeatureSettings: '"liga" 1', border: 'none' },
                 title: { border: 'none' }
             }}
             theme={ideographMonoTheme}

@@ -27,7 +27,7 @@ export const PropertyPanel = (props: IPropertyPanelProps) => {
             return <PropertyPanelContent />
         }, [])
 
-    return <div className="property-panel-root" ref={rootRef} style={{ width: width }}>
+    return <div className="property-panel-root panel" ref={rootRef} style={{ width: width }}>
         {content}
         <Draggable axis="x"
             onDrag={(ev, d) => {

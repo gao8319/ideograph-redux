@@ -1,0 +1,73 @@
+.general-input-root {
+    width: 100%;
+    cursor: default;
+    height: 28px;
+    align-items: center;
+    padding: 0 8px;
+    display: flex;
+    /* justify-content: space-between; */
+    color: #fff;
+    -webkit-line-clamp: 1;
+}
+
+.general-input-dropdown {
+    display: grid;
+    grid-template-columns: 32px 1fr 32px;
+    -webkit-line-clamp: 1;
+}
+
+.general-input-root:hover, .general-input-root:active{
+    color: #fff;
+    background-color: rgb(24, 106, 239);
+}
+
+.general-input-option-selected {
+    background-color: #424346;
+}
+
+.hide-chevron:not(:hover)>svg>path {
+    fill: transparent;
+}
+
+.open-chevron>svg>path {
+    transform: rotate(90deg);
+    transform-origin: center;
+}
+
+
+.edge-class-opt{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width:100%;
+    height: 32px;
+}
+
+.edge-class-content {
+    display: grid;
+    align-items: center;
+    text-align: left;
+    font-size: 14px;
+    grid-template-columns: 20px auto auto 20px auto;
+}
+
+.edge-class-opt>svg>path{
+    transition: transform 0.2s;
+    
+}
+
+/* .edge-class-opt>div>div>svg>path{
+    stroke: #fff;
+} */
+.arrow-container {
+    padding: 0 0 0 8px;
+    display: flex;
+    align-items: center;
+}
+
+.arrow-svg>path {
+    stroke-width: 2px;
+    stroke: var(--grey700);
+    stroke-linecap:round;stroke-linejoin:round;
+    fill: none;
+}

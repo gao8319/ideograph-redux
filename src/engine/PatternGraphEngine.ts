@@ -13,6 +13,16 @@ import { nanoid } from "@reduxjs/toolkit";
 import { CommonModel } from "../utils/common/model";
 import { IConstraint, IPatternEdge, IPatternNode } from "../utils/common/graph";
 import { isNotEmpty } from "../utils/common/utils";
+import { Dictionary } from "lodash";
+
+
+export enum RaiseMessageType{
+    Error,
+    Warning,
+    Success,
+}
+
+export type RaiseMessageCallback = (message: string, type: RaiseMessageType, asInnerHtml?: boolean) => void;
 
 export class PatternGraphEngine {
 
@@ -67,12 +77,18 @@ export class PatternGraphEngine {
     private _onNodeCreatedCallback?: (n: IPatternNode) => void;
     private _onEdgeCreatedCallback?: (e: IPatternEdge) => void;
     private _onConstraintCreatedCallback?: (c: IConstraint) => void;
+    private _onRaiseMessageCallback?: RaiseMessageCallback;
     public setOnNodeCreatedCallback = (cb: typeof this._onNodeCreatedCallback) => { this._onNodeCreatedCallback = cb; }
     public setOnEdgeCreatedCallback = (cb: typeof this._onEdgeCreatedCallback) => { this._onEdgeCreatedCallback = cb; }
     public setOnConstraintCreatedCallback = (cb: typeof this._onConstraintCreatedCallback) => { this._onConstraintCreatedCallback = cb; }
+    public setRaiseMessageCallback = (cb: typeof this._onRaiseMessageCallback) => { this._onRaiseMessageCallback = cb; }
 
+
+    private nodeDict: Dictionary<PatternNode> = {};
+    private edgeDict: Dictionary<PatternEdge> = {};
 
     constructor(model: CommonModel.Root, container: HTMLDivElement) {
+        // debugger;
         this.model = model;
         this.renderContainer = container;
         this.svgLayer = d3.select(container)
@@ -145,12 +161,14 @@ export class PatternGraphEngine {
                 break;
             }
             case EditMode.CreatingEdgeFrom: {
+
                 break;
             }
             case EditMode.CreatingEdgeTo: {
                 if (!this.mouseIndicatorLayer) break;
+
                 if (isNotEmpty(this.createEdgeFrom)) {
-                    if (this.mouseHoveringAtNode) {
+                    if (this.mouseHoveringAtNode && !this.mouseHoveringAtNode.getDisabled()) {
                         const newArrow = new Arrow(
                             this.createEdgeFrom!.logicPosition,
                             this.mouseHoveringAtNode.logicPosition,
@@ -208,13 +226,15 @@ export class PatternGraphEngine {
                 if (isNotEmpty(this.editPayload)) {
                     const oc = this.model.colorSlots[this.editPayload!];
                     if (oc) {
-                        
+
                         const n = new PatternNode(
                             oc,
                             { x: ev.offsetX, y: ev.offsetY },
                             nanoid()
                         )
                         this._onNodeCreatedCallback?.(n.asObject())
+                        this.nodeDict[n.uuid] = n;
+
                         n.attachTo(this.coreLayer);
                         setTimeout(
                             () => {
@@ -242,9 +262,14 @@ export class PatternGraphEngine {
             }
             case EditMode.CreatingEdgeFrom: {
                 this.focusedElement = null;
+
                 break;
             }
             case EditMode.CreatingEdgeTo: {
+                Object.values(this.nodeDict).forEach(to => {
+                    to.setDisabled(false);
+                })
+                Object.values(this.edgeDict).forEach(_n => _n.setDisabled(false))
                 this.focusedElement = null;
                 this.editMode = EditMode.CreatingEdgeFrom;
                 break;
@@ -263,9 +288,39 @@ export class PatternGraphEngine {
             this.createEdgeFrom = n;
             this.focusedElement = n;
             this.editMode = EditMode.CreatingEdgeTo;
+
+            const createEdgeFromClassId = n.ontologyClass.id
+            Object.values(this.nodeDict).forEach(to => {
+                if (
+                    this.model.connectable[createEdgeFromClassId].to.includes(to.ontologyClass.id)
+                    || n.uuid === to.uuid
+                ) {
+                    to.setDisabled(false);
+                }
+                else {
+                    to.setDisabled(true);
+                }
+            })
+
+            Object.values(this.edgeDict).forEach(_n => _n.setDisabled(true))
         }
         else if (this.editMode === EditMode.CreatingEdgeTo) {
+
             if (isNotEmpty(this.createEdgeFrom)) {
+
+                if (n.getDisabled()) {
+                    // debugger;
+                    this._onRaiseMessageCallback?.(
+                        `无法添加从&thinsp;<b>${this.createEdgeFrom!.ontologyClass.name}</b>&thinsp;到&thinsp;<b>${n.ontologyClass.name}</b>&thinsp;的边约束`,
+                        RaiseMessageType.Error,
+                        true
+                    )
+                    return;
+                };
+
+                Object.values(this.nodeDict).forEach(_n => _n.setDisabled(false))
+                Object.values(this.edgeDict).forEach(_n => _n.setDisabled(false))
+
                 const e = new PatternEdge(
                     this.createEdgeFrom!,
                     n,
@@ -273,6 +328,8 @@ export class PatternGraphEngine {
                     nanoid()
                 )
                 this._onEdgeCreatedCallback?.(e.asObject())
+                this.edgeDict[e.uuid] = e;
+
                 e.attachTo(this.coreLayer);
                 e.on('click', clickEvent => {
                     this.onEdgeClick(e, clickEvent)

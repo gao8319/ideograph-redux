@@ -4,12 +4,16 @@ import './index.css'
 import App from './App'
 import { Provider } from 'react-redux'
 import { store } from './store/store'
+import { Button, ThemeProvider } from '@mui/material'
+import { muiTheme } from './utils/ideographTheme'
 
 ReactDOM.render(
     <React.StrictMode>
-        <Provider store={store}>
-            <App />
-        </Provider>
+        <ThemeProvider theme={muiTheme}>
+            <Provider store={store}>
+                <App />
+            </Provider>
+        </ThemeProvider>
     </React.StrictMode>,
     document.getElementById('ideograph-app')
 )

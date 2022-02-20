@@ -1,4 +1,6 @@
 import { createTheme } from "@fluentui/style-utilities";
+import { createTheme as createMuiTheme } from '@mui/material';
+
 
 const compactDisplayFont = {
     fontFamily: 'var(--display-font)',
@@ -74,7 +76,7 @@ export const ideographMonoTheme = createTheme({
         white: '#ffffff',
     },
     defaultFontStyle: {
-        fontFamily: 'JetBrains Mono'
+        fontFamily: 'var(--mono-font)',
     }
 });
 
@@ -103,7 +105,7 @@ export const ideographDarkTheme = createTheme({
         neutralDark: '#f4f4f4',
         black: '#f8f8f8',
         white: '#20222a',
-      },
+    },
     defaultFontStyle: {
         fontFamily: 'var(--font)'
     },
@@ -147,3 +149,19 @@ export const generalCalloutStyle = {
     styles: { beakCurtain: { borderRadius: 0 } },
     dismissOnTargetClick: true,
 }
+
+export const muiTheme = createMuiTheme({
+    transitions: {
+        create: () => 'none',
+    },
+    typography: {
+        fontFamily: 'var(--font)',
+    },
+    components: {
+        MuiButtonBase: {
+            defaultProps: {
+                disableRipple: true
+            },
+        }
+    }
+});

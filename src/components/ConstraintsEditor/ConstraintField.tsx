@@ -20,7 +20,8 @@ import './ConstraintInputField.css'
 interface IConstraintFieldProps {
     class: CommonModel.IClass,
     node: IPatternNode,
-    constraint?: IConstraint
+    constraint?: IConstraint,
+    onConstraintChange: (c: Partial<IConstraint>) => void,
 }
 
 const ConstraintBlockInput = styled(InputBase)(({ theme }) => ({
@@ -36,14 +37,24 @@ const ConstraintBlockInputMono = styled(InputBase)(({ theme }) => ({
     fontFeatureSettings: '"liga" 1',
 }))
 
-const operatorDescription: Record<string, string> = {
-    "==": "等于",
-    ">=": "大于等于",
-    "<=": "小于等于",
-    ">": "大于",
-    "<": "小于",
-    "!=": "不等于",
-    "~=": "匹配正则表达式",
+const operatorLiteral: Record<ComparisonOperator, string> = {
+    [ComparisonOperator.Equal]: "==",
+    [ComparisonOperator.GreaterOrEqual]: ">=",
+    [ComparisonOperator.LessOrEqual]: "<=",
+    [ComparisonOperator.Greater]: ">",
+    [ComparisonOperator.Less]: "<",
+    [ComparisonOperator.NotEqual]: "!=",
+    [ComparisonOperator.MatchRegex]: "~=",
+}
+
+const operatorDescription: Record<ComparisonOperator, string> = {
+    [ComparisonOperator.Equal]: "等于",
+    [ComparisonOperator.GreaterOrEqual]: "大于等于",
+    [ComparisonOperator.LessOrEqual]: "小于等于",
+    [ComparisonOperator.Greater]: "大于",
+    [ComparisonOperator.Less]: "小于",
+    [ComparisonOperator.NotEqual]: "不等于",
+    [ComparisonOperator.MatchRegex]: "匹配正则表达式",
 }
 
 
@@ -58,7 +69,7 @@ const acceptableOperatorDict: Required<Record<PrimitiveTypeName, ComparisonOpera
 
 
 export interface IConstraintFieldRef {
-    getConstraint: () => IConstraint | null
+    getConstraintUpdate: () => Partial<IConstraint>
 }
 
 export const ConstraintField = React.forwardRef<IConstraintFieldRef, IConstraintFieldProps>(
@@ -73,8 +84,8 @@ export const ConstraintField = React.forwardRef<IConstraintFieldRef, IConstraint
         const [isValueInputFocused, setValueInputFocused] = useState(false);
 
 
-        const [prop, setProp] = useState<ISchemaProperty | undefined>(
-            props.class.properties.find(it => it.name === props.constraint?.expression)
+        const [prop, setProp] = useState<CommonModel.IProperty | undefined>(
+            props.constraint?.property// .class.properties.find(it => it.name === props.constraint?.expression)
         );
         const [operator, setOperator] = useState<ComparisonOperator | undefined>(props.constraint?.operator);
         const [value, setValue] = useState<PrimitiveType<PrimitiveTypeName> | undefined>(props.constraint?.value);
@@ -89,6 +100,7 @@ export const ConstraintField = React.forwardRef<IConstraintFieldRef, IConstraint
             id: 'use-autocomplete-prop',
             options: props.class.properties,
             getOptionLabel: p => p.name,
+            defaultValue: prop,
         });
 
         useEffect(
@@ -102,17 +114,17 @@ export const ConstraintField = React.forwardRef<IConstraintFieldRef, IConstraint
 
         useImperativeHandle(
             ref, () => ({
-                getConstraint: () => {
+                getConstraintUpdate: () => {
                     return (prop && operator && value) ?
                         {
-                            expression: prop.name,
-                            type: prop.type,
+                            // expression: prop.name,
+                            property: prop,
                             operator,
                             value,
                             id: props.constraint?.id ?? nanoid(),
                             targetType: VisualElementType.Node,
                             targetId: props.node.id,
-                        } : null
+                        } : {}
                 }
             }), [prop, operator, value]
         )
@@ -136,12 +148,14 @@ export const ConstraintField = React.forwardRef<IConstraintFieldRef, IConstraint
             if ((!isOperatorInputFocused) && (!isPropNameInputFocused) && (!isValueInputFocused)) {
                 // console.log(prop, value, operator);
                 if (prop && value && (operator !== undefined)) {
-                    // props.onAddConstraint?.({
-                    //     keyPath: prop.name,
-                    //     type: prop.type,
-                    //     operator,
-                    //     value,
-                    // });
+                    props.onConstraintChange(
+                        {
+                            operator,
+                            value,
+                            property: prop,
+                            // expression: prop.name
+                        }
+                    )
                 }
             }
         }, [isValueInputFocused, isOperatorInputFocused, isPropNameInputFocused])
@@ -159,12 +173,12 @@ export const ConstraintField = React.forwardRef<IConstraintFieldRef, IConstraint
                     onFocus={() => { setPropNameInputFocused(true) }}
                     onBlur={() => { setPropNameInputFocused(false) }} />
                 <ConstraintBlockInputMono
-                    value={operator}
+                    value={operatorLiteral[operator ?? 0]}
                     style={{ fontWeight: 600 }}
                     onChange={(ev: React.ChangeEvent<HTMLInputElement>) => setOperator(Number(ev.target.value) as ComparisonOperator)}
-                    inputProps={{ 
-                        ref: operatorInputRef, 
-                        onChange: (ev: React.ChangeEvent<HTMLInputElement>) => setOperator(Number(ev.target.value) as ComparisonOperator) 
+                    inputProps={{
+                        ref: operatorInputRef,
+                        onChange: (ev: React.ChangeEvent<HTMLInputElement>) => setOperator(Number(ev.target.value) as ComparisonOperator)
                     }}
                     placeholder="=="
                     onFocus={() => { setOperatorInputFocused(true); }}
@@ -222,13 +236,6 @@ export const ConstraintField = React.forwardRef<IConstraintFieldRef, IConstraint
                     <ul style={{ margin: 0, padding: 0, }}>
                         {(acceptableOperatorDict[prop.type]).map((option, index) => {
                             return <li
-                                style={{
-                                    fontFamily: 'var(--mono-font)',
-                                    display: 'grid',
-                                    fontFeatureSettings: '"liga" 1',
-                                    gridTemplateColumns: '1fr 24px 1fr',
-                                    columnGap: 4,
-                                }}
                                 key={option}
                                 className="constraint-intellisense-button"
                                 onPointerDown={ev => {
@@ -238,7 +245,7 @@ export const ConstraintField = React.forwardRef<IConstraintFieldRef, IConstraint
                                     (valueInputRef.current as HTMLInputElement)?.focus()
                                 }}>
                                 <span style={{ opacity: 0.25 }} className="shimmed">{prop.name}</span>
-                                <span style={{ fontWeight: 600 }}>{option}</span>
+                                <span style={{ fontWeight: 600 }}>{operatorLiteral[option]}</span>
                                 <span style={{ opacity: 0.25 }} className="shimmed">({operatorDescription[option]})</span>
                             </li>
                         })}

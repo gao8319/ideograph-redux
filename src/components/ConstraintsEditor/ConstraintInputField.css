@@ -34,6 +34,15 @@
     padding: 0 9px;
     display: flex;
     justify-content: space-between;
+    font-feature-settings:"liga" 1;
+    display:grid;
+    grid-template-columns:1fr 24px 1fr;
+    column-gap:4px;
+}
+
+.constraint-intellisense-button>span{
+    font-family: var(--mono-font);
+    font-feature-settings:"liga" 1;
 }
 
 .constraint-intellisense-button:hover {

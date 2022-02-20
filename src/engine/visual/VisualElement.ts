@@ -6,6 +6,7 @@ export enum VisualElementType {
 
 export interface IVisualElement<T extends VisualElementType = VisualElementType> {
     elementType: T,
+    asObject: () => any
 }
 
 export type IFocusableElement<T extends VisualElementType = VisualElementType> = IVisualElement<T> & {

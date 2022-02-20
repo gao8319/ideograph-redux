@@ -20,7 +20,7 @@ export interface IPatternNode {
     constraints: ConstraintID[],
     position: IPoint,
 
-    classId: CommonModel.IClass['id'],
+    class: CommonModel.IColoredClass,
 }
 
 export interface IPatternEdge {
@@ -29,16 +29,20 @@ export interface IPatternEdge {
     to: NodeID,
     direction: EdgeDirection,
     constraints: ConstraintID[],
+
+    class: CommonModel.IEdgeClass
 }
 
 export type IConstraint = {
     id: ConstraintID,
-    expression: string,
-    operator: ComparisonOperator,
-    value: PrimitiveType,
     position?: IPoint,
     targetType: VisualElementType,
     targetId: string,
+
+    expression?: string,
+    property?: CommonModel.IProperty,
+    operator?: ComparisonOperator,
+    value?: PrimitiveType,
 }
 
 

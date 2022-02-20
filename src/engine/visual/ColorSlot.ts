@@ -1,6 +1,6 @@
 import Color from "color";
 
-interface IColorSlot {
+export interface IColorSlot {
     primary: string,
     constrained: string,
     disabled: string,
@@ -18,7 +18,7 @@ export class ColorSlot implements IColorSlot {
         const c = new Color(v);
         this._primary = v;
         this.constrained = c.darken(0.2).saturate(0.1).toString()
-        this.disabled =  c.lighten(0.2).desaturate(0.2).toString()
+        this.disabled = c.lighten(0.2).desaturate(0.2).toString()
         this.foreground = c.darken(3).isDark() ? "#fff" : "#000"
     };
 
@@ -26,7 +26,14 @@ export class ColorSlot implements IColorSlot {
         const c = new Color(primary);
         this._primary = primary;
         this.constrained = c.darken(0.2).saturate(0.1).toString()
-        this.disabled =  c.lighten(0.2).desaturate(0.2).toString()
+        this.disabled = c.lighten(0.2).desaturate(0.2).toString()
         this.foreground = c.darken(3).isDark() ? "#fff" : "#000"
     }
+
+    public asObject = (): IColorSlot => ({
+        primary: this._primary,
+        constrained: this.constrained,
+        disabled: this.disabled,
+        foreground: this.foreground,
+    })
 }

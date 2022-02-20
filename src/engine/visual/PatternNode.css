@@ -9,7 +9,7 @@ g.p-n>text.alias{
     visibility: none;
     text-anchor: middle;
     dominant-baseline: central;
-    font-family: "JetBrains Mono";
+    font-family: "SF Mono";
     font-size: 14px;
     font-weight: 500;
 }
@@ -66,4 +66,25 @@ g.p-n[focused=true]>circle.selection {
 
 g.p-n{
     cursor: pointer;
+}
+
+
+
+g.p-n[disabled=true]{
+    opacity: 0.3;
+    /* pointer-events: none; */
+    cursor: not-allowed;
+}
+
+
+g.p-n[disabled=true]>circle.node{
+    r: 6px!important;
+}
+
+g.p-n[disabled=true]>circle.constrain-ring{
+    r: 9px!important;
+}
+
+g.p-n[disabled=true]>circle.text{
+    opacity: 0;
 }

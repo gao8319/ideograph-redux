@@ -1,0 +1,8 @@
+g.p-e[disabled=true] {
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+g.p-e{
+    transition: opacity 0.2s;
+}

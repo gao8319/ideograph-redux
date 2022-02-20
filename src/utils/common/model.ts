@@ -1,7 +1,7 @@
 import { Dictionary } from "@reduxjs/toolkit";
 import _, { isNumber } from "lodash";
 import { figmaColorScheme } from "../../engine/visual/ColorSchemes";
-import { ColorSlot } from "../../engine/visual/ColorSlot";
+import { ColorSlot, IColorSlot } from "../../engine/visual/ColorSlot";
 import { PrimitiveTypeName } from "./data";
 import { DisjointSet } from "./disjoint";
 import { EdgeDirection } from "./graph";
@@ -45,9 +45,26 @@ export namespace CommonModel {
     }
 
     export type IColoredClass = IClass & {
-        colorSlot: ColorSlot,
+        colorSlot: IColorSlot,
     }
 
+    export interface IEdgeClass extends IIdentifiable, INamable{
+        from: IClass,
+        to: IClass,
+        properties: IProperty[],
+        specificType?: string,
+    }
+
+    export interface IColoredEdgeClass extends IIdentifiable, INamable{
+        from: IColoredClass,
+        to: IColoredClass,
+        properties: IProperty[],
+        specificType?: string,
+    }
+
+    export const getEdgeClassIdentifier = (ec: IEdgeClass)=> `${ec.from.id}->${ec.to.id}`
+    export const getEdgeClassName = (ec: IEdgeClass)=> `${ec.from.name}->${ec.to.name}`
+    
     // export interface IClassTreeLike extends IIdentifiable, INamable {
     //     properties: IProperty[],
     //     parent?: IClassTreeLike,
@@ -95,8 +112,10 @@ export namespace CommonModel {
                 c => ({ from: _.uniq(c?.from), to: _.uniq(c?.to) })
             )
 
+            console.log(this.connectable);
+
             this.colorSlots = Object.fromEntries(classes.map(
-                (c, index) => [c.id, { colorSlot: new ColorSlot(figmaColorScheme[index]), ...c }]
+                (c, index) => [c.id, { colorSlot: new ColorSlot(figmaColorScheme[index]).asObject(), ...c }]
             ))
         }
 
@@ -120,10 +139,10 @@ export namespace CommonModel {
 
 
     export interface ISerializedRoot {
-        name: string, classes: IClass[], relations: IRelation[]
+        name: string, classes: IColoredClass[], relations: IRelation[]
     }
 
     export const deserializeFromObject = (json: ISerializedRoot) => new Root(json.name, json.classes, json.relations)
 
-    export const serializeToObject = (root: Root) => ({ name: root.name, classes: root.classes, relations: root.relations })
+    export const serializeToObject = (root: Root) => ({ name: root.name, classes: Object.values(root.colorSlots), relations: root.relations })
 }

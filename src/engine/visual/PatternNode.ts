@@ -146,7 +146,24 @@ export class PatternNode implements IFocusableElement<VisualElementType.Node> {
             id: this.uuid,
             constraints: [],
             position: this.logicPosition,
-            classId: this.ontologyClass.id,
+            class: this.ontologyClass,
         }
+    }
+
+
+    private _isDisabled = false;
+    public setDisabled(disabled: boolean) {
+        if(this._isDisabled !== disabled) {
+            this._isDisabled = disabled;
+            if(disabled) {
+                this.renderElements?.root.attr('disabled', true);
+            }
+            else {
+                this.renderElements?.root.attr('disabled', false);
+            }
+        }
+    }
+    public getDisabled() {
+        return this._isDisabled;
     }
 }

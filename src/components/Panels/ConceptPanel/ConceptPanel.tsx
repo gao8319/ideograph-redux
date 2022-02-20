@@ -30,7 +30,7 @@ export const ConceptPanel = (props: IConceptPanelProps) => {
             return <ConceptPanelContent />
         }, [])
 
-    return <div className="concept-panel-root" ref={rootRef} style={{ width }}>
+    return <div className="concept-panel-root panel" ref={rootRef} style={{ width }}>
         {content}
         <Draggable axis="x"
             onDrag={(ev, d) => {

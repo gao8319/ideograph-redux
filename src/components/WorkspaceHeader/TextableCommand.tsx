@@ -91,7 +91,7 @@ export const TextableCommand = (props: ITextableCommandProps) => {
 
         {!activated && <>
             <div style={{ marginLeft: 16, marginRight: 4 }} onClick={_ => { setActivated(true); setCalloutOpen(false) }}>
-                {props.value}
+                {pangu.spacing(props.value)}
             </div>
 
             <ClickAwayListener onClickAway={ev => setCalloutOpen(false)}>
@@ -106,12 +106,11 @@ export const TextableCommand = (props: ITextableCommandProps) => {
                 </CommandBarButton>
             </ClickAwayListener>
 
-            <Callout {...generalCalloutStyle}
-                hidden={(!isCalloutOpen)}
+            {isCalloutOpen&&<Callout {...generalCalloutStyle}
                 target={buttonRef.current}
                 directionalHint={DirectionalHint.bottomCenter}>
                 {props.onRenderCallout()}
-            </Callout>
+            </Callout>}
         </>}
     </>
 

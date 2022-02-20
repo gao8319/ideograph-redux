@@ -6,19 +6,16 @@
     font-size: 14px;
     font-weight: 600;
     /* pointer-events: none; */
-    padding: 0 8px 0 16px;
+    padding: 4px 8px 0 16px;
     box-sizing: initial;
     user-select: none;
+
 }
 
 .panel-desc {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
     font-size: 14px;
-    /* font-weight: 600; */
     pointer-events: none;
-    padding: 0 16px;
+    padding: 10px 16px 0;
     box-sizing: initial;
     user-select: none;
     line-height: 1.5em;

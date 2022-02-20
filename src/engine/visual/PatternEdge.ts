@@ -1,5 +1,6 @@
 import { EdgeDirection, IPatternEdge } from "../../utils/common/graph";
 import { IVector } from "../../utils/common/layout";
+import { CommonModel } from "../../utils/common/model";
 import { Arrow } from "../elements/Arrow";
 import { PatternNode } from "./PatternNode";
 import { IFocusableElement, IVisualElement, VisualElementType } from "./VisualElement";
@@ -46,7 +47,7 @@ export class PatternEdge implements IFocusableElement<VisualElementType.Edge> {
         parent: D3<SVGGElement>
     ) {
         const elementGroup = parent.append('g')
-            .attr('class', 'p-n')
+            .attr('class', 'p-e')
             .attr('edge-uuid', this.uuid);
 
 
@@ -88,11 +89,29 @@ export class PatternEdge implements IFocusableElement<VisualElementType.Edge> {
     }
     public get isFocused() { return this._isFocused }
 
+
+    private _isDisabled = false;
+
+    public setDisabled(value: boolean) {
+        if (this._isDisabled !== value) {
+            this._isDisabled = value;
+            this.renderElements?.root.attr('disabled', value);
+        }
+    }
+    public get isDisabled() { return this._isDisabled }
+
     public asObject(): IPatternEdge {
         return {
             id: this.uuid,
             from: this.from.uuid,
             to: this.to.uuid,
+            class: {
+                from: this.from.ontologyClass,
+                to: this.to.ontologyClass,
+                properties: [],
+                name: `${this.from.ontologyClass.name}-->${this.to.ontologyClass.name}`,
+                id: `${this.from.ontologyClass.id}-->${this.to.ontologyClass.id}`
+            },
             direction: this.isDirected ? EdgeDirection.Specified : EdgeDirection.Unspecified,
             constraints: []
         }

@@ -34,11 +34,13 @@ const PatternNodeItem = (props: IPatternNodeItemProps) => {
         onClick={props.onClick}
         key={props.item.name}
     >
-        <span style={{
-            display: 'inline-flex',
+        <div style={{
+            display: 'grid',
             height: 40,
             alignItems: 'center',
-            padding: 0
+            padding: 0,
+            gridTemplateColumns: '16px 24px 1fr',
+            width: 'calc(100% - 40px)'
         }}>
             <CommandBarButton style={{ height: 40, width: 16, minWidth: 0, padding: 0, visibility: 'hidden' }} >
                 <ChevronDown16 />
@@ -46,8 +48,10 @@ const PatternNodeItem = (props: IPatternNodeItemProps) => {
             <svg width={24} height={40}>
                 <circle cx={8} cy={20} r={8} fill={props.item.colorSlot.primary} />
             </svg>
-            {props.item.name}
-        </span>
+            <div className="truncate" style={{width: '100%'}}>
+                {props.item.name}
+            </div>
+        </div>
         <CommandBarButton style={{ height: 40, width: 40, minWidth: 0, visibility: 'hidden' }} >
             <Add20 />
         </CommandBarButton>

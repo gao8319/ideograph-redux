@@ -5,24 +5,25 @@ import { askGraphModel } from "../../utils/AskGraph";
 import { convertAskGraphOntModel } from "../../utils/AskGraphConverter";
 import { IPatternEdge, IPatternNode } from "../../utils/common/graph";
 import { CommonModel } from "../../utils/common/model";
+import { pangu } from "../../utils/common/pangu";
 import { RootState } from "../store";
 import { constraintsSelectors } from "./constraintSlicer";
 import { edgesSelectors } from "./edgeSlicer";
 import { nodesSelectors } from "./nodeSlicer";
 
-export const LEFT_DEFAULT = 320;
+export const LEFT_DEFAULT = 240;
 export const LEFT_MIN = 200;
-export const LEFT_MAX = 480;
+export const LEFT_MAX = 420;
 
 
-export const RIGHT_DEFAULT = 280
-export const RIGHT_MIN = 200;
-export const RIGHT_MAX = 480;
+export const RIGHT_DEFAULT = 360;
+export const RIGHT_MIN = 300;
+export const RIGHT_MAX = 720;
 
 
-export const BOTTOM_DEFAULT = 420;
-export const BOTTOM_MIN = 360;
-export const BOTTOM_MAX = 720;
+export const BOTTOM_DEFAULT = 320;
+export const BOTTOM_MIN = 240;
+export const BOTTOM_MAX = 640;
 
 type FocusElementPayload = {
     type: VisualElementType.Edge,
@@ -48,8 +49,10 @@ type WorkspaceState = {
     editPayload?: string | number
 }
 
+const defaultModel = convertAskGraphOntModel(askGraphModel)
+
 const initialState: WorkspaceState = {
-    model: convertAskGraphOntModel(askGraphModel),
+    model: CommonModel.serializeToObject(new CommonModel.Root(defaultModel.name, defaultModel.classes, defaultModel.relations)),
     editMode: EditMode.CreatingNode,
     projectName: '智慧城市领域知识模型系统',
     workspaceName: '新工作区',
@@ -67,9 +70,13 @@ const workspaceSlicer = createSlice({
     initialState,
     reducers: {
         setModel(state, action: PayloadAction<CommonModel.ISerializedRoot>) {
+            
             state.model = action.payload
         },
         setEditMode(state, action: PayloadAction<EditMode>) {
+            if(action.payload !==EditMode.CreatingNode) {
+                state.editPayload = undefined;
+            }
             state.editMode = action.payload;
         },
         setWorkspaceName(state, action: PayloadAction<string>) {
@@ -99,27 +106,20 @@ const workspaceSlicer = createSlice({
             if (action.payload <= BOTTOM_MAX && action.payload >= BOTTOM_MIN)
                 state.bottomPanelHeight = action.payload
         },
-        // setEdgeFocused(state, action: PayloadAction<IPatternEdge>) {
-        //     state.focusElement = {
-        //         type: VisualElementType.Edge,
-        //         payload: action.payload
-        //     }
-        // },
-        // setNodeFocused(state, action: PayloadAction<IPatternNode>) {
-        //     state.focusElement = {
-        //         type: VisualElementType.Node,
-        //         payload: action.payload,
-        //     }
-        // },
-        // setNothingFocused(state) {
-        //     state.focusElement = undefined;
-        // },
         setFocus(state, action: PayloadAction<FocusElementPayload | undefined>) {
             state.focusElement = action.payload;
         },
         setEditModeWithPayload(state, action: PayloadAction<{ editMode: EditMode, payload: string | number | undefined }>) {
+            if(action.payload.editMode === EditMode.CreatingNode) {
+                state.editPayload = action.payload.payload;
+            }
+            else {
+                state.editPayload = undefined;
+            }
             state.editMode = action.payload.editMode;
-            state.editPayload = action.payload.payload;
+        },
+        setEditPayloadDangerously(state, action: PayloadAction<string|number|undefined>) {
+            state.editPayload = action.payload;
         }
     }
 })
@@ -136,7 +136,8 @@ export const {
     setLeftPanelWidth,
     setBottomPanelHeight,
     setFocus,
-    setEditModeWithPayload
+    setEditModeWithPayload,
+    setEditPayloadDangerously,
 } = workspaceSlicer.actions;
 
 export const modelSelector = (state: RootState) => state.workspace.model
@@ -153,12 +154,12 @@ export const focusElementSelector = createSelector(
     nodesSelectors.selectEntities,
     edgesSelectors.selectEntities,
     _focusElementSelector,
-    (nodes, edges, fe) => {
+    (nodes, edges, fe): ((IPatternNode | IPatternEdge) & { type: VisualElementType }) | undefined => {
         if (fe?.type === VisualElementType.Node) {
-            return { ...nodes[fe.payload.id], type: VisualElementType.Node }
+            return { ...nodes[fe.payload.id!]!, type: VisualElementType.Node }
         }
         else if (fe?.type === VisualElementType.Edge) {
-            return { ...edges[fe.payload.id], type: VisualElementType.Edge }
+            return { ...edges[fe.payload.id!]!, type: VisualElementType.Edge }
         }
         else return undefined
     }

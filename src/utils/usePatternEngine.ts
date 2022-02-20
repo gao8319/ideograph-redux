@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useRef } from "react"
-import { PatternGraphEngine } from "../engine/PatternGraphEngine";
+import { PatternGraphEngine, RaiseMessageCallback } from "../engine/PatternGraphEngine";
+import { EditMode } from "../engine/visual/EditMode";
 import { PatternEdge } from "../engine/visual/PatternEdge";
 import { PatternNode } from "../engine/visual/PatternNode";
 import { VisualElementType } from "../engine/visual/VisualElement";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { addConstraint } from "../store/slice/constraintSlicer";
 import { addEdge } from "../store/slice/edgeSlicer";
-import { editModeSelector, editPayloadSelector, setFocus, workspaceSelector } from "../store/slice/modelSlicer";
+import { editModeSelector, editPayloadSelector, setEditModeWithPayload, setEditPayloadDangerously, setFocus, workspaceSelector } from "../store/slice/modelSlicer";
 import { addNode } from "../store/slice/nodeSlicer";
 import { EdgeDirection } from "./common/graph";
 import { CommonModel } from "./common/model"
@@ -16,8 +17,10 @@ import { isNotEmpty } from "./common/utils";
 
 export const usePatternEngine = (
     modelInstance: CommonModel.Root,
+    raiseMessage: RaiseMessageCallback,
     deps?: React.DependencyList | undefined,
 ) => {
+    
     const containerRef = useRef<HTMLDivElement>(null);
     const engineRef = useRef<PatternGraphEngine>();
     const dispatch = useAppDispatch();
@@ -26,7 +29,6 @@ export const usePatternEngine = (
     const editMode = useAppSelector(editModeSelector);
     const editPayload = useAppSelector(editPayloadSelector);
 
-
     useEffect(() => {
         if (containerRef.current) {
             const engine = new PatternGraphEngine(
@@ -34,38 +36,55 @@ export const usePatternEngine = (
                 containerRef.current
             );
             engine.setFocusedElementChangedCallback(ele => {
-                const eleType = ele?.elementType
-                if (eleType === VisualElementType.Node) {
-                    const payload = {
-                        id: (ele as PatternNode).uuid,
-                        constraints: [],
-                        position: { x: 0, y: 0 },
-                        classId: (ele as PatternNode).ontologyClass.id
-                    }
+                if (ele) {
                     dispatch(setFocus({
-                        type: eleType,
-                        payload
+                        type: ele.elementType,
+                        payload: ele.asObject(),
                     }))
                 }
-                else if (eleType === VisualElementType.Edge) {
-                    const payload = {
-                        id: (ele as PatternEdge).uuid,
-                        from: (ele as PatternEdge).from.uuid,
-                        to: (ele as PatternEdge).to.uuid,
-                        constraints: [],
-                        direction: EdgeDirection.Specified,
-                    }
-                    dispatch(setFocus({
-                        type: eleType,
-                        payload
-                    }))
-                }
+                // const eleType = ele?.elementType
+                // if (eleType === VisualElementType.Node) {
+                //     const payload = {
+                //         id: (ele as PatternNode).uuid,
+                //         constraints: [],
+                //         position: { x: 0, y: 0 },
+                //         class: (ele as PatternNode).ontologyClass
+                //     }
+                //     dispatch(setFocus({
+                //         type: eleType,
+                //         payload:  ele!.asObject(),
+                //     }))
+                // }
+                // else if (eleType === VisualElementType.Edge) {
+                //     // const payload = {
+                //     //     id: (ele as PatternEdge).uuid,
+                //     //     from: (ele as PatternEdge).from.uuid,
+                //     //     to: (ele as PatternEdge).to.uuid,
+                //     //     class: {
+                //     //         from: (ele as PatternEdge).from.
+                //     //     },
+                //     //     constraints: [],
+                //     //     direction: EdgeDirection.Specified,
+                //     // }
+
+                //     dispatch(setFocus({
+                //         type: eleType,
+                //         payload: ele!.asObject(),
+                //     }))
+                // }
                 else {
                     dispatch(setFocus(undefined));
                 }
             });
-            engine.setOnNodeCreatedCallback(n => dispatch(addNode(n)))
-            engine.setOnEdgeCreatedCallback(e => dispatch(addEdge(e)))
+            engine.setOnNodeCreatedCallback(n => {
+                dispatch(addNode(n));
+                dispatch(setEditPayloadDangerously(undefined))
+            })
+            engine.setOnEdgeCreatedCallback(e => {
+                dispatch(addEdge(e));
+                dispatch(setEditPayloadDangerously(undefined))
+            })
+            engine.setRaiseMessageCallback(raiseMessage)
             // engine.setOnConstraintCreatedCallback(c => dispatch(addConstraint(c)))
             engineRef.current = engine;
             return () => {
