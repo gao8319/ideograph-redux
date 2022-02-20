@@ -62,20 +62,13 @@ export const ConceptPanelContent = () => {
     const dispatch = useAppDispatch();
     const editMode = useAppSelector(editModeSelector);
     const modelObject = useAppSelector(modelSelector);
-    const modelTree = useMemo(
-        () => {
-            const model = CommonModel.deserializeFromObject(modelObject);
-            const item = model.colorSlots
-            return Object.values(item)
-        }, [modelObject]
-    );
 
     return <div>
         <PanelTitle text={editModeMap[editMode]} />
 
         {editMode === EditMode.CreatingNode && <div>
             {
-                modelTree.map(
+                modelObject.classes.map(
                     m => <PatternNodeItem item={m} onClick={
                         ev => {
                             dispatch(setEditModeWithPayload(

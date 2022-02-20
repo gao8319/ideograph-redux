@@ -30,10 +30,14 @@ function App() {
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackBarContent, setSnackBarContent] = useState<Parameters<RaiseMessageCallback> & { timestamp: number }>();
 
+
+    useEffect(() => {
+        console.log("MMMMMM")
+    }, [model])
     
     useIdeographShortcuts();
     const { containerRef, engineRef } = usePatternEngine(
-        CommonModel.deserializeFromObject(model),
+        model,
         (...args) => { setSnackBarContent({ ...args, timestamp: new Date().getTime() }); setSnackbarOpen(true); },
         [model]
     );

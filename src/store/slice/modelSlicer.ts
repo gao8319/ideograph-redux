@@ -128,7 +128,7 @@ const workspaceSlicer = createSlice({
 })
 
 export const {
-    setModel,
+    // setModel,
     setEditMode,
     setWorkspaceName,
     setProjectName,

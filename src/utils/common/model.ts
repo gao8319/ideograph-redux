@@ -48,23 +48,23 @@ export namespace CommonModel {
         colorSlot: IColorSlot,
     }
 
-    export interface IEdgeClass extends IIdentifiable, INamable{
+    export interface IEdgeClass extends IIdentifiable, INamable {
         from: IClass,
         to: IClass,
         properties: IProperty[],
         specificType?: string,
     }
 
-    export interface IColoredEdgeClass extends IIdentifiable, INamable{
+    export interface IColoredEdgeClass extends IIdentifiable, INamable {
         from: IColoredClass,
         to: IColoredClass,
         properties: IProperty[],
         specificType?: string,
     }
 
-    export const getEdgeClassIdentifier = (ec: IEdgeClass)=> `${ec.from.id}->${ec.to.id}`
-    export const getEdgeClassName = (ec: IEdgeClass)=> `${ec.from.name}->${ec.to.name}`
-    
+    export const getEdgeClassIdentifier = (ec: IEdgeClass) => `${ec.from.id}->${ec.to.id}`
+    export const getEdgeClassName = (ec: IEdgeClass) => `${ec.from.name}->${ec.to.name}`
+
     // export interface IClassTreeLike extends IIdentifiable, INamable {
     //     properties: IProperty[],
     //     parent?: IClassTreeLike,
@@ -140,7 +140,10 @@ export namespace CommonModel {
         name: string, classes: IColoredClass[], relations: IRelation[]
     }
 
-    export const deserializeFromObject = (json: ISerializedRoot) => new Root(json.name, json.classes, json.relations)
+    export const deserializeFromObject = (json: ISerializedRoot) => {
+        console.log("Deserialized")
+        return new Root(json.name, json.classes, json.relations)
+    }
 
     export const serializeToObject = (root: Root) => ({ name: root.name, classes: Object.values(root.colorSlots), relations: root.relations })
 }

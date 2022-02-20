@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react"
+import { useCallback, useEffect, useMemo, useRef } from "react"
 import { PatternGraphEngine, RaiseMessageCallback } from "../engine/PatternGraphEngine";
 import { EditMode } from "../engine/visual/EditMode";
 import { PatternEdge } from "../engine/visual/PatternEdge";
@@ -16,11 +16,19 @@ import { isNotEmpty } from "./common/utils";
 
 
 export const usePatternEngine = (
-    modelInstance: CommonModel.Root,
+    modelObject: CommonModel.ISerializedRoot,
     raiseMessage: RaiseMessageCallback,
-    deps?: React.DependencyList | undefined,
+    deps?: React.DependencyList,
 ) => {
     
+    // Cache model instance
+    const modelInstance = useMemo(
+        () => {
+            return CommonModel.deserializeFromObject(modelObject)
+        }, [modelObject]
+    )
+
+
     const containerRef = useRef<HTMLDivElement>(null);
     const engineRef = useRef<PatternGraphEngine>();
     const dispatch = useAppDispatch();
@@ -30,7 +38,6 @@ export const usePatternEngine = (
     const editPayload = useAppSelector(editPayloadSelector);
 
     useEffect(() => {
-        console.log("deps!!!!!!");
         if (containerRef.current) {
             const engine = new PatternGraphEngine(
                 modelInstance,
@@ -96,10 +103,9 @@ export const usePatternEngine = (
     }, deps)
 
     useEffect(() => {
-        const engine = engineRef.current;
-        if (engine) {
-            engine.editPayload = isNotEmpty(editPayload) ? editPayload! : null;
-            engine.editMode = editMode;
+        if (engineRef.current) {
+            engineRef.current.editPayload = isNotEmpty(editPayload) ? editPayload! : null;
+            engineRef.current.editMode = editMode;
         }
     }, [editMode, editPayload, engineRef.current])
 
