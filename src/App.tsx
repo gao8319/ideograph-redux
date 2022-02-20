@@ -9,7 +9,6 @@ import { addConstraint } from './store/slice/constraintSlicer';
 import { askGraphModel } from './utils/AskGraph';
 import { convertAskGraphOntModel } from './utils/AskGraphConverter';
 import { WorkspaceHeader } from './components/WorkspaceHeader/WorkspaceHeader';
-import { usePatternGraphEngine } from './engine/hook';
 import { editModeSelector, modelSelector, setEditMode, workspaceSelector } from './store/slice/modelSlicer';
 import { useIdeographShortcuts } from './utils/useIdeographShortcuts';
 import { ConceptPanel } from './components/Panels/ConceptPanel/ConceptPanel';
@@ -22,19 +21,20 @@ import { CommonModel } from './utils/common/model';
 import { Grow, Snackbar } from '@mui/material';
 import { Alert } from './components/StyledMessage';
 import { Error20, Help20 } from '@carbon/icons-react';
+import { useTitle } from 'react-use';
+import { pangu } from './utils/common/pangu';
 
 function App() {
     const dispatch = useAppDispatch();
     const model = useAppSelector(modelSelector);
-    const editMode = useAppSelector(editModeSelector);
-    const workspace = useAppSelector(workspaceSelector);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
-    const [snackBarContent, setSnackBarContent] = useState<Parameters<RaiseMessageCallback> & {timestamp: number}>();
+    const [snackBarContent, setSnackBarContent] = useState<Parameters<RaiseMessageCallback> & { timestamp: number }>();
 
+    
     useIdeographShortcuts();
     const { containerRef, engineRef } = usePatternEngine(
         CommonModel.deserializeFromObject(model),
-        (...args) => { setSnackBarContent({...args, timestamp: new Date().getTime()}); setSnackbarOpen(true); },
+        (...args) => { setSnackBarContent({ ...args, timestamp: new Date().getTime() }); setSnackbarOpen(true); },
         [model]
     );
 

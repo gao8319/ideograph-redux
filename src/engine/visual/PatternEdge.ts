@@ -19,7 +19,7 @@ export class PatternEdge implements IFocusableElement<VisualElementType.Edge> {
     public from: PatternNode;
     public to: PatternNode;
     private isDirected: boolean;
-    public uuid: string;
+    public uuid: string;hu
 
     protected renderElements?: RenderElements
 

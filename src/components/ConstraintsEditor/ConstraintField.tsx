@@ -218,7 +218,7 @@ export const ConstraintField = React.forwardRef<IConstraintFieldRef, IConstraint
                                     opProps.onClick?.(ev);
                                 }}>
                                 <span>{option.name}</span>
-                                <code style={{ opacity: 0.25 }} className="shimmed">{option.type}</code></li>
+                                <code style={{ color: 'rgb(0, 204, 175)'  }} className="shimmed">{option.type}</code></li>
                         })}
                     </ul>
                 </Popper>}

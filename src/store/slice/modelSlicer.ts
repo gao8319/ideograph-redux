@@ -49,10 +49,14 @@ type WorkspaceState = {
     editPayload?: string | number
 }
 
-const defaultModel = convertAskGraphOntModel(askGraphModel)
+const converted = convertAskGraphOntModel(askGraphModel);
+const defaultModel = CommonModel.serializeToObject(
+    new CommonModel.Root(converted.name, converted.classes, converted.relations)
+)
+
 
 const initialState: WorkspaceState = {
-    model: CommonModel.serializeToObject(new CommonModel.Root(defaultModel.name, defaultModel.classes, defaultModel.relations)),
+    model: defaultModel,
     editMode: EditMode.CreatingNode,
     projectName: '智慧城市领域知识模型系统',
     workspaceName: '新工作区',
@@ -70,11 +74,10 @@ const workspaceSlicer = createSlice({
     initialState,
     reducers: {
         setModel(state, action: PayloadAction<CommonModel.ISerializedRoot>) {
-            
             state.model = action.payload
         },
         setEditMode(state, action: PayloadAction<EditMode>) {
-            if(action.payload !==EditMode.CreatingNode) {
+            if (action.payload !== EditMode.CreatingNode) {
                 state.editPayload = undefined;
             }
             state.editMode = action.payload;
@@ -110,7 +113,7 @@ const workspaceSlicer = createSlice({
             state.focusElement = action.payload;
         },
         setEditModeWithPayload(state, action: PayloadAction<{ editMode: EditMode, payload: string | number | undefined }>) {
-            if(action.payload.editMode === EditMode.CreatingNode) {
+            if (action.payload.editMode === EditMode.CreatingNode) {
                 state.editPayload = action.payload.payload;
             }
             else {
@@ -118,7 +121,7 @@ const workspaceSlicer = createSlice({
             }
             state.editMode = action.payload.editMode;
         },
-        setEditPayloadDangerously(state, action: PayloadAction<string|number|undefined>) {
+        setEditPayloadDangerously(state, action: PayloadAction<string | number | undefined>) {
             state.editPayload = action.payload;
         }
     }

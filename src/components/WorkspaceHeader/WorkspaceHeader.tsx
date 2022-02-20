@@ -2,6 +2,7 @@ import { AddAlt20, ChevronDown16, Code20, Cursor_220, Cursor_224, MacCommand16, 
 import { TextField, TooltipHost } from '@fluentui/react';
 import { Tooltip } from '@mui/material';
 import React, { useEffect, useState } from 'react';
+import { useTitle } from 'react-use';
 import { PatternGraphEngine } from '../../engine/PatternGraphEngine';
 import { EditMode } from '../../engine/visual/EditMode';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
@@ -47,6 +48,7 @@ export const WorkspaceHeader = (props: IWorkspaceHeaderProps) => {
 
     const dispatch = useAppDispatch();
 
+    useTitle(pangu.spacing(`${workspaceName}\u2009-\u2009Ideograph`));
 
     // const { engine } = props;
 

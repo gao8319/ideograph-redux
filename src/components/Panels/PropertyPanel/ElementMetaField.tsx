@@ -27,16 +27,22 @@ export const ElementMetaField = (props: IElementMetaField) => {
                         options={model.classes} />
                 </div>
                 <ControlLabel>名称</ControlLabel>
-                <InputField placeholder={focusElement.id} />
+                <InputField
+                    onFocus={ev => ev.target.select()}
+                    onMouseUp={(ev: any) => { ev.preventDefault(); }}
+                    inputProps={{
+                        onFocus: ev => ev.target.select(),
+                        onMouseUp: (ev: any) => { ev.preventDefault(); },
+                    }}
+                    placeholder={focusElement.id} />
             </div>
             <div className="panel-decl col2 hide-padding-top" >
                 <ControlLabel className="offsetx2">X</ControlLabel>
                 <InputField
                     placeholder="-"
                     defaultValue={(focusElement as IPatternNode).position.x}
-                    onFocus={
-                        ev => ev.target.select()
-                    }
+                    onFocus={ev => ev.target.select()}
+                    onMouseUp={(ev: any) => { ev.preventDefault(); }}
                     inputProps={{
                         onFocus: ev => ev.target.select(),
                         onMouseUp: (ev: any) => { ev.preventDefault(); },
@@ -45,9 +51,8 @@ export const ElementMetaField = (props: IElementMetaField) => {
                 <InputField
                     placeholder="-"
                     defaultValue={(focusElement as IPatternNode).position.y}
-                    onFocus={
-                        ev => ev.target.select()
-                    }
+                    onFocus={ev => ev.target.select()}
+                    onMouseUp={(ev: any) => { ev.preventDefault(); }}
                     inputProps={{
                         onFocus: ev => ev.target.select(),
                         onMouseUp: (ev: any) => { ev.preventDefault(); },
@@ -68,15 +73,14 @@ export const ElementMetaField = (props: IElementMetaField) => {
             <ControlLabel>名称</ControlLabel>
             <InputField
                 placeholder={focusElement.id}
-                onFocus={
-                    ev => ev.target.select()
-                }
+                onFocus={ev => ev.target.select()}
+                onMouseUp={(ev: any) => { ev.preventDefault(); }}
                 inputProps={{
                     onFocus: ev => ev.target.select(),
                     onMouseUp: (ev: any) => { ev.preventDefault(); },
                 }}
-                
-                />
+
+            />
         </div>
     }
     return <div></div>

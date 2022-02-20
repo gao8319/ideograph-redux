@@ -71,7 +71,7 @@ const S_A = /(%)([A-Za-z])/g;
 
 const MIDDLE_DOT = /([ ]*)([\u00b7\u2022\u2027])([ ]*)/g;
 
-const thinspace = ' '
+const thinspace = '\u2009'
 
 class PanguThinSpace {
     public version = '4.0.7-thin'
@@ -126,40 +126,40 @@ class PanguThinSpace {
             return `${cjk}${fullwidthSymbols}`;
         });
 
-        newText = newText.replace(DOTS_CJK, '$1 $2');
+        newText = newText.replace(DOTS_CJK, '$1\u2009$2');
         newText = newText.replace(FIX_CJK_COLON_ANS, '$1：$2');
 
-        newText = newText.replace(CJK_QUOTE, '$1 $2');
-        newText = newText.replace(QUOTE_CJK, '$1 $2');
+        newText = newText.replace(CJK_QUOTE, '$1\u2009$2');
+        newText = newText.replace(QUOTE_CJK, '$1\u2009$2');
         newText = newText.replace(FIX_QUOTE_ANY_QUOTE, '$1$2$3');
 
-        newText = newText.replace(CJK_SINGLE_QUOTE_BUT_POSSESSIVE, '$1 $2');
-        newText = newText.replace(SINGLE_QUOTE_CJK, '$1 $2');
+        newText = newText.replace(CJK_SINGLE_QUOTE_BUT_POSSESSIVE, '$1\u2009$2');
+        newText = newText.replace(SINGLE_QUOTE_CJK, '$1\u2009$2');
         newText = newText.replace(FIX_POSSESSIVE_SINGLE_QUOTE, "$1's"); // eslint-disable-line quotes
 
-        newText = newText.replace(HASH_ANS_CJK_HASH, '$1 $2$3$4 $5');
-        newText = newText.replace(CJK_HASH, '$1 $2');
-        newText = newText.replace(HASH_CJK, '$1 $3');
+        newText = newText.replace(HASH_ANS_CJK_HASH, '$1\u2009$2$3$4\u2009$5');
+        newText = newText.replace(CJK_HASH, '$1\u2009$2');
+        newText = newText.replace(HASH_CJK, '$1\u2009$3');
 
-        newText = newText.replace(CJK_OPERATOR_ANS, '$1 $2 $3');
-        newText = newText.replace(ANS_OPERATOR_CJK, '$1 $2 $3');
+        newText = newText.replace(CJK_OPERATOR_ANS, '$1\u2009$2\u2009$3');
+        newText = newText.replace(ANS_OPERATOR_CJK, '$1\u2009$2\u2009$3');
 
         newText = newText.replace(FIX_SLASH_AS, '$1$2');
         newText = newText.replace(FIX_SLASH_AS_SLASH, '$1$2$3');
 
-        newText = newText.replace(CJK_LEFT_BRACKET, '$1 $2');
-        newText = newText.replace(RIGHT_BRACKET_CJK, '$1 $2');
+        newText = newText.replace(CJK_LEFT_BRACKET, '$1\u2009$2');
+        newText = newText.replace(RIGHT_BRACKET_CJK, '$1\u2009$2');
         newText = newText.replace(FIX_LEFT_BRACKET_ANY_RIGHT_BRACKET, '$1$2$3');
-        newText = newText.replace(ANS_CJK_LEFT_BRACKET_ANY_RIGHT_BRACKET, '$1 $2$3$4');
-        newText = newText.replace(LEFT_BRACKET_ANY_RIGHT_BRACKET_ANS_CJK, '$1$2$3 $4');
+        newText = newText.replace(ANS_CJK_LEFT_BRACKET_ANY_RIGHT_BRACKET, '$1\u2009$2$3$4');
+        newText = newText.replace(LEFT_BRACKET_ANY_RIGHT_BRACKET_ANS_CJK, '$1$2$3\u2009$4');
 
-        newText = newText.replace(AN_LEFT_BRACKET, '$1 $2');
-        newText = newText.replace(RIGHT_BRACKET_AN, '$1 $2');
+        newText = newText.replace(AN_LEFT_BRACKET, '$1\u2009$2');
+        newText = newText.replace(RIGHT_BRACKET_AN, '$1\u2009$2');
 
-        newText = newText.replace(CJK_ANS, '$1 $2');
-        newText = newText.replace(ANS_CJK, '$1 $2');
+        newText = newText.replace(CJK_ANS, '$1\u2009$2');
+        newText = newText.replace(ANS_CJK, '$1\u2009$2');
 
-        newText = newText.replace(S_A, '$1 $2');
+        newText = newText.replace(S_A, '$1\u2009$2');
 
         newText = newText.replace(MIDDLE_DOT, '・');
 

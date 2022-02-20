@@ -30,6 +30,7 @@ export const usePatternEngine = (
     const editPayload = useAppSelector(editPayloadSelector);
 
     useEffect(() => {
+        console.log("deps!!!!!!");
         if (containerRef.current) {
             const engine = new PatternGraphEngine(
                 modelInstance,

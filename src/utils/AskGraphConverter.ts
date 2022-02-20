@@ -21,11 +21,6 @@ export const convertAskGraphOntModel = (ontModel: AskGraph.RootModel): CommonMod
         })
     ), n => n._id)
 
-
-    // console.log(concepts, properties)
-
-
-    // Merge properties to classes
     edgeGroups.HAS_PROPERTY.forEach(
         e => {
             if (e.from == null || e.to == null) return;
@@ -59,7 +54,7 @@ export const convertAskGraphOntModel = (ontModel: AskGraph.RootModel): CommonMod
             name: c.name,
             properties: c.PROPERTY,
             parent: c.PARENT,
-            children: c.CHILDREN,
+            children: c.CHILDREN
         }
     });
     const relations = edgeGroups.HAS_RELATION_CONCEPT.filter(

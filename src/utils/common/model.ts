@@ -91,10 +91,9 @@ export namespace CommonModel {
         public colorSlots: Record<IdType, IColoredClass>;
 
         constructor(name: string, classes: IClass[], relations: IRelation[]) {
-
+            console.log("constructior called!!!!")
             this.name = name;
             this.classes = classes;
-            // this.classDict = _.keyBy(classes, it => it.id)
             this.relations = relations;
 
             this.connectable = Object.fromEntries(classes.map(
@@ -112,7 +111,6 @@ export namespace CommonModel {
                 c => ({ from: _.uniq(c?.from), to: _.uniq(c?.to) })
             )
 
-            console.log(this.connectable);
 
             this.colorSlots = Object.fromEntries(classes.map(
                 (c, index) => [c.id, { colorSlot: new ColorSlot(figmaColorScheme[index]).asObject(), ...c }]

@@ -50,8 +50,8 @@
     color: #fff;
 }
 .constraint-intellisense-button:hover>.shimmed {
-    color: #20222a!important;
-    opacity: 0.6!important;
+    color: #00ffb3!important;
+    /* opacity: 0.6!important; */
 }
 
 .hint-root{

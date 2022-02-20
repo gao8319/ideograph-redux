@@ -16,7 +16,7 @@ import { isNotEmpty } from "../utils/common/utils";
 import { Dictionary } from "lodash";
 
 
-export enum RaiseMessageType{
+export enum RaiseMessageType {
     Error,
     Warning,
     Success,
@@ -315,31 +315,40 @@ export class PatternGraphEngine {
                         RaiseMessageType.Error,
                         true
                     )
-                    return;
-                };
+                }
+                else if (n.uuid === this.createEdgeFrom?.uuid) {
+                    this._onRaiseMessageCallback?.(
+                        `不支持自环`,
+                        RaiseMessageType.Error,
+                        true
+                    )
+                }
+                else {
 
-                Object.values(this.nodeDict).forEach(_n => _n.setDisabled(false))
-                Object.values(this.edgeDict).forEach(_n => _n.setDisabled(false))
+                    const e = new PatternEdge(
+                        this.createEdgeFrom!,
+                        n,
+                        true,
+                        nanoid()
+                    )
+                    this._onEdgeCreatedCallback?.(e.asObject())
+                    this.edgeDict[e.uuid] = e;
 
-                const e = new PatternEdge(
-                    this.createEdgeFrom!,
-                    n,
-                    true,
-                    nanoid()
-                )
-                this._onEdgeCreatedCallback?.(e.asObject())
-                this.edgeDict[e.uuid] = e;
-
-                e.attachTo(this.coreLayer);
-                e.on('click', clickEvent => {
-                    this.onEdgeClick(e, clickEvent)
-                });
-                setTimeout(
-                    () => {
-                        this.focusedElement = e;
-                    }, 0
-                )
+                    e.attachTo(this.coreLayer);
+                    e.on('click', clickEvent => {
+                        this.onEdgeClick(e, clickEvent)
+                    });
+                    setTimeout(
+                        () => {
+                            this.focusedElement = e;
+                        }, 0
+                    )
+                }
             }
+            Object.values(this.nodeDict).forEach(_n => _n.setDisabled(false))
+            Object.values(this.edgeDict).forEach(_n => _n.setDisabled(false))
+
+            this.focusedElement = null;
             this.createEdgeFrom = null;
             this.mouseHoveringAtNode = null;
             this.editMode = EditMode.CreatingEdgeFrom;
