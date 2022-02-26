@@ -4,6 +4,7 @@ import { CommonModel } from "../../utils/common/model";
 import { Arrow } from "../elements/Arrow";
 import { PatternNode } from "./PatternNode";
 import { IFocusableElement, IVisualElement, VisualElementType } from "./VisualElement";
+import './PatternEdge.css';
 
 interface RenderElements {
     root: D3<SVGGElement>;

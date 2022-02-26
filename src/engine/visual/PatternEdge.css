@@ -1,6 +1,10 @@
 g.p-e[disabled=true] {
-    opacity: 0.3;
+    opacity: 0.2;
     pointer-events: none;
+}
+
+g.p-e[disabled=true] path {
+    stroke-width: 2px;
 }
 
 g.p-e{

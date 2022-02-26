@@ -53,6 +53,7 @@
     align-items: center;
     grid-template-columns: 16px 16px 10px;
     text-align: center;
+    font-feature-settings: "ss02";
 }
 
 .contextual-callout-item-helper> * {

@@ -58,6 +58,7 @@ const operatorDescription: Record<ComparisonOperator, string> = {
 }
 
 
+
 const acceptableOperatorDict: Required<Record<PrimitiveTypeName, ComparisonOperator[]>> = {
     "string":
         [ComparisonOperator.Equal, ComparisonOperator.NotEqual, ComparisonOperator.MatchRegex],

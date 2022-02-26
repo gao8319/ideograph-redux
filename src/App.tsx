@@ -14,29 +14,20 @@ import { useIdeographShortcuts } from './utils/useIdeographShortcuts';
 import { ConceptPanel } from './components/Panels/ConceptPanel/ConceptPanel';
 import { PropertyPanel } from './components/Panels/PropertyPanel/PropertyPanel';
 import { GlobalPanel } from './components/Panels/GlobalPanel/GlobalPanel';
-import React from 'react';
 import { PatternGraphEngine, RaiseMessageCallback, RaiseMessageType } from './engine/PatternGraphEngine';
 import { usePatternEngine } from './utils/usePatternEngine';
-import { CommonModel } from './utils/common/model';
 import { Grow, Snackbar } from '@mui/material';
 import { Alert } from './components/StyledMessage';
 import { Error20, Help20 } from '@carbon/icons-react';
-import { useTitle } from 'react-use';
-import { pangu } from './utils/common/pangu';
+const App = () => {
 
-function App() {
-    const dispatch = useAppDispatch();
+    useIdeographShortcuts();
+
     const model = useAppSelector(modelSelector);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackBarContent, setSnackBarContent] = useState<Parameters<RaiseMessageCallback> & { timestamp: number }>();
 
-
-    useEffect(() => {
-        console.log("MMMMMM")
-    }, [model])
-    
-    useIdeographShortcuts();
-    const { containerRef, engineRef } = usePatternEngine(
+    const { containerRef } = usePatternEngine(
         model,
         (...args) => { setSnackBarContent({ ...args, timestamp: new Date().getTime() }); setSnackbarOpen(true); },
         [model]

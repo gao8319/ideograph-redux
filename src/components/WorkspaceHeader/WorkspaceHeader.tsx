@@ -1,4 +1,4 @@
-import { AddAlt20, ChevronDown16, Code20, Cursor_220, Cursor_224, MacCommand16, MacOption16, Network_320, Network_420, Search20 } from '@carbon/icons-react';
+import { AddAlt20, ChevronDown16, Code20, Cursor_220, Cursor_224, MacCommand16, MacOption16, MacShift16, Network_320, Network_420, Search20 } from '@carbon/icons-react';
 import { TextField, TooltipHost } from '@fluentui/react';
 import { Tooltip } from '@mui/material';
 import React, { useEffect, useState } from 'react';
@@ -104,7 +104,11 @@ export const WorkspaceHeader = (props: IWorkspaceHeaderProps) => {
                             text: 'meta',
                         }],
                         [
-                            { text: "导出为JSON文件", onRenderHelper: () => <><span></span><MacCommand16 />{"E"}</>, onClick: () => { dispatch(exportToJson()) } }
+                            { text: "以JSON格式导出", onRenderHelper: () => <><span></span><MacCommand16 />{"E"}</>, onClick: () => { dispatch(exportToJson()) } },
+                            { text: "以Protocol Buffers格式导出", onRenderHelper: () => <><MacCommand16 /><MacShift16 />{"E"}</>, onClick: () => { dispatch(exportToJson()) } }
+                        ],
+                        [
+                            { text: "导入", onRenderHelper: () => <><span></span><MacCommand16 />{"I"}</>, onClick: () => { dispatch(exportToJson()) } }
                         ], [
                             { text: "生成Cypher语句", onRenderHelper: () => <><MacCommand16 /><MacOption16 />{"C"}</>, onClick: () => { dispatch(inspectGeneratedCode("Cypher")) } },
                             { text: "生成GraphQL语句", onRenderHelper: () => <><MacCommand16 /><MacOption16 />{"G"}</>, onClick: () => { dispatch(inspectGeneratedCode("GraphQL")) } },

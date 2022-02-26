@@ -32,8 +32,6 @@ export const usePatternEngine = (
     const containerRef = useRef<HTMLDivElement>(null);
     const engineRef = useRef<PatternGraphEngine>();
     const dispatch = useAppDispatch();
-
-
     const editMode = useAppSelector(editModeSelector);
     const editPayload = useAppSelector(editPayloadSelector);
 

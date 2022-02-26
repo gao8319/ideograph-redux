@@ -38,11 +38,14 @@ export class PatternGraphEngine {
 
         if (this._editMode === e) return;
         this._editMode = e;
+        
         //Clean up
         this.mouseIndicatorLayer?.attr('transform', 'translate(0,0)');
         this.mouseIndicatorLayer?.selectChildren('*').remove();
         this.nodeIndicator = undefined;
         this.connectionIndicator = undefined;
+        Object.values(this.nodeDict).forEach(_n => _n.setDisabled(false))
+        Object.values(this.edgeDict).forEach(_n => _n.setDisabled(false))
     }
     public editPayload: string | number | null = null
 
@@ -214,6 +217,10 @@ export class PatternGraphEngine {
         // Clear up works
         this.nodeIndicator?.remove();
         this.nodeIndicator = undefined;
+        // this.mouseIndicatorLayer?.remove();
+        // this.mouseIndicatorLayer = undefined;
+        this.connectionIndicator?.remove();
+        this.connectionIndicator = undefined;
     }
 
     private onClick = (ev: MouseEvent) => {

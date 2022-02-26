@@ -2,6 +2,19 @@ import { Primitive } from "d3";
 
 export type PrimitiveTypeName = "string" | "number" | "boolean"
 
+type PrimitiveTypePair<P extends PrimitiveTypeName> = {
+    [K in P]: PrimitiveType<K>
+}
+
+export const primitiveTypeDefaultValue: PrimitiveTypePair<PrimitiveTypeName> = {
+    "string": "",
+    "number": 0,
+    "boolean": true,
+}
+
+export const defaultPrimitive = <P extends PrimitiveTypeName>(p: P) => primitiveTypeDefaultValue[p]
+
+
 export type PrimitiveType<T extends PrimitiveTypeName>
     = T extends "string"
     ? string
