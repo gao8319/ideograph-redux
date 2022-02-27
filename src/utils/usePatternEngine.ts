@@ -84,11 +84,11 @@ export const usePatternEngine = (
             });
             engine.setOnNodeCreatedCallback(n => {
                 dispatch(addNode(n));
-                dispatch(setEditPayloadDangerously(undefined))
+                // dispatch(setEditPayloadDangerously(undefined))
             })
             engine.setOnEdgeCreatedCallback(e => {
                 dispatch(addEdge(e));
-                dispatch(setEditPayloadDangerously(undefined))
+                // dispatch(setEditPayloadDangerously(undefined))
             })
             engine.setRaiseMessageCallback(raiseMessage)
             // engine.setOnConstraintCreatedCallback(c => dispatch(addConstraint(c)))

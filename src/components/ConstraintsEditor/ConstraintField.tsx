@@ -3,6 +3,7 @@ import { InputBase, Popover, Popper, styled, useAutocomplete } from "@mui/materi
 import { nanoid } from "@reduxjs/toolkit"
 import React, { useImperativeHandle } from "react"
 import { useEffect, useMemo, useRef, useState } from "react"
+import { useUpdateEffect } from "react-use"
 import { Constraint, PrimitiveType, PrimitiveTypeName } from "../../engine/ontology/Constraints"
 import { IOntologyClass, ISchemaProperty } from "../../engine/ontology/OntologyClass"
 import { PatternGraphEngine } from "../../engine/PatternGraphEngine"
@@ -144,7 +145,7 @@ export const ConstraintField = React.forwardRef<IConstraintFieldRef, IConstraint
         // TODO: validate
 
 
-        useEffect(() => {
+        useUpdateEffect(() => {
             // console.log(isValueInputFocused, isOperatorInputFocused, isPropNameInputFocused)
             if ((!isOperatorInputFocused) && (!isPropNameInputFocused) && (!isValueInputFocused)) {
                 // console.log(prop, value, operator);

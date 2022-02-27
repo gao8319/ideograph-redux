@@ -82,7 +82,7 @@ export const convertAskGraphOntModel = (ontModel: AskGraph.RootModel): CommonMod
     //     }),
     //     ,
     // );
-    return {name, classes, relations}
+    return {name, classes: classes as any, relations}
 }
 
 
