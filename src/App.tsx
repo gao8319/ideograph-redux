@@ -9,7 +9,7 @@ import { addConstraint } from './store/slice/constraintSlicer';
 import { askGraphModel } from './utils/AskGraph';
 import { convertAskGraphOntModel } from './utils/AskGraphConverter';
 import { WorkspaceHeader } from './components/WorkspaceHeader/WorkspaceHeader';
-import { editModeSelector, modelSelector, setEditMode, workspaceSelector } from './store/slice/modelSlicer';
+import { editModeSelector, leftPanelWidthSelector, modelSelector, rightPanelWidthSelector, setEditMode, workspaceSelector } from './store/slice/modelSlicer';
 import { useIdeographShortcuts } from './utils/useIdeographShortcuts';
 import { ConceptPanel } from './components/Panels/ConceptPanel/ConceptPanel';
 import { PropertyPanel } from './components/Panels/PropertyPanel/PropertyPanel';
@@ -24,6 +24,8 @@ const App = () => {
     useIdeographShortcuts();
 
     const model = useAppSelector(modelSelector);
+    const lPanelWidth = useAppSelector(leftPanelWidthSelector);
+    const rPanelWidth = useAppSelector(rightPanelWidthSelector);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackBarContent, setSnackBarContent] = useState<Parameters<RaiseMessageCallback> & { timestamp: number }>();
 
@@ -39,14 +41,13 @@ const App = () => {
             <WorkspaceHeader />
             <div className='workspace-container'>
                 <Snackbar
-                    anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-                    key={snackBarContent?.timestamp ?? 0}
+                    anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+                    // key={snackBarContent?.timestamp ?? 0}
                     open={snackbarOpen}
-                    autoHideDuration={2000}
+                    autoHideDuration={3000}
                     onClose={_ => setSnackbarOpen(false)}
-                    style={{ top: 64 }}
-                >
-                    <div className='global-message'>
+                    style={{ top: 48, left: lPanelWidth, zIndex: 1 }}>
+                    <div className='global-message' style={{ width: `calc(100vw - ${lPanelWidth + rPanelWidth}px)` }}>
                         <Error20 fill="#EB5757" />
                         <div dangerouslySetInnerHTML={{ __html: snackBarContent?.[0] ?? "" }} />
                     </div>

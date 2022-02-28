@@ -13,6 +13,7 @@ body {
     height: calc(100vh - 48px);
     width: 100%;
     position: relative;
+    overflow: hidden;
     --global-panel-height: min(360px, 40vh);
     --left-panel-width: max(240px, 15vw);
     --right-panel-width: max(320px, 20vw);

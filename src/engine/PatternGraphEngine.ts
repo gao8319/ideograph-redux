@@ -38,7 +38,7 @@ export class PatternGraphEngine {
 
         if (this._editMode === e) return;
         this._editMode = e;
-        
+
         //Clean up
         this.mouseIndicatorLayer?.attr('transform', 'translate(0,0)');
         this.mouseIndicatorLayer?.selectChildren('*').remove();
@@ -86,6 +86,22 @@ export class PatternGraphEngine {
     public setOnConstraintCreatedCallback = (cb: typeof this._onConstraintCreatedCallback) => { this._onConstraintCreatedCallback = cb; }
     public setRaiseMessageCallback = (cb: typeof this._onRaiseMessageCallback) => { this._onRaiseMessageCallback = cb; }
 
+    // public notifyNodeConstrained(nodeId: IPatternNode['id'], isConstrained = true) {
+    //     this.nodeDict[nodeId].isConstrained = isConstrained;
+    // }
+    // public notifyEdgeConstrained(edgeId: IPatternEdge['id'], isConstrained = true) {
+    //     this.edgeDict[edgeId].isConstrained = isConstrained;
+    // }
+
+    public notifyElementConstrained(ele: (IPatternNode | IPatternEdge) & {
+        type: VisualElementType;
+    }, isConstrained = true) {
+        if (ele.type === VisualElementType.Node) {
+            this.nodeDict[ele.id].isConstrained = isConstrained;
+        } else {
+            this.edgeDict[ele.id].isConstrained = isConstrained;
+        }
+    }
 
     private nodeDict: Dictionary<PatternNode> = {};
     private edgeDict: Dictionary<PatternEdge> = {};

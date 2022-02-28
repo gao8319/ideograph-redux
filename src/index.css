@@ -1,4 +1,15 @@
-@import url('https://www.apple.com/wss/fonts?family=SF+Mono&v=2');
+@font-face {
+    font-family: SFMono;
+    font-weight: 400;
+    src: url(../static/SFMonoRegular.otf);
+}
+
+@font-face {
+    font-family: SFMono;
+    font-weight: 600;
+    src: url(../static/SFMonoSemibold.otf);
+}
+
 @import url('https://rsms.me/inter/inter.css');
 
 input::selection{
@@ -24,7 +35,7 @@ body {
     --display-font: 'Inter var', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'SF', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
     accent-color: var(--primary-color);
     font-family: var(--font);
-    --mono-font: "SF Mono", SFMono-Regular, ui-monospace, -apple-system, BlinkMacSystemFont, monospace;
+    --mono-font: "SFMono", ui-monospace, -apple-system, BlinkMacSystemFont, monospace;
 
     --primary: #1870fb;
 
@@ -69,21 +80,20 @@ body.cursor-ns{
 
 
 .global-message {
-
-    animation: snackbar-in 2000ms;
-
-
+    animation: snackbar-in 3000ms;
     background-color: #fff;
     /* border: 1px solid var(--grey100); */
     height: 48px;
     /* margin-top: 48; */
     padding: 0 16px;
     display: grid;
-    grid-template-columns: auto auto auto;
+    grid-template-columns: auto auto 1fr;
     column-gap: 16px;
     align-items: center;
     font-size: 14px;
-    box-shadow: rgba(0, 0, 0, 0.1) 0px 4.8px 9.6px 0px, rgba(0, 0, 0, 0.12) 0px 0.6px 1px 0px;
+    border-bottom: 1px solid var(--grey100);
+    z-index: 0;
+    /* box-shadow: rgba(0, 0, 0, 0.1) 0px 4.8px 9.6px 0px, rgba(0, 0, 0, 0.12) 0px 0.6px 1px 0px; */
 }
 
 .global-message>div>b {
@@ -96,11 +106,11 @@ body.cursor-ns{
         opacity: 0;
         transform: translateY(-8px);
     }
-    5% {
+    6% {
         opacity: 1;
         transform: translateY(0px);
     }
-    95% {
+    94% {
         opacity: 1;
         transform: translateY(0px);
     }
@@ -110,3 +120,7 @@ body.cursor-ns{
     }
 }
 
+
+tspan {
+    font-family: var(--mono-font);
+}

@@ -1,9 +1,10 @@
 import { Add20, Add24, Checkmark20, Subtract20, Subtract24 } from "@carbon/icons-react";
 import { Button } from "@mui/material";
 import { nanoid } from "@reduxjs/toolkit";
-import React from "react";
+import React, { useEffect } from "react";
 import { useMemo, useState } from "react";
 import { BinaryOperator } from "../../../engine/ontology/Constraints";
+import { PatternGraphEngine } from "../../../engine/PatternGraphEngine";
 import { VisualElementType } from "../../../engine/visual/VisualElement";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { addConstraint, deleteConstraint, modifyConstraint } from "../../../store/slice/constraintSlicer";
@@ -21,7 +22,12 @@ import { ControlLabel } from "../common/ControlLabel";
 import { PanelTitle } from "../common/PanelTitle";
 import { ElementMetaField } from "./ElementMetaField";
 
-export const PropertyPanelContent = () => {
+
+interface IPropertyPanelContent {
+    engine?: PatternGraphEngine
+}
+
+export const PropertyPanelContent = (props: IPropertyPanelContent) => {
     const dispatch = useAppDispatch()
     const focusElement = useAppSelector(focusElementSelector);
     const model = useAppSelector(modelSelector);

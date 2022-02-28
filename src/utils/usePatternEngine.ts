@@ -5,9 +5,9 @@ import { PatternEdge } from "../engine/visual/PatternEdge";
 import { PatternNode } from "../engine/visual/PatternNode";
 import { VisualElementType } from "../engine/visual/VisualElement";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { addConstraint } from "../store/slice/constraintSlicer";
+import { addConstraint, constraintsSelectors } from "../store/slice/constraintSlicer";
 import { addEdge } from "../store/slice/edgeSlicer";
-import { editModeSelector, editPayloadSelector, setEditModeWithPayload, setEditPayloadDangerously, setFocus, workspaceSelector } from "../store/slice/modelSlicer";
+import { editModeSelector, editPayloadSelector, elementConstraintsSelector, focusElementSelector, setEditModeWithPayload, setEditPayloadDangerously, setFocus, workspaceSelector } from "../store/slice/modelSlicer";
 import { addNode } from "../store/slice/nodeSlicer";
 import { EdgeDirection } from "./common/graph";
 import { CommonModel } from "./common/model"
@@ -20,7 +20,7 @@ export const usePatternEngine = (
     raiseMessage: RaiseMessageCallback,
     deps?: React.DependencyList,
 ) => {
-    
+
     // Cache model instance
     const modelInstance = useMemo(
         () => {
@@ -34,6 +34,7 @@ export const usePatternEngine = (
     const dispatch = useAppDispatch();
     const editMode = useAppSelector(editModeSelector);
     const editPayload = useAppSelector(editPayloadSelector);
+
 
     useEffect(() => {
         if (containerRef.current) {
@@ -92,6 +93,11 @@ export const usePatternEngine = (
             })
             engine.setRaiseMessageCallback(raiseMessage)
             // engine.setOnConstraintCreatedCallback(c => dispatch(addConstraint(c)))
+
+
+
+
+
             engineRef.current = engine;
             return () => {
                 engine.detach();
@@ -106,6 +112,18 @@ export const usePatternEngine = (
             engineRef.current.editMode = editMode;
         }
     }, [editMode, editPayload, engineRef.current])
+
+    const elementConstraints = useAppSelector(elementConstraintsSelector);
+    const focusElement = useAppSelector(focusElementSelector);
+    useEffect(() => {
+        if (focusElement) {
+            engineRef.current?.notifyElementConstrained(
+                focusElement,
+                elementConstraints.length > 0
+            );
+        }
+    }, [elementConstraints, engineRef.current])
+
 
     return {
         engineRef,

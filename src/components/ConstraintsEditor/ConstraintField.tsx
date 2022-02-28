@@ -38,7 +38,7 @@ const ConstraintBlockInputMono = styled(InputBase)(({ theme }) => ({
     fontFeatureSettings: '"liga" 1',
 }))
 
-const operatorLiteral: Record<ComparisonOperator, string> = {
+export const operatorLiteral: Record<ComparisonOperator, string> = {
     [ComparisonOperator.Equal]: "==",
     [ComparisonOperator.GreaterOrEqual]: ">=",
     [ComparisonOperator.LessOrEqual]: "<=",

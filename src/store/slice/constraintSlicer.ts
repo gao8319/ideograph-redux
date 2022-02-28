@@ -10,18 +10,48 @@ const constraintsAdapter = createEntityAdapter<IConstraint>({
     selectId: c => c.id
 })
 
+type constraintsAdapterOpType = "addOne" | "updateOne" | "removeOne"; //keyof typeof constraintsAdapter
+
+type constraintsAdapterOpPayload<T extends constraintsAdapterOpType>
+    = { payload: (Parameters<(typeof constraintsAdapter[T])>[1]) } & { action: T }
+
+type ConstraintsState<T extends constraintsAdapterOpType = constraintsAdapterOpType>
+    = ReturnType<typeof constraintsAdapter['getInitialState']> & {
+        lastOperation?: constraintsAdapterOpPayload<T>
+    }
+
+const initialState: ConstraintsState = constraintsAdapter.getInitialState();
+
 const constraintsSlicer = createSlice({
     name: 'constraint',
-    initialState: constraintsAdapter.getInitialState(),
+    initialState: initialState,
     reducers: {
-        addConstraint: constraintsAdapter.addOne,
-        modifyConstraint: constraintsAdapter.updateOne,
-        deleteConstraint: constraintsAdapter.removeOne,
+        addConstraint: (state: ConstraintsState, payload: Parameters<typeof constraintsAdapter['addOne']>[1]) => {
+            constraintsAdapter.addOne(state, payload);
+            state.lastOperation = {
+                action: 'addOne',
+                payload
+            }
+        },
+        modifyConstraint: (state: ConstraintsState, payload: Parameters<typeof constraintsAdapter['updateOne']>[1]) => {
+            constraintsAdapter.updateOne(state, payload);
+            state.lastOperation = {
+                action: 'updateOne',
+                payload
+            }
+        },
+        deleteConstraint: (state: ConstraintsState, payload: Parameters<typeof constraintsAdapter['removeOne']>[1]) => {
+            constraintsAdapter.removeOne(state, payload);
+            state.lastOperation = {
+                action: 'removeOne',
+                payload
+            }
+        },
     },
 })
 
 export const { modifyConstraint, deleteConstraint, addConstraint } = constraintsSlicer.actions
 
 export const constraintsSelectors = constraintsAdapter.getSelectors((state: RootState) => state.constraints)
-
+export const lastConstraintOperationSelector = (state: RootState) => state.constraints.lastOperation
 export default constraintsSlicer.reducer

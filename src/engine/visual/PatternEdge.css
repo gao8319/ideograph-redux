@@ -1,5 +1,5 @@
 g.p-e[disabled=true] {
-    opacity: 0.2;
+    opacity: 0.1;
     pointer-events: none;
 }
 
@@ -7,6 +7,6 @@ g.p-e[disabled=true] path {
     stroke-width: 2px;
 }
 
-g.p-e{
+g.p-e {
     transition: opacity 0.2s;
 }

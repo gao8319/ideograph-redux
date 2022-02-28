@@ -61,6 +61,8 @@ export const WorkspaceHeader = (props: IWorkspaceHeaderProps) => {
         color: '#fff',
         fontSize: 14,
         userSelect: 'none',
+        zIndex: 999,
+        position: 'relative',
     }}>
         <div style={{ height: '100%', width: '100%', display: 'flex', alignItems: 'center', paddingLeft: 8 }}>
             <WorkspaceCommand

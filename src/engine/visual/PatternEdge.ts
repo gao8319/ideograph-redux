@@ -101,6 +101,17 @@ export class PatternEdge implements IFocusableElement<VisualElementType.Edge> {
     }
     public get isDisabled() { return this._isDisabled }
 
+
+    private _isConstrained = false;
+
+    public set isConstrained(value: boolean) {
+        if (this._isConstrained !== value) {
+            this._isConstrained = value;
+            this.renderElements?.root.attr('constrained', value);
+        }
+    }
+    public get isConstrained() { return this._isConstrained }
+
     public asObject(): IPatternEdge {
         return {
             id: this.uuid,

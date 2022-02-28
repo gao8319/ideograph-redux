@@ -24,7 +24,7 @@ export class PatternNode implements IFocusableElement<VisualElementType.Node> {
     public readonly uuid: string
     public logicPosition: IPoint
 
-    private constraints: Map<string, Constraint> = new Map();
+    // private constraints: Map<string, Constraint> = new Map();
 
     protected renderElements?: RenderElements
 
@@ -108,37 +108,41 @@ export class PatternNode implements IFocusableElement<VisualElementType.Node> {
     // protected get isConstrained() {
     //     return this._isConstrained
     // }
-    protected set isConstrained(v: boolean) {
+    public set isConstrained(v: boolean) {
         if (v != this.isConstrained) {
             this._isConstrained = v;
             this.renderElements?.root.attr('constrained', v);
         }
     }
 
-    public setConstraint<T extends PrimitiveTypeName>(id: string, constraint: Constraint<T>) {
-        this.constraints.set(id, constraint);
-        this.isConstrained = true;
+    public get isConstrained () {
+        return this._isConstrained;
     }
 
-    public removeConstraints(constraintUuid: string) {
-        this.constraints.delete(constraintUuid);
-        if (this.constraints.size === 0) {
-            this.isConstrained = false;
-        }
-    }
+    // public setConstraint<T extends PrimitiveTypeName>(id: string, constraint: Constraint<T>) {
+    //     this.constraints.set(id, constraint);
+    //     this.isConstrained = true;
+    // }
 
-    public resetConstraints() {
-        this.constraints.clear();
-        this.isConstrained = false;
-    }
+    // public removeConstraints(constraintUuid: string) {
+    //     this.constraints.delete(constraintUuid);
+    //     if (this.constraints.size === 0) {
+    //         this.isConstrained = false;
+    //     }
+    // }
 
-    public getConstraints(constraintUuid: string) {
-        return this.constraints.get(constraintUuid);
-    }
+    // public resetConstraints() {
+    //     this.constraints.clear();
+    //     this.isConstrained = false;
+    // }
 
-    public getAllConstraints() {
-        return this.constraints;
-    }
+    // public getConstraints(constraintUuid: string) {
+    //     return this.constraints.get(constraintUuid);
+    // }
+
+    // public getAllConstraints() {
+    //     return this.constraints;
+    // }
 
 
     public asObject(): IPatternNode {
