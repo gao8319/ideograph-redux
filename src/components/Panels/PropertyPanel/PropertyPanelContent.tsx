@@ -36,6 +36,7 @@ export const PropertyPanelContent = (props: IPropertyPanelContent) => {
 
     // const [isTemporalFieldOpen, setTemporalFieldOpen] = useState(false);
 
+    console.log(focusElement);
 
     if (!focusElement) return <div>
         <PanelTitle text="定义和属性约束" />

@@ -1,19 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef } from "react"
+import { useEffect, useMemo, useRef } from "react"
 import { PatternGraphEngine, RaiseMessageCallback } from "../engine/PatternGraphEngine";
-import { EditMode } from "../engine/visual/EditMode";
-import { PatternEdge } from "../engine/visual/PatternEdge";
-import { PatternNode } from "../engine/visual/PatternNode";
-import { VisualElementType } from "../engine/visual/VisualElement";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { addConstraint, constraintsSelectors } from "../store/slice/constraintSlicer";
 import { addEdge } from "../store/slice/edgeSlicer";
 import { editModeSelector, editPayloadSelector, elementConstraintsSelector, focusElementSelector, setEditModeWithPayload, setEditPayloadDangerously, setFocus, workspaceSelector } from "../store/slice/modelSlicer";
 import { addNode } from "../store/slice/nodeSlicer";
-import { EdgeDirection } from "./common/graph";
 import { CommonModel } from "./common/model"
 import { isNotEmpty } from "./common/utils";
-
-
 
 export const usePatternEngine = (
     modelObject: CommonModel.ISerializedRoot,
@@ -27,7 +19,6 @@ export const usePatternEngine = (
             return CommonModel.deserializeFromObject(modelObject)
         }, [modelObject]
     )
-
 
     const containerRef = useRef<HTMLDivElement>(null);
     const engineRef = useRef<PatternGraphEngine>();
@@ -85,11 +76,11 @@ export const usePatternEngine = (
             });
             engine.setOnNodeCreatedCallback(n => {
                 dispatch(addNode(n));
-                // dispatch(setEditPayloadDangerously(undefined))
+                dispatch(setEditPayloadDangerously(undefined))
             })
             engine.setOnEdgeCreatedCallback(e => {
                 dispatch(addEdge(e));
-                // dispatch(setEditPayloadDangerously(undefined))
+                dispatch(setEditPayloadDangerously(undefined))
             })
             engine.setRaiseMessageCallback(raiseMessage)
             // engine.setOnConstraintCreatedCallback(c => dispatch(addConstraint(c)))
@@ -111,7 +102,7 @@ export const usePatternEngine = (
             engineRef.current.editPayload = isNotEmpty(editPayload) ? editPayload! : null;
             engineRef.current.editMode = editMode;
         }
-    }, [editMode, editPayload, engineRef.current])
+    }, [editMode, editPayload, engineRef])
 
     const elementConstraints = useAppSelector(elementConstraintsSelector);
     const focusElement = useAppSelector(focusElementSelector);
@@ -122,7 +113,7 @@ export const usePatternEngine = (
                 elementConstraints.length > 0
             );
         }
-    }, [elementConstraints, engineRef.current])
+    }, [elementConstraints, engineRef])
 
 
     return {

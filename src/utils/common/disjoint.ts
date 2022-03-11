@@ -10,6 +10,8 @@ export class DisjointSet<K extends PropertyKey = PropertyKey, T extends any = II
     public _sets: number;
     public _idAccessorFn: (obj: T) => K;
 
+    public get trees() { return this._size; }
+
     constructor(idAccessorFn: (obj: T) => K) {
         this._parent = {};
         this._rank = {};
@@ -128,10 +130,10 @@ export class DisjointSet<K extends PropertyKey = PropertyKey, T extends any = II
         return this._size[this._idAccessorFn(this._findSet(value))];
     }
 
-    public union(x: T, y: T) {
-        if (this.includes(x) && this.includes(y)) {
-            let xRep = this._findSet(x);
-            let yRep = this._findSet(y);
+    public union(parent: T, children: T) {
+        if (this.includes(parent) && this.includes(children)) {
+            let xRep = this._findSet(parent);
+            let yRep = this._findSet(children);
 
             if (xRep !== yRep) {
                 let xRepId = this._idAccessorFn(xRep);

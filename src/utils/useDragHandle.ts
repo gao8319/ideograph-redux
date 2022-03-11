@@ -15,7 +15,7 @@ export const useDragHandleProps = <T extends HTMLElement>(): Partial<React.HTMLP
             console.log(ev.clientX)
         },
         onClick: ev =>{
-            console.log("CLICK")
+            // console.log("CLICK")
         },
         onPointerDown: ev => {
             setWidth(ev.clientX)

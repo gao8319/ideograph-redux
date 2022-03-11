@@ -1,22 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="shortcut icon" type="image/png" href="/src/ideograph.png" />
-    <link rel="icon" type="image/png" href="/src/ideograph.png" />
-    <link rel="apple-touch-icon" type="image/png" href="/src/ideograph.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ideograph</title>
+
+<head>
     <style>
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
+
+        .loading-holder {
+            background-color: var(--grey50);
+            width: 100%;
+            height: 100%;
+            position: absolute;
+        }
+
+        .header-holder {
+            background-color: #20222a;
+            width: 100%;
+            height: 48px;
+            position: absolute;
+        }
     </style>
-  </head>
-  <body>
-    <div id="ideograph-app"></div>
+    <meta charset="UTF-8" />
+    <meta name="theme-color" content="#20222a" />
+    <link rel="shortcut icon" type="image/png" href="/src/ideograph.png" />
+    <link rel="icon" type="image/png" href="/src/ideograph.png" />
+    <link rel="apple-touch-icon" type="image/png" href="/src/ideograph.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ideograph</title>
+</head>
+
+<body>
+    <div id="ideograph-app">
+        <div class="loading-holder"/>
+        <div class="header-holder" />
+    </div>
     <script type="module" src="/src/main.tsx"></script>
-  </body>
+</body>
+
 </html>

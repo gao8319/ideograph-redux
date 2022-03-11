@@ -1,0 +1,19 @@
+<svg width="96" height="96" viewBox="0 0 512 512">
+    <defs>
+        <clipPath id="container">
+            <circle cx="256" cy="256" r="240" />
+        </clipPath>
+        <circle id="rotate-ring" cx="128" cy="128" r="216" fill="none" stroke="#20222a" stroke-width="12">
+            <animateTransform attributeName="transform" type="rotate" from="0 64 64" to="360 64 64"
+                begin="0s" dur="8s" repeatCount="indefinite" />
+        </circle>
+        <circle id="rotate-ring-2" cx="384" cy="384" r="216" fill="none" stroke="#20222a" stroke-width="12">
+            <animateTransform attributeName="transform" type="rotate" from="0 448 448" to="-360 448 448"
+                begin="0s" dur="4s" repeatCount="indefinite" />
+        </circle>
+    </defs>
+
+    <circle fill="transparent" stroke="#20222a" stroke-width="12" cx="256" cy="256" r="240" />
+    <use clip-path="url(#container)" href="#rotate-ring" />
+    <use clip-path="url(#container)" href="#rotate-ring-2" />
+</svg>

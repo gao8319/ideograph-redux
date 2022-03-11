@@ -108,7 +108,8 @@ export const TextableCommand = (props: ITextableCommandProps) => {
 
             {isCalloutOpen&&<Callout {...generalCalloutStyle}
                 target={buttonRef.current}
-                directionalHint={DirectionalHint.bottomCenter}>
+                directionalHint={DirectionalHint.bottomCenter}
+                onClick={()=>{setCalloutOpen(false)}}>
                 {props.onRenderCallout()}
             </Callout>}
         </>}

@@ -253,7 +253,8 @@ export class PatternGraphEngine {
                         const n = new PatternNode(
                             oc,
                             { x: ev.offsetX, y: ev.offsetY },
-                            nanoid()
+                            nanoid(),
+
                         )
                         this._onNodeCreatedCallback?.(n.asObject())
                         this.nodeDict[n.uuid] = n;
@@ -352,7 +353,8 @@ export class PatternGraphEngine {
                         this.createEdgeFrom!,
                         n,
                         true,
-                        nanoid()
+                        nanoid(),
+                        
                     )
                     this._onEdgeCreatedCallback?.(e.asObject())
                     this.edgeDict[e.uuid] = e;

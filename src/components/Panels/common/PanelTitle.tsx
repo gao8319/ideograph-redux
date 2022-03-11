@@ -7,10 +7,12 @@ interface IPanelTitleProps {
     text: string,
     children?: React.ReactNode,
     topBordered?: boolean,
+    dimmed?: boolean,
+    topUnpadded?: boolean
 }
 
 export const _PanelTitle = (props: IPanelTitleProps) => {
-    return <div className={props.topBordered?'panel-title-root panel-title-tb':'panel-title-root'}>
+    return <div className={props.topBordered ? 'panel-title-root panel-title-tb' : 'panel-title-root'} style={{ color: props.dimmed ? 'var(--grey200)' : undefined, paddingTop: props.topUnpadded ? 0 : undefined }}>
         <SpacedText>{props.text}</SpacedText>
         {props.children}
     </div>

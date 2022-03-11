@@ -29,7 +29,6 @@ export interface IPatternEdge {
     to: NodeID,
     direction: EdgeDirection,
     constraints: ConstraintID[],
-
     class: CommonModel.IEdgeClass
 }
 

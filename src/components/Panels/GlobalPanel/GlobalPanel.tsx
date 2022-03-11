@@ -3,10 +3,10 @@ import { useAppDispatch, useAppSelector } from "../../../store/hooks"
 import { bottomPanelHeightSelector, BOTTOM_DEFAULT, BOTTOM_MAX, BOTTOM_MIN, leftPanelWidthSelector, LEFT_MAX, LEFT_MIN, rightPanelWidthSelector, RIGHT_DEFAULT, RIGHT_MAX, RIGHT_MIN, setBottomPanelHeight, setLeftPanelWidth, setRightPanelWidth } from "../../../store/slice/modelSlicer"
 import './GlobalPanel.css'
 import Draggable from 'react-draggable';
-import { GlobalPanelContent } from "./GlobalPanelContent";
+import { GlobalPanelContent, IGlobalPanelContentRef } from "./GlobalPanelContent";
 
 interface IGlobalPanelProps {
-
+    children: React.ReactNode
 }
 
 const resizeBound = { top: BOTTOM_DEFAULT - BOTTOM_MAX, right: BOTTOM_DEFAULT - BOTTOM_MIN }
@@ -25,15 +25,15 @@ export const GlobalPanel = (props: IGlobalPanelProps) => {
         else document.body.className = "";
     }, [dragging])
 
-    const content = useMemo(
-        () => {
-            return <GlobalPanelContent />
-        }, [])
+    // const content = useMemo(
+    //     () => {
+    //         return <props.children/>
+    //     }, [])
 
     return <div className="global-panel-root panel"
         ref={rootRef}
         style={{ height: height, left: left, width: `calc(100% - ${right + left}px)` }}>
-        {content}
+        {props.children}
         <Draggable axis="y"
             onDrag={(ev, d) => {
                 dispatch(setBottomPanelHeight(height - d.y))

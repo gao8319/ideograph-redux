@@ -22,9 +22,9 @@ export enum OntologyEdgeType {
 
 export namespace CommonModel {
 
-    type IdType = Exclude<PropertyKey, symbol>
+    export type IdType = Exclude<PropertyKey, symbol>
 
-    interface IIdentifiable {
+    export interface IIdentifiable {
         id: IdType,
     }
 
@@ -74,7 +74,8 @@ export namespace CommonModel {
     export interface IRelation extends IIdentifiable, INamable {
         from: IdType,
         to: IdType,
-        direction: EdgeDirection
+        direction: EdgeDirection,
+        properties?: IProperty[]
     }
 
     export interface IProperty extends IIdentifiable, INamable {
@@ -91,7 +92,7 @@ export namespace CommonModel {
         public colorSlots: Record<IdType, IColoredClass>;
 
         constructor(name: string, classes: IClass[], relations: IRelation[]) {
-            console.log("constructior called!!!!")
+            // console.log("constructior called!!!!")
             this.name = name;
             this.classes = classes;
             this.relations = relations;

@@ -1,6 +1,8 @@
 import { Graph, Path, Shape, Node } from '@antv/x6';
 import { Update } from '@reduxjs/toolkit';
 import { IConstraint } from '../../../utils/common/graph';
+import { isNotEmpty } from '../../../utils/common/utils';
+import { ILogicOperator } from '../../../utils/PatternContext';
 import { operatorLiteral } from '../../ConstraintsEditor/ConstraintField';
 
 const portItems2_1 = (width?: number) => [{
@@ -44,6 +46,7 @@ const portItems1_1 = (width?: number) => [{
 export const addLogicNode = (
     graph: Graph,
     text: string,
+    id: string,
     nIn: number = 2,
     nOut: number = 1,
     primary?: string,
@@ -56,6 +59,7 @@ export const addLogicNode = (
         x: 16,
         y: 16,
         label: text,
+        id,
         attrs: {
             label: {
                 refX: 8,
@@ -110,9 +114,9 @@ export const addLogicNode = (
         }
     })
 }
-export const addLogicAddNode = (graph: Graph) => addLogicNode(graph, "与", 2, 1, '#EF6C00', '#FFF8E1', 64);
-export const addLogicOrNode = (graph: Graph) => addLogicNode(graph, "或", 2, 1, '#0277BD', '#E1F5FE', 64);
-export const addLogicNotNode = (graph: Graph) => addLogicNode(graph, "非", 1, 1, '#512DA8', '#EDE7F6', 64);
+export const addLogicAddNode = (graph: Graph, id: string) => addLogicNode(graph, "与", id, 2, 1, '#EF6C00', '#FFF8E1', 64);
+export const addLogicOrNode = (graph: Graph, id: string) => addLogicNode(graph, "或", id, 2, 1, '#0277BD', '#E1F5FE', 64);
+export const addLogicNotNode = (graph: Graph, id: string) => addLogicNode(graph, "非", id, 1, 1, '#512DA8', '#EDE7F6', 64);
 
 
 const registerBumpXConnector = () => {
@@ -142,6 +146,11 @@ export const createLogicComposingGraph = (container: HTMLDivElement) => new Grap
     container,
     grid: 16,
     connecting: {
+        allowLoop: false,
+        allowMulti: false,
+        allowEdge: false,
+        allowNode: false,
+        allowPort: true,
         router: {
             name: 'manhattan',
             args: {
@@ -173,8 +182,11 @@ export const createLogicComposingGraph = (container: HTMLDivElement) => new Grap
                 zIndex: 0,
             })
         },
-        validateConnection({ targetMagnet }) {
-            return !!targetMagnet
+        validateConnection(args) {
+            if (args?.sourceCell?.id && args?.targetCell?.id) {
+                console.log(args.sourceCell.id, args.targetCell.id)
+            }
+            return !!args.targetMagnet
         },
     },
 })
@@ -194,7 +206,7 @@ const describeConstraint = (c: IConstraint | Update<IConstraint>) => {
     if (c.changes) {
         //@ts-ignore
         const ic = c.changes as IConstraint
-        if ((ic.expression || ic.property) && ic.operator && ic.value)
+        if ((ic.expression || ic.property) && isNotEmpty(ic.operator) && isNotEmpty(ic.value))
             return `${ic.expression ?? ic.property?.name} ${operatorLiteral[ic.operator ?? 0]} ${ic.value}`;
         return ""
     }

@@ -3,7 +3,8 @@ import { EditMode } from "../../engine/visual/EditMode";
 import { VisualElementType } from "../../engine/visual/VisualElement";
 import { askGraphModel } from "../../utils/AskGraph";
 import { convertAskGraphOntModel } from "../../utils/AskGraphConverter";
-import { IPatternEdge, IPatternNode } from "../../utils/common/graph";
+import { PrimitiveTypeName } from "../../utils/common/data";
+import { EdgeDirection, IPatternEdge, IPatternNode } from "../../utils/common/graph";
 import { CommonModel } from "../../utils/common/model";
 import { pangu } from "../../utils/common/pangu";
 import { RootState } from "../store";
@@ -46,7 +47,10 @@ type WorkspaceState = {
     bottomPanelHeight: number,
 
     focusElement?: FocusElementPayload,
-    editPayload?: string | number
+    editPayload?: string | number,
+
+
+    codeModalState: AcceptableQueryLanguage | undefined,
 }
 
 const converted = convertAskGraphOntModel(askGraphModel);
@@ -55,19 +59,78 @@ const defaultModel = CommonModel.serializeToObject(
 )
 
 
+const injectedModel = new CommonModel.Root(
+    '测试模型',
+    [
+        {
+            id: 'Person',
+            name: '人',
+            properties: [{
+                id: 'Name',
+                type: PrimitiveTypeName.String,
+                name: '名字'
+            }, {
+                id: 'Age',
+                type: PrimitiveTypeName.Number,
+                name: '年龄'
+            }]
+        },
+        {
+            id: 'Account',
+            name: '账户',
+            properties: [{
+                id: 'AccountID',
+                type: PrimitiveTypeName.String,
+                name: '账户ID'
+            }]
+        },
+        {
+            id: 'Bank',
+            name: '银行',
+            properties: []
+        }
+    ],
+    [
+        {
+            id: 'Transfer',
+            name: '转账',
+            from: 'Account',
+            to: 'Account',
+            properties: [{
+                id: 'Amount',
+                type: PrimitiveTypeName.Number,
+                name: '金额'
+            }],
+            direction: EdgeDirection.Specified,
+        },
+        {
+            id: 'Owns',
+            name: '拥有',
+            from: 'Person',
+            to: 'Account',
+            properties: [],
+            direction: EdgeDirection.Specified,
+        }
+    ]
+)
+
+const injectedModelObject = CommonModel.serializeToObject(injectedModel);
+
+
 const initialState: WorkspaceState = {
-    model: defaultModel,
+    model: injectedModelObject,
     editMode: EditMode.CreatingNode,
-    projectName: '智慧城市领域知识模型系统',
+    projectName: injectedModel.name,
     workspaceName: '新工作区',
     createTime: new Date().getTime(),
     lastModifiedTime: new Date().getTime(),
     leftPanelWidth: LEFT_DEFAULT,
     rightPanelWidth: RIGHT_DEFAULT,
     bottomPanelHeight: BOTTOM_DEFAULT,
+    codeModalState: undefined,
 }
 
-export type AcceptableQueryLanguage = "Cypher" | "GraphQL" | "SQL"
+export type AcceptableQueryLanguage = "AskGraph API" | "Cypher" | "GraphQL" | "SQL" | "JSON"
 
 const workspaceSlicer = createSlice({
     name: 'workspace',
@@ -123,6 +186,9 @@ const workspaceSlicer = createSlice({
         },
         setEditPayloadDangerously(state, action: PayloadAction<string | number | undefined>) {
             state.editPayload = action.payload;
+        },
+        setCodeModal(state, action: PayloadAction<AcceptableQueryLanguage | undefined>) {
+            state.codeModalState = action.payload;
         }
     }
 })
@@ -141,9 +207,11 @@ export const {
     setFocus,
     setEditModeWithPayload,
     setEditPayloadDangerously,
+    setCodeModal
 } = workspaceSlicer.actions;
 
 export const modelSelector = (state: RootState) => state.workspace.model
+export const codeModalSelector = (state: RootState) => state.workspace.codeModalState
 export const editModeSelector = (state: RootState) => state.workspace.editMode
 export const projectNameSelector = (state: RootState) => state.workspace.projectName
 export const workspaceNameSelector = (state: RootState) => state.workspace.workspaceName
@@ -156,13 +224,20 @@ export const _focusElementSelector = (state: RootState) => state.workspace.focus
 export const focusElementSelector = createSelector(
     nodesSelectors.selectEntities,
     edgesSelectors.selectEntities,
+    modelSelector,
     _focusElementSelector,
-    (nodes, edges, fe): ((IPatternNode | IPatternEdge) & { type: VisualElementType }) | undefined => {
+    (nodes, edges, model, fe): ((IPatternNode | IPatternEdge) & { type: VisualElementType }) | undefined => {
         if (fe?.type === VisualElementType.Node) {
             return { ...nodes[fe.payload.id!]!, type: VisualElementType.Node }
         }
         else if (fe?.type === VisualElementType.Edge) {
-            return { ...edges[fe.payload.id!]!, type: VisualElementType.Edge }
+            const fromClass = nodes[fe.payload.from!]?.class.id
+            const toClass = nodes[fe.payload.to!]?.class.id
+            if (fromClass && toClass) {
+                const properties = model.relations.filter(it => it.from === fromClass && it.to === toClass)
+                return { ...edges[fe.payload.id!]!, type: VisualElementType.Edge, class: { ...edges[fe.payload.id!]!.class, properties: properties.flatMap(it => it.properties).filter(it => it !== undefined) as CommonModel.IProperty[] } }
+            }
+            return { ...nodes[fe.payload.id!]!, type: VisualElementType.Node }
         }
         else return undefined
     }

@@ -1,0 +1,21 @@
+import React from "react";
+import { useEffect } from "react";
+
+export const useMetaThemeColor = (main: string, light: string = main, dark: string = main) => {
+    const m = React.useRef(document.querySelector('meta[name="theme-color"]'));
+    const l = React.useRef(document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: light)"]'));
+    const d = React.useRef(document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: dark)"]'));
+
+    useEffect(() => {
+        if(m.current && main) {
+            m.current.setAttribute('content', main);
+        };
+        if(l.current && (light || main)) {
+            l.current.setAttribute('content', light ?? main);
+        };
+        if(d.current && (light || main)) {
+            d.current.setAttribute('content', dark ?? main);
+        };
+    }, [main, light, dark,])
+
+}
