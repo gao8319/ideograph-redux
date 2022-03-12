@@ -4,6 +4,7 @@ import { DisjointSet } from "./common/disjoint";
 import _ from "lodash";
 import { CommonModel } from "./common/model";
 import { VisualElementType } from "../engine/visual/VisualElement";
+import { IdeographIR } from "./IR";
 
 
 const MaybeUndefined = <T extends any>(value: T) => value as (T | undefined)
@@ -33,6 +34,8 @@ interface ICorePatternContext {
     edges: IPatternEdge[];
     constraintContext: IConstraintContext;
 }
+
+
 
 export class IdeographPatternContext implements IPatternContext {
 
@@ -152,38 +155,109 @@ export class IdeographPatternContext implements IPatternContext {
                     return false;
                 }
             }
-            return false;
         }
 
         const treeRootValidations = treeRoots.map(t => isFilledNode(validConstraintDict[t] as any));
 
+
+        // TODO: select all legal roots and push to ir.property
         console.log(treeRootValidations);
 
 
 
 
-        const validConstraintIds = validConstraints.map(sc => sc.id);
 
-        const fromToDict = {
+        // Prepare for hash lookup
+        const siftedNodeDicts = _.keyBy(siftedNodes, n => n.id);
+        const siftedEdgeDicts = _.keyBy(siftedEdges, e => e.id);
+        const siftedEdgeFromDicts = _.groupBy(siftedEdges, e => e.from);
+        const siftedEdgeToDicts = _.groupBy(siftedEdges, e => e.to);
+
+        const flagSiftedEdgesPushed = Object.fromEntries(siftedEdgeIds.map(id => [id, false]))
+        const flagSiftedNodesPushed = Object.fromEntries(siftedNodeIds.map(id => [id, false]))
+
+        const getIrNodeById = (id: string): IdeographIR.INode => {
+            const targetType = siftedNodeDicts[id].class.name
+            return {
+                alias: id,
+                type: targetType
+            }
+        }
+
+        const tryPushNextToPath = (irPath: IdeographIR.IPath): boolean => {
+
+            const lastNode = irPath.nodes[irPath.nodes.length - 1];
+
+            const fromCandidates = siftedEdgeFromDicts[lastNode.alias];
+            if (fromCandidates) {
+                const fromCandidate = fromCandidates.find(c => !flagSiftedEdgesPushed[c.id]);
+                if (fromCandidate) {
+                    const newIrNode = getIrNodeById(fromCandidate.to);
+                    flagSiftedEdgesPushed[fromCandidate.id] = true;
+                    flagSiftedNodesPushed[fromCandidate.to] = true;
+                    irPath.nodes.push(newIrNode);
+                    irPath.directionToNext.push(IdeographIR.Direction.Default);
+                    return true;
+                }
+            }
+
+            const toCandidates = siftedEdgeToDicts[lastNode.alias];
+            if (toCandidates) {
+                const toCandidate = fromCandidates.find(c => !flagSiftedEdgesPushed[c.id]);
+                if (toCandidate) {
+                    const newIrNode = getIrNodeById(toCandidate.from);
+                    flagSiftedEdgesPushed[toCandidate.id] = true;
+                    flagSiftedNodesPushed[toCandidate.from] = true;
+                    irPath.nodes.push(newIrNode);
+                    irPath.directionToNext.push(IdeographIR.Direction.Reversed);
+                    return true;
+                }
+            }
+
+            return false;
 
         }
 
+        // returns true if need to continue;
+        const makeIrPath = (): IdeographIR.IPath | null => {
 
-
-
-        const siftedOperators = this.constraintContext.logicOperators.filter(
-            so => {
-                return
+            const irPath: IdeographIR.IPath = {
+                nodes: [],
+                directionToNext: [],
             }
-        )
+
+            const firstNodeId = siftedNodeIds.find(n => !flagSiftedNodesPushed[n]);
+            if (firstNodeId) {
+                irPath.nodes.push(getIrNodeById(firstNodeId));
+                while (tryPushNextToPath(irPath));
+                return irPath;
+            }
+            return null;
+        }
+
+
+        const allIrPath = [];
+        while (true) {
+            const newIrPath = makeIrPath();
+            if (!newIrPath) break;
+            allIrPath.push(newIrPath);
+        }
+
+        const ir: IdeographIR.IRepresentation = {
+            propertyConstraint: null,
+            structureConstraint: {
+                paths: allIrPath,
+            }
+        }
+
+        const validConstraintIds = validConstraints.map(sc => sc.id);
 
         const siftedConstraintConnections = this.constraintContext.connections.filter(
             cc => {
-                return validConstraintIds.includes(cc.from) && (
-                    validConstraintIds.includes(cc.to)
-                )
+                return validConstraintIds.includes(cc.from) && validConstraintIds.includes(cc.to)
             }
         )
+
         return {
             nodes: siftedNodes,
             edges: siftedEdges,
