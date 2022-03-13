@@ -44,6 +44,25 @@ export class IdeographPatternContext implements IPatternContext {
     public edges: IPatternEdge[];
     public constraintContext: IConstraintContext;
 
+    protected _maxSubgraphNodes?: IPatternNode[];
+    protected _maxSubgraphNodeHashMap?: Record<IPatternNode['id'], IPatternNode>;
+    public get maxSubgraphNodeCount() { return this._maxSubgraphNodes?.length; }
+
+    protected _maxSubgraphEdges?: IPatternEdge[];
+    protected _maxSubgraphEdgeHashMap?: Record<IPatternEdge['id'], IPatternEdge>;
+    // protected _maxSubgraphNodeFromGroupMap?: Record<IPatternEdge['from'], IPatternEdge>;
+    // protected _maxSubgraphNodeToGroupMap?: Record<IPatternEdge['from'], IPatternEdge>;
+    public get maxSubgraphEdgeCount() { return this._maxSubgraphEdges?.length; }
+
+
+    protected _maxSubgraphConstraints?: IConstraint[];
+    public get maxSubgraphConstraintCount() { return this._maxSubgraphConstraints?.length; }
+    protected _maxSubgraphConstraintTreeRootIds?: IConstraint['id'][];
+    public get maxSubgraphConstraintTreeCount() { return this._maxSubgraphConstraintTreeRootIds?.length }
+
+    protected _ir?: IdeographIR.IRepresentation;
+    public get ir() { return this._ir }
+
     constructor(
         nodes: IPatternNode[],
         edges: IPatternEdge[],
@@ -102,7 +121,16 @@ export class IdeographPatternContext implements IPatternContext {
             pair => pair[1].id === selectedRootId
         ).map(pair => pair[0])
 
-        return largestSubgraphNodeIds?.map(it => this.nodeHashMap[it]);
+        // console.log(largestSubgraphNodeIds);
+
+        // console.log(largestSubgraphNodeIds?.map(it => this.nodeHashMap[it]))
+        this._maxSubgraphNodes = largestSubgraphNodeIds?.map(it => this.nodeHashMap[it]);
+        this._maxSubgraphNodeHashMap = _.keyBy(this._maxSubgraphNodes, n => n.id)
+        this._maxSubgraphEdges = this.edges.filter(
+            e => (this._maxSubgraphNodeHashMap?.[e.from] !== undefined)
+                && (this._maxSubgraphNodeHashMap?.[e.to] !== undefined)
+        );
+        return this._maxSubgraphNodes;
     }
 
     public getIrBySiftedNodes = async (
@@ -110,74 +138,10 @@ export class IdeographPatternContext implements IPatternContext {
         emitWarnings = false,
     ): Promise<IdeographIR.IRepresentation> => {
 
-
-        const siftedNodeIds = this.nodes.map(n => n.id);
-        const siftedEdges = this.edges.filter(
-            e => (siftedNodeIds.findIndex(nid => nid === e.from) >= 0)
-                && (siftedNodeIds.findIndex(nid => nid === e.to) >= 0)
-        );
+        const siftedNodeIds = siftedNodes.map(n => n.id);
+        const siftedEdges = this._maxSubgraphEdges;
 
         const siftedEdgeIds = this.edges.map(e => e.id);
-
-
-        const validConstraints = this.constraintContext.constraints.filter(
-            constraint => {
-                return (constraint.targetType === VisualElementType.Node && siftedNodeIds.includes(constraint.targetId))
-                    || (constraint.targetType === VisualElementType.Edge && siftedEdgeIds.includes(constraint.targetId))
-            }
-        )
-
-        const validConstraintDict = _.keyBy((validConstraints as CommonModel.IIdentifiable[]).concat(this.constraintContext.logicOperators), v => v.id);
-
-
-        const constraintDisjointSet = new DisjointSet<CommonModel.IdType>(obj => obj.id);
-        constraintDisjointSet.makeSetByArray(validConstraints);
-        constraintDisjointSet.makeSetByArray(this.constraintContext.logicOperators);
-
-        this.constraintContext.connections.forEach(
-            c => { constraintDisjointSet.union(validConstraintDict[c.to], validConstraintDict[c.from]) }
-        )
-
-        const treeRoots = Object.keys(constraintDisjointSet.trees)
-
-
-        console.log("Forest root num:", treeRoots.length);
-
-
-        const toFromDict = _.groupBy((this.constraintContext.connections), conn => conn.to)
-
-        // TODO: Bind boolean value to the node
-        const isFilledNode = <T extends IConstraint | ILogicOperator>(root: T): boolean => {
-            if ((root as IConstraint).targetId) {
-                if (siftedNodeIds.includes((root as IConstraint).targetId))
-                    return true;
-                return false;
-            } else {
-                const fromWhich = MaybeUndefined(toFromDict[(root as ILogicOperator).id])
-                if ((root as ILogicOperator).type === UnaryLogicOperator.Not) {
-                    if (fromWhich?.length === 1) {
-                        return isFilledNode(validConstraintDict[(fromWhich[0].from)] as any);
-                    }
-                    return false;
-                } else {
-                    if (fromWhich?.length === 2) {
-                        return isFilledNode(validConstraintDict[(fromWhich[0].from)] as any)
-                            && isFilledNode(validConstraintDict[(fromWhich[1].from)] as any);
-                    }
-                    return false;
-                }
-            }
-        }
-
-        const treeRootValidations = treeRoots.map(t => isFilledNode(validConstraintDict[t] as any));
-
-
-        // TODO: select all legal roots and push to ir.property
-        console.log(treeRootValidations);
-
-
-
-
 
         // Prepare for hash lookup
         const siftedEdgeFromDicts = _.groupBy(siftedEdges, e => e.from);
@@ -264,10 +228,65 @@ export class IdeographPatternContext implements IPatternContext {
                 paths: allIrPath,
             }
         }
-        return ir;
-        console.log(IdeographIR.IR2Cypher(ir));
+        this._ir = ir;
 
 
+        /****************************************
+         *           Sift constraints           *
+         ****************************************/
+
+        const validConstraints = this.constraintContext.constraints.filter(
+            constraint => {
+                return (constraint.targetType === VisualElementType.Node && siftedNodeIds.includes(constraint.targetId))
+                    || (constraint.targetType === VisualElementType.Edge && siftedEdgeIds.includes(constraint.targetId))
+            }
+        )
+        this._maxSubgraphConstraints = validConstraints;
+
+        const validConstraintDict = _.keyBy((validConstraints as CommonModel.IIdentifiable[]).concat(this.constraintContext.logicOperators), v => v.id);
+
+
+        const constraintDisjointSet = new DisjointSet<CommonModel.IdType>(obj => obj.id);
+        constraintDisjointSet.makeSetByArray(validConstraints);
+        constraintDisjointSet.makeSetByArray(this.constraintContext.logicOperators);
+
+        this.constraintContext.connections.forEach(
+            c => { constraintDisjointSet.union(validConstraintDict[c.to], validConstraintDict[c.from]) }
+        )
+
+        const treeRoots = Object.keys(constraintDisjointSet.trees)
+        this._maxSubgraphConstraintTreeRootIds = treeRoots;
+
+
+        // console.log("Forest root num:", treeRoots.length);
+
+
+        const toFromDict = _.groupBy((this.constraintContext.connections), conn => conn.to)
+
+        // TODO: Bind boolean value to the node
+        const isFilledNode = <T extends IConstraint | ILogicOperator>(root: T): boolean => {
+            if ((root as IConstraint).targetId) {
+                if (siftedNodeIds.includes((root as IConstraint).targetId))
+                    return true;
+                return false;
+            } else {
+                const fromWhich = MaybeUndefined(toFromDict[(root as ILogicOperator).id])
+                if ((root as ILogicOperator).type === UnaryLogicOperator.Not) {
+                    if (fromWhich?.length === 1) {
+                        return isFilledNode(validConstraintDict[(fromWhich[0].from)] as any);
+                    }
+                    return false;
+                } else {
+                    if (fromWhich?.length === 2) {
+                        return isFilledNode(validConstraintDict[(fromWhich[0].from)] as any)
+                            && isFilledNode(validConstraintDict[(fromWhich[1].from)] as any);
+                    }
+                    return false;
+                }
+            }
+        }
+
+        const treeRootValidations = treeRoots.map(t => isFilledNode(validConstraintDict[t] as any));
 
         const validConstraintIds = validConstraints.map(sc => sc.id);
 
@@ -276,6 +295,14 @@ export class IdeographPatternContext implements IPatternContext {
                 return validConstraintIds.includes(cc.from) && validConstraintIds.includes(cc.to)
             }
         )
+
+
+
+        return ir;
+
+
+
+
 
         // return {
         //     nodes: siftedNodes,

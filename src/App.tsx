@@ -1,13 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import './App.css'
 import { useAppDispatch, useAppSelector } from './store/hooks'
-
-import { nanoid } from '@reduxjs/toolkit';
-import { addNode, nodesSelectors } from './store/slice/nodeSlicer';
-import { ComparisonOperator } from './utils/common/operator';
-import { addConstraint, constraintsSelectors } from './store/slice/constraintSlicer';
-import { askGraphModel } from './utils/AskGraph';
-import { convertAskGraphOntModel } from './utils/AskGraphConverter';
 import { WorkspaceHeader } from './components/WorkspaceHeader/WorkspaceHeader';
 import { codeModalSelector, editModeSelector, leftPanelWidthSelector, modelSelector, rightPanelWidthSelector, setCodeModal, setEditMode, workspaceSelector } from './store/slice/modelSlicer';
 import { useIdeographShortcuts } from './utils/useIdeographShortcuts';
@@ -24,7 +17,9 @@ import { ActionButtonTiny } from './components/Panels/common/ActionButton';
 import { CodeEditor } from './components/CodeEditor/CodeEditor';
 import { PanelTitle } from './components/Panels/common/PanelTitle';
 import { GlobalPanelContent, IGlobalPanelContentRef } from './components/Panels/GlobalPanel/GlobalPanelContent';
-
+import { prepareCypherSyntaxHighlights } from './utils/CypherTextmate';
+import * as monaco from 'monaco-editor'
+import { wireTmGrammars } from './utils/editor-wire';
 
 const App = () => {
 
@@ -52,7 +47,18 @@ const App = () => {
             return globalConstraintPoolRef.current.getConstraintContext()
         }
         return null;
-    }, [globalConstraintPoolRef])
+    }, [globalConstraintPoolRef]);
+
+
+    useEffect(() => {
+        prepareCypherSyntaxHighlights()
+            .then(cypherTmLangSupport => {
+                (window as any).cypherTmLangSupport = cypherTmLangSupport;
+                wireTmGrammars(monaco, cypherTmLangSupport.registry, cypherTmLangSupport.grammars);
+                
+                // console.log("regged")
+            })
+    }, [])
 
     return (
         <>
@@ -102,4 +108,5 @@ const App = () => {
     )
 }
 
-export default App
+
+export default App;
