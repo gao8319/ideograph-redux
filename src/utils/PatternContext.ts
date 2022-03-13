@@ -40,7 +40,7 @@ interface ICorePatternContext {
 export class IdeographPatternContext implements IPatternContext {
 
     public nodes: IPatternNode[];
-    private nodeDict: Record<IPatternNode['id'], IPatternNode>;
+    private nodeHashMap: Record<IPatternNode['id'], IPatternNode>;
     public edges: IPatternEdge[];
     public constraintContext: IConstraintContext;
 
@@ -52,7 +52,7 @@ export class IdeographPatternContext implements IPatternContext {
         this.nodes = nodes;
         this.edges = edges;
         this.constraintContext = constraintContext;
-        this.nodeDict = _.keyBy(nodes, n => n.id);
+        this.nodeHashMap = _.keyBy(nodes, n => n.id);
     }
 
     public generateJSON = async () => {
@@ -73,36 +73,48 @@ export class IdeographPatternContext implements IPatternContext {
 
         this.edges.forEach(
             e => {
-                const from = this.nodes.find(n => n.id === e.from);
-                const to = this.nodes.find(n => n.id === e.to);
+                const from = this.nodeHashMap[e.from];
+                const to = this.nodeHashMap[e.to];
                 from && to && disjointSet.union(from, to);
             }
         );
 
-        const disjointParents = disjointSet.parents;
+        const selectedRoot = _.maxBy(Object.entries(disjointSet.trees), i => i[1]);
 
-        const groupedEntries: Record<string, [string, IPatternNode][]> = _.groupBy(
-            Object.entries(disjointParents),
-            entry => entry[1].id
-        );
+        if (!selectedRoot) return [];
 
-        const [largestSubgraphParentId, largestSubgraphNodes] = _.maxBy(
-            Object.entries(groupedEntries),
-            ([_, v]) => v.length
-        ) ?? [null, null];
+        const selectedRootId = selectedRoot[0];
 
-        return largestSubgraphNodes?.map(it => it[1]);
+        // const disjointParents = disjointSet.parents;
 
+        // const groupedEntries: Record<string, [string, IPatternNode][]> = _.groupBy(
+        //     Object.entries(disjointParents),
+        //     entry => entry[1].id
+        // );
+
+        // const [largestSubgraphParentId, largestSubgraphNodes] = _.maxBy(
+        //     Object.entries(groupedEntries),
+        //     ([_, v]) => v.length
+        // ) ?? [null, null];
+
+
+        const largestSubgraphNodeIds = Object.entries(disjointSet.parents).filter(
+            pair => pair[1].id === selectedRootId
+        ).map(pair => pair[0])
+
+        return largestSubgraphNodeIds?.map(it => this.nodeHashMap[it]);
     }
 
-    public siftSubgraphByNodes = async (
+    public getIrBySiftedNodes = async (
         siftedNodes: IPatternNode[],
         emitWarnings = false,
-    ): Promise<IPatternContext> => {
+    ): Promise<IdeographIR.IRepresentation> => {
+
+
         const siftedNodeIds = this.nodes.map(n => n.id);
         const siftedEdges = this.edges.filter(
-            e => siftedNodeIds.findIndex(nid => nid === e.from)
-                && siftedNodeIds.findIndex(nid => nid === e.to)
+            e => (siftedNodeIds.findIndex(nid => nid === e.from) >= 0)
+                && (siftedNodeIds.findIndex(nid => nid === e.to) >= 0)
         );
 
         const siftedEdgeIds = this.edges.map(e => e.id);
@@ -168,16 +180,15 @@ export class IdeographPatternContext implements IPatternContext {
 
 
         // Prepare for hash lookup
-        const siftedNodeDicts = _.keyBy(siftedNodes, n => n.id);
-        const siftedEdgeDicts = _.keyBy(siftedEdges, e => e.id);
         const siftedEdgeFromDicts = _.groupBy(siftedEdges, e => e.from);
         const siftedEdgeToDicts = _.groupBy(siftedEdges, e => e.to);
 
         const flagSiftedEdgesPushed = Object.fromEntries(siftedEdgeIds.map(id => [id, false]))
         const flagSiftedNodesPushed = Object.fromEntries(siftedNodeIds.map(id => [id, false]))
 
+
         const getIrNodeById = (id: string): IdeographIR.INode => {
-            const targetType = siftedNodeDicts[id].class.name
+            const targetType = this.nodeHashMap[id].class.name
             return {
                 alias: id,
                 type: targetType
@@ -203,7 +214,7 @@ export class IdeographPatternContext implements IPatternContext {
 
             const toCandidates = siftedEdgeToDicts[lastNode.alias];
             if (toCandidates) {
-                const toCandidate = fromCandidates.find(c => !flagSiftedEdgesPushed[c.id]);
+                const toCandidate = toCandidates.find(c => !flagSiftedEdgesPushed[c.id]);
                 if (toCandidate) {
                     const newIrNode = getIrNodeById(toCandidate.from);
                     flagSiftedEdgesPushed[toCandidate.id] = true;
@@ -229,7 +240,11 @@ export class IdeographPatternContext implements IPatternContext {
             const firstNodeId = siftedNodeIds.find(n => !flagSiftedNodesPushed[n]);
             if (firstNodeId) {
                 irPath.nodes.push(getIrNodeById(firstNodeId));
-                while (tryPushNextToPath(irPath));
+                flagSiftedNodesPushed[firstNodeId] = true;
+                while (true) {
+                    if (!tryPushNextToPath(irPath))
+                        break;
+                };
                 return irPath;
             }
             return null;
@@ -249,6 +264,10 @@ export class IdeographPatternContext implements IPatternContext {
                 paths: allIrPath,
             }
         }
+        return ir;
+        console.log(IdeographIR.IR2Cypher(ir));
+
+
 
         const validConstraintIds = validConstraints.map(sc => sc.id);
 
@@ -258,21 +277,21 @@ export class IdeographPatternContext implements IPatternContext {
             }
         )
 
-        return {
-            nodes: siftedNodes,
-            edges: siftedEdges,
-            constraintContext: {
-                constraints: [],
-                connections: [],
-                logicOperators: []
-            }
-        }
+        // return {
+        //     nodes: siftedNodes,
+        //     edges: siftedEdges,
+        //     constraintContext: {
+        //         constraints: [],
+        //         connections: [],
+        //         logicOperators: []
+        //     }
+        // }
     }
 
     public findLargestConnectedContext = async (emitWarnings = false) => {
         const connectedNodes = await this.findLargestConnectedNodes();
         if (connectedNodes) {
-            return await this.siftSubgraphByNodes(connectedNodes);
+            return await this.getIrBySiftedNodes(connectedNodes);
         }
         else {
             return null;

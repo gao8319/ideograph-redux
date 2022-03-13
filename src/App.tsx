@@ -24,7 +24,7 @@ import { ActionButtonTiny } from './components/Panels/common/ActionButton';
 import { CodeEditor } from './components/CodeEditor/CodeEditor';
 import { PanelTitle } from './components/Panels/common/PanelTitle';
 import { GlobalPanelContent, IGlobalPanelContentRef } from './components/Panels/GlobalPanel/GlobalPanelContent';
-import { IdeographPatternContext } from './utils/PatternContext';
+
 
 const App = () => {
 

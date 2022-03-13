@@ -9,6 +9,7 @@ import { Warning20 } from "@carbon/icons-react";
 import Color from "color";
 import React from "react";
 import { IConstraintContext, IdeographPatternContext, IPatternContext } from "../../utils/PatternContext";
+import { IdeographIR } from "../../utils/IR";
 
 export interface ICodeEditorProps {
     getConstraintContext: () => Omit<IConstraintContext, "constraints"> | null
@@ -18,12 +19,13 @@ export const CodeEditor = (
     props: ICodeEditorProps
 ) => {
     const editorContainerRef = useRef<HTMLDivElement>(null);
+    const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>();
     const nodes = useAppSelector(nodesSelectors.selectAll);
     const edges = useAppSelector(edgesSelectors.selectAll);
     const constraints = useAppSelector(constraintsSelectors.selectAll);
 
-    const patternContext = React.useMemo(
-        () => {
+    const patternContextIr = React.useMemo(
+        async () => {
             const partialConstraintContext = props.getConstraintContext();
             const ipc = partialConstraintContext ?
                 new IdeographPatternContext(nodes, edges, {
@@ -35,13 +37,9 @@ export const CodeEditor = (
                     constraints: [],
                     connections: [],
                     logicOperators: []
-                })
-            ipc.findLargestConnectedContext()
-                .then(
-                    sipc => {
-                        console.log(sipc)
-                    }
-                )
+                });
+            const ir = await ipc.findLargestConnectedContext();
+            ir && editorRef.current?.setValue(IdeographIR.IR2Cypher(ir));
             return ipc;
         }, [nodes, edges, constraints, props.getConstraintContext]
     )
@@ -59,7 +57,9 @@ export const CodeEditor = (
             theme: "vs",
             readOnly: true,
         });
+        editorRef.current = editor;
         return () => {
+            editorRef.current = undefined;
             editor.dispose();
         }
     }, [editorContainerRef]);

@@ -57,8 +57,8 @@ export namespace IdeographIR {
                 if (i === irPath.nodes.length - 1) {
                     return `(${n.alias ?? ""}:${n.type})`
                 }
-                const arrowText = irPath.directionToNext[i] === Direction.Default ? "->"
-                    : irPath.directionToNext[i] === Direction.Reversed ? "<-" : "-"
+                const arrowText = irPath.directionToNext[i] === Direction.Default ? "-->"
+                    : irPath.directionToNext[i] === Direction.Reversed ? "<--" : "--"
                 return `(${n.alias ?? ""}:${n.type})` + arrowText;
             }
         ).join('');
@@ -71,7 +71,7 @@ export namespace IdeographIR {
         if (ir.structureConstraint.paths.length <= 1) return mainPath;
 
         // TODO: immutable?
-        const compositePaths = ir.structureConstraint.paths.splice(0, 1).map(p => `WHERE EXISTS {\n${IRPath2Cypher(p)}\n}\n`).join("AND ");
+        const compositePaths = ir.structureConstraint.paths.slice(1).map(p => `WHERE EXISTS {\n    ${IRPath2Cypher(p)}\n}\n`).join("AND ");
         return mainPath + compositePaths;
     }
 
