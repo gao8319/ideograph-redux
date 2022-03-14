@@ -2,7 +2,6 @@ import { Graph, Path, Shape, Node } from '@antv/x6';
 import { Update } from '@reduxjs/toolkit';
 import { IConstraint } from '../../../utils/common/graph';
 import { isNotEmpty } from '../../../utils/common/utils';
-import { ILogicOperator } from '../../../utils/PatternContext';
 import { operatorLiteral } from '../../ConstraintsEditor/ConstraintField';
 
 const portItems2_1 = (width?: number) => [{

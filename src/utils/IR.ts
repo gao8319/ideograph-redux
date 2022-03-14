@@ -93,12 +93,14 @@ export namespace IdeographIR {
     export const IR2Cypher = (ir: IdeographIR.IRepresentation): string => {
         if (ir.structureConstraint.paths.length <= 0) return "";
         const mainPath = `MATCH ${IRPath2Cypher(ir.structureConstraint.paths[0])}\n`;
-        if (ir.structureConstraint.paths.length <= 1) return mainPath;
+        const returnSyntax = 'RETURN ()'
+
+        if (ir.structureConstraint.paths.length <= 1) return mainPath + returnSyntax;
 
         // TODO: immutable?
-        const compositePaths = ir.structureConstraint.paths.slice(1).map(p => `WHERE EXISTS {\n    ${IRPath2Cypher(p)}\n}\n`).join("AND ");
+        const compositePaths = ir.structureConstraint.paths.slice(1).map(p => `WHERE EXISTS {\n\t${IRPath2Cypher(p)}\n}\n`).join("AND ");
         const propertySyntax = ir.propertyConstraint ? `WHERE {\n\t${IRPropSyntax2Cypher(ir.propertyConstraint)}\n}\n` : ''
-        const returnSyntax = 'RETURN ()'
+        // const returnSyntax = 'RETURN ()'
         return mainPath + compositePaths + propertySyntax + returnSyntax;
     }
 

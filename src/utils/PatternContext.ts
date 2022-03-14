@@ -71,7 +71,6 @@ export class IdeographPatternContext implements IPatternContext {
         this.nodes = nodes;
         this.edges = edges;
         this.constraintContext = constraintContext;
-
         this.nodeHashMap = _.keyBy(nodes, n => n.id);
     }
 

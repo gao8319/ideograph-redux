@@ -1,18 +1,13 @@
-import { Callout } from "@fluentui/react"
-import { InputBase, Popover, Popper, styled, useAutocomplete } from "@mui/material"
+import { InputBase, Popper, styled, useAutocomplete } from "@mui/material"
 import { nanoid } from "@reduxjs/toolkit"
 import React, { useImperativeHandle } from "react"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useUpdateEffect } from "react-use"
 import { Constraint, PrimitiveType, PrimitiveTypeName } from "../../engine/ontology/Constraints"
-import { IOntologyClass, ISchemaProperty } from "../../engine/ontology/OntologyClass"
-import { PatternGraphEngine } from "../../engine/PatternGraphEngine"
-import { PatternNode } from "../../engine/visual/PatternNode"
 import { VisualElementType } from "../../engine/visual/VisualElement"
 import { IConstraint, IPatternNode } from "../../utils/common/graph"
 import { CommonModel } from "../../utils/common/model"
 import { ComparisonOperator } from "../../utils/common/operator"
-import { ideographDarkTheme } from "../../utils/ideographTheme"
 import './ConstraintInputField.css'
 
 

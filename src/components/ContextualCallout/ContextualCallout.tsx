@@ -20,7 +20,6 @@ export const ContextualCallout = (props: IContextualCalloutProps) => {
         {props.groups.map(
             (group, groupIndex) => {
                 const renderedItems = group.map(
-
                     item => {
                         return item.onRenderContent ? <div className='contextual-callout-free' key={item.text}>{item.onRenderContent()}</div>
                             : <div className='contextual-callout-item'

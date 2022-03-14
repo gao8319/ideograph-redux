@@ -1,9 +1,6 @@
-import { AddAlt20, ChevronDown16, Code20, Cursor_220, Cursor_224, MacCommand16, MacOption16, MacShift16, Network_320, Network_420, Search20 } from '@carbon/icons-react';
-import { TextField, TooltipHost } from '@fluentui/react';
-import { Tooltip } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import { Cursor_220, MacCommand16, MacOption16, MacShift16, Search20 } from '@carbon/icons-react';
+import React from 'react';
 import { useTitle } from 'react-use';
-import { PatternGraphEngine } from '../../engine/PatternGraphEngine';
 import { EditMode } from '../../engine/visual/EditMode';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { constraintsSelectors } from '../../store/slice/constraintSlicer';
@@ -44,9 +41,6 @@ export const WorkspaceHeader = (props: IWorkspaceHeaderProps) => {
     const nodeSize = useAppSelector(nodesSelectors.selectTotal);
     const edgeSize = useAppSelector(edgesSelectors.selectTotal);
     const constraintSize = useAppSelector(constraintsSelectors.selectTotal);
-
-    
-
     const dispatch = useAppDispatch();
 
     useTitle(pangu.spacing(`${workspaceName}\u2009-\u2009Ideograph`));
