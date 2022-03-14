@@ -29,8 +29,8 @@ export const CodeEditor = (
 
     const [warningMessage, setWarningMessage] = useState<string>();
 
-    const patternContextIr = React.useMemo(
-        async () => {
+    useEffect(
+        () => {
             const partialConstraintContext = props.getConstraintContext();
             const ipc = partialConstraintContext ?
                 new IdeographPatternContext(nodes, edges, {
@@ -43,14 +43,33 @@ export const CodeEditor = (
                     connections: [],
                     logicOperators: []
                 });
-            const ir = await ipc.findLargestConnectedContext();
+            ipc.findLargestConnectedContext().then(
+                ir => {
+                    // emit warnings
+                    if (
+                        (ipc.maxSubgraphNodeCount !== undefined
+                            && ipc.maxSubgraphNodeCount < ipc.nodes.length)
+                        || ((ipc.maxSubgraphConstraintTreeCount ?? 0) > 1)
+                    ) {
+                        const propertyWarning = ipc.maxSubgraphConstraintTreeCount
+                            ? (
+                                `这些属性约束中包含${ipc.maxSubgraphConstraintTreeCount
+                                }颗独立的逻辑树`
+                                + (ipc.maxSubgraphConstraintTreeCount > 1
+                                    ? "，它们将被以「与」逻辑运算符连接。"
+                                    : "。"
+                                )
+                            ) : "";
+                        setWarningMessage(
+                            `生成的语句仅包含最大连通子图中的${ipc.maxSubgraphNodeCount
+                            }个节点、${ipc.maxSubgraphEdgeCount}条边和仅针对它们的属性约束。`
+                            + propertyWarning
+                        )
+                    }
 
-            if (ipc.maxSubgraphNodeCount !== undefined && ipc.maxSubgraphNodeCount < ipc.nodes.length) {
-                setWarningMessage(`生成的语句仅包含最大连通子图中的${ipc.maxSubgraphNodeCount}个节点、${ipc.maxSubgraphEdgeCount}条边和仅针对它们的属性约束。`)
-            }
-
-            ir && editorRef.current?.setValue(IdeographIR.IR2Cypher(ir));
-            return ipc;
+                    ir && editorRef.current?.setValue(IdeographIR.IR2Cypher(ir));
+                }
+            )
         }, [nodes, edges, constraints, props.getConstraintContext]
     )
 
@@ -80,10 +99,19 @@ export const CodeEditor = (
 
 
 
-
-    // useEffect(() => {
-    //     patternContext.findLargestConnectedContext();
-    // }, [patternContext])
+    useEffect(() => {
+        const editorContainer = editorContainerRef.current;
+        if (editorContainer) {
+            const ro = new ResizeObserver(entries => {
+                const r = entries[0].contentRect
+                editorRef.current?.layout(r)
+            })
+            ro.observe(editorContainer)
+            return () => {
+                ro.unobserve(editorContainer);
+            }
+        }
+    }, [editorContainerRef])
 
 
 
@@ -97,6 +125,6 @@ export const CodeEditor = (
             <Warning16 fill="#8e562e" />
             {pangu.spacing(warningMessage)}
         </div>}
-        
+
     </div>
 }

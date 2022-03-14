@@ -19,7 +19,7 @@ export interface IPatternNode {
     id: NodeID,
     constraints: ConstraintID[],
     position: IPoint,
-
+    alias?: string,
     class: CommonModel.IColoredClass,
 }
 

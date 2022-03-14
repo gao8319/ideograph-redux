@@ -71,6 +71,7 @@ export class IdeographPatternContext implements IPatternContext {
         this.nodes = nodes;
         this.edges = edges;
         this.constraintContext = constraintContext;
+
         this.nodeHashMap = _.keyBy(nodes, n => n.id);
     }
 
@@ -255,7 +256,6 @@ export class IdeographPatternContext implements IPatternContext {
         )
 
         const treeRoots = Object.keys(constraintDisjointSet.trees)
-        this._maxSubgraphConstraintTreeRootIds = treeRoots;
 
 
         // console.log("Forest root num:", treeRoots.length);
@@ -286,33 +286,65 @@ export class IdeographPatternContext implements IPatternContext {
             }
         }
 
-        const treeRootValidations = treeRoots.map(t => isFilledNode(validConstraintDict[t] as any));
 
-        const validConstraintIds = validConstraints.map(sc => sc.id);
-
-        const siftedConstraintConnections = this.constraintContext.connections.filter(
-            cc => {
-                return validConstraintIds.includes(cc.from) && validConstraintIds.includes(cc.to)
+        // TODO: Bind boolean value to the node
+        const traverseForIrProps = <T extends IConstraint | ILogicOperator>(root: T): IdeographIR.IPropertyConstraint | null => {
+            if ((root as IConstraint).targetId) {
+                if (siftedNodeIds.includes((root as IConstraint).targetId))
+                    return root as IConstraint;
+                return null;
+            } else {
+                const fromWhich = MaybeUndefined(toFromDict[(root as ILogicOperator).id])
+                if ((root as ILogicOperator).type === UnaryLogicOperator.Not) {
+                    if (fromWhich?.length === 1) {
+                        const child = traverseForIrProps(validConstraintDict[(fromWhich[0].from)] as any);
+                        if (child === null) {
+                            return null;
+                        }
+                        else {
+                            return {
+                                logicType: UnaryLogicOperator.Not,
+                                subClause: [child]
+                            }
+                        }
+                    }
+                    return null;
+                } else {
+                    if (fromWhich?.length === 2) {
+                        const child1 = traverseForIrProps(validConstraintDict[(fromWhich[0].from)] as any);
+                        const child2 = traverseForIrProps(validConstraintDict[(fromWhich[1].from)] as any);
+                        if (child1 === null || child2 === null) {
+                            return null;
+                        }
+                        else {
+                            return {
+                                logicType: (root as ILogicOperator).type,
+                                subClause: [child1, child2]
+                            }
+                        }
+                    }
+                    return null;
+                }
             }
-        )
+        }
+
+        this._maxSubgraphConstraintTreeRootIds = treeRoots.filter(t => isFilledNode(validConstraintDict[t] as any));
+
+        const irProps = treeRoots.map(t => traverseForIrProps(validConstraintDict[t] as any)!).filter(it => it !== null);
+
+        if (irProps.length > 1) {
+            ir.propertyConstraint = {
+                logicType: BinaryLogicOperator.And,
+                subClause: irProps
+            }
+        }
+        else if (irProps.length === 1) {
+            ir.propertyConstraint = irProps[0];
+        }
 
 
 
         return ir;
-
-
-
-
-
-        // return {
-        //     nodes: siftedNodes,
-        //     edges: siftedEdges,
-        //     constraintContext: {
-        //         constraints: [],
-        //         connections: [],
-        //         logicOperators: []
-        //     }
-        // }
     }
 
     public findLargestConnectedContext = async (emitWarnings = false) => {

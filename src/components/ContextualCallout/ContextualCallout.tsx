@@ -35,7 +35,7 @@ export const ContextualCallout = (props: IContextualCalloutProps) => {
                 if (groupIndex === props.groups.length - 1)
                     return renderedItems;
                 else return renderedItems.concat(
-                    <div className='contextual-callout-sep' />
+                    <div className='contextual-callout-sep' key={groupIndex}/>
                 )
             }
         )}
