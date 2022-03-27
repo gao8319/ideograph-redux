@@ -5,6 +5,8 @@ import _ from "lodash";
 import { CommonModel } from "./common/model";
 import { VisualElementType } from "../engine/visual/VisualElement";
 import { IdeographIR } from "./IR";
+import { Solution } from "../services/PatternSolution";
+import { ElementType } from "@fluentui/react";
 
 
 const MaybeUndefined = <T extends any>(value: T) => value as (T | undefined)
@@ -131,6 +133,39 @@ export class IdeographPatternContext implements IPatternContext {
                 && (this._maxSubgraphNodeHashMap?.[e.to] !== undefined)
         );
         return this._maxSubgraphNodes;
+    }
+
+
+    public generatePrunnedPattern = async (): Promise<Solution.Pattern> => {
+        await this.findLargestConnectedNodes();
+        const validConstraints = this.constraintContext.constraints.filter(
+            constraint => {
+                return (constraint.targetType === VisualElementType.Node && this._maxSubgraphNodeHashMap?.[constraint.targetId])
+                    || (constraint.targetType === VisualElementType.Edge && this._maxSubgraphEdgeHashMap?.[constraint.targetId])
+            }
+        )
+        this._maxSubgraphConstraints = validConstraints;
+
+        return {
+            nodes: this._maxSubgraphNodes!.map(n => ({
+                patternId: n.id,
+                type: n.class.name
+            })),
+            edges: this._maxSubgraphEdges!.map(e => ({
+                patternId: e.id,
+                fromPatternId: e.from,
+                toPatternId: e.to,
+                type: e.class.name,
+            })),
+            constraints: this._maxSubgraphConstraints.map(c => ({
+                patternId: c.id,
+                targetType: c.targetType === VisualElementType.Node?"Node":"Edge",
+                targetPatternId: c.targetId,
+                property: c.property?.name!,
+                operator: "MatchRegex",
+                value: String(c.value)
+            }))
+        }
     }
 
     public getIrBySiftedNodes = async (

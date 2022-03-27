@@ -11,6 +11,7 @@ interface RenderElements {
     ring: D3<SVGCircleElement>;
     circle: D3<SVGCircleElement>;
     aliasText: D3<SVGTextElement>;
+    typeText: D3<SVGTextElement>;
     selection: D3<SVGCircleElement>;
 }
 
@@ -52,8 +53,6 @@ export class PatternNode implements IFocusableElement<VisualElementType.Node> {
 
         const selection = elementGroup.append('circle')
             .attr('class', 'selection')
-        // .attr('stroke', this.colorSet.constrained)
-        // .attr('r', 18)
 
         const circle = elementGroup.append('circle')
             .attr('class', 'node')
@@ -70,12 +69,19 @@ export class PatternNode implements IFocusableElement<VisualElementType.Node> {
             .attr('fill', this.ontologyClass.colorSlot.foreground)
             .text(this.ontologyClass?.name[0] ?? '?')
 
+        const typeText = elementGroup.append('text')
+            .attr('class', 'type')
+            .attr('y', 16)
+            .attr('fill', this.ontologyClass.colorSlot.darkened)
+            .text(this.ontologyClass.name)
+
         this.renderElements = {
             root: elementGroup,
             ring,
             circle,
             aliasText,
-            selection
+            typeText,
+            selection,
         }
     }
 
@@ -115,7 +121,7 @@ export class PatternNode implements IFocusableElement<VisualElementType.Node> {
         }
     }
 
-    public get isConstrained () {
+    public get isConstrained() {
         return this._isConstrained;
     }
 
@@ -157,9 +163,9 @@ export class PatternNode implements IFocusableElement<VisualElementType.Node> {
 
     private _isDisabled = false;
     public setDisabled(disabled: boolean) {
-        if(this._isDisabled !== disabled) {
+        if (this._isDisabled !== disabled) {
             this._isDisabled = disabled;
-            if(disabled) {
+            if (disabled) {
                 this.renderElements?.root.attr('disabled', true);
             }
             else {

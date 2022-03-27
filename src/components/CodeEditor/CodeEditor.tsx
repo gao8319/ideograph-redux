@@ -43,8 +43,8 @@ export const CodeEditor = (
                     connections: [],
                     logicOperators: []
                 });
-            ipc.findLargestConnectedContext().then(
-                ir => {
+            ipc.generatePrunnedPattern().then(
+                pattern => {
                     // emit warnings
                     if (
                         (ipc.maxSubgraphNodeCount !== undefined
@@ -67,7 +67,11 @@ export const CodeEditor = (
                         )
                     }
 
-                    ir && editorRef.current?.setValue(IdeographIR.IR2Cypher(ir));
+                    // ir && 
+                    editorRef.current?.setValue(
+                        JSON.stringify(pattern, null, "    ")
+                        // IdeographIR.IR2Cypher(pattern)
+                    );
                 }
             )
         }, [nodes, edges, constraints, props.getConstraintContext]
@@ -77,17 +81,16 @@ export const CodeEditor = (
         if (!editorContainerRef.current) return;
 
         var model = monaco.editor.createModel(
-            "", "cypher"
+            "", "json"
         );
 
         var editor = monaco.editor.create(editorContainerRef.current, {
             model: model,
-            language: 'cypher',
+            language: 'json',
             fontFamily: '"SFMono", ui-monospace, monospace',
             fontSize: 16,
-            theme: 'github-wasm',
+            theme: 'vs-dark',
             // readOnly: true,
-
         });
 
         editorRef.current = editor;
@@ -115,14 +118,14 @@ export const CodeEditor = (
 
 
 
-    return <div style={{ width: '100%', height: 'calc(100% - 56px)', position: 'relative' }}>
+    return <div style={{ width: '100%', height: 'calc(100% - 56px)', position: 'relative',  }}>
         <div ref={editorContainerRef} style={{ width: '100%', height: '100%' }} />
         {warningMessage && <div style={{
-            position: 'absolute', bottom: 0, height: 36, fontSize: 12, display: 'flex', alignItems: 'center', width: '100%',
-            borderTop: `1px solid ${(new Color('#fff4ce')).desaturate(0.25).darken(0.1).rgb()}`,
-            padding: '0 16px', columnGap: 8, background: '#fff4ce', color: '#8e562e'
+            position: 'absolute', bottom: 0, height: 36, fontSize: 12, 
+            display: 'flex', alignItems: 'center', width: '100%',
+            padding: '0 16px', columnGap: 8, background: 'rgb(208,82,32)', color: '#fff'
         }}>
-            <Warning16 fill="#8e562e" />
+            <Warning16 fill="#fff" />
             {pangu.spacing(warningMessage)}
         </div>}
 

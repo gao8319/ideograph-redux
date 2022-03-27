@@ -6,6 +6,10 @@ import { Provider } from 'react-redux'
 import { store } from './store/store'
 import { Button, ThemeProvider } from '@mui/material'
 import { muiTheme } from './utils/ideographTheme'
+import { OpeningView } from './views/OpeningView'
+import './App.css'
+import { initializeIcons } from '@fluentui/react'
+
 
 ReactDOM.render(
     <React.StrictMode>

@@ -3,7 +3,6 @@ import { useAppDispatch, useAppSelector } from "../../../store/hooks"
 import { bottomPanelHeightSelector, BOTTOM_DEFAULT, BOTTOM_MAX, BOTTOM_MIN, leftPanelWidthSelector, LEFT_MAX, LEFT_MIN, rightPanelWidthSelector, RIGHT_DEFAULT, RIGHT_MAX, RIGHT_MIN, setBottomPanelHeight, setLeftPanelWidth, setRightPanelWidth } from "../../../store/slice/modelSlicer"
 import './GlobalPanel.css'
 import Draggable from 'react-draggable';
-import { GlobalPanelContent, IGlobalPanelContentRef } from "./GlobalPanelContent";
 
 interface IGlobalPanelProps {
     children: React.ReactNode

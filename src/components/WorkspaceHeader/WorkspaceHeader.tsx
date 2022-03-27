@@ -47,18 +47,7 @@ export const WorkspaceHeader = (props: IWorkspaceHeaderProps) => {
 
     // const { engine } = props;
 
-    return <div style={{
-        display: 'grid',
-        gridTemplateColumns: '1fr auto 1fr',
-        height: 48,
-        width: '100%',
-        background: '#20222a',
-        color: '#fff',
-        fontSize: 14,
-        userSelect: 'none',
-        zIndex: 999,
-        position: 'relative',
-    }}>
+    return <div className='ideograph-header'>
         <div style={{ height: '100%', width: '100%', display: 'flex', alignItems: 'center', paddingLeft: 8 }}>
             <WorkspaceCommand
                 activated={editMode === EditMode.Default}
@@ -107,10 +96,11 @@ export const WorkspaceHeader = (props: IWorkspaceHeaderProps) => {
                         [
                             { text: "导入", onRenderHelper: () => <><span></span><MacCommand16 />{"I"}</>, onClick: () => { dispatch(exportToJson()) } }
                         ], [
-                            { text: "生成AskGraph API调用语句", onRenderHelper: () => <><MacCommand16 /><MacOption16 />{"A"}</>, onClick: () => { dispatch(setCodeModal("AskGraph API")) } },
+                            { text: "生成JSON语句", onRenderHelper: () => <><MacCommand16 /><MacOption16 />{"J"}</>, onClick: () => { dispatch(setCodeModal("JSON")) } },
+                            // { text: "生成AskGraph API调用语句", onRenderHelper: () => <><MacCommand16 /><MacOption16 />{"A"}</>, onClick: () => { dispatch(setCodeModal("AskGraph API")) } },
                             { text: "生成Cypher语句", onRenderHelper: () => <><MacCommand16 /><MacOption16 />{"C"}</>, onClick: () => { dispatch(setCodeModal("Cypher")) } },
-                            { text: "生成GraphQL语句", onRenderHelper: () => <><MacCommand16 /><MacOption16 />{"G"}</>, onClick: () => { dispatch(setCodeModal("GraphQL")) } },
-                            { text: "生成SQL语句", onRenderHelper: () => <><MacCommand16 /><MacOption16 />{"S"}</>, onClick: () => { dispatch(setCodeModal("SQL")) } }
+                            // { text: "生成GraphQL语句", onRenderHelper: () => <><MacCommand16 /><MacOption16 />{"G"}</>, onClick: () => { dispatch(setCodeModal("GraphQL")) } },
+                            // { text: "生成SQL语句", onRenderHelper: () => <><MacCommand16 /><MacOption16 />{"S"}</>, onClick: () => { dispatch(setCodeModal("SQL")) } }
                         ],
                         ]} />
                     </>
@@ -126,7 +116,7 @@ export const WorkspaceHeader = (props: IWorkspaceHeaderProps) => {
                 forcedHighlight
                 text='查询'
                 style={{ color: '#fff' }}
-                onClick={_ => dispatch(applyQuery())}>
+                onClick={_ => dispatch(applyQuery(true))}>
                 <Search20 fill="#fff" />
             </WorkspaceCommand>
         </div>

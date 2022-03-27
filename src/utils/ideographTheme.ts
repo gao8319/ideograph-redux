@@ -77,7 +77,8 @@ export const ideographMonoTheme = createTheme({
     },
     defaultFontStyle: {
         fontFamily: 'var(--mono-font)',
-    }
+    },
+    fonts: ideographThemeFont
 });
 
 
@@ -146,7 +147,7 @@ export const ideographAltTheme = createTheme({
 export const generalCalloutStyle = {
     theme: ideographDarkTheme,
     beakWidth: 8,
-    styles: { beakCurtain: { borderRadius: 0 } },
+    styles: { beakCurtain: { borderRadius: 0 },  },
     dismissOnTargetClick: true,
 }
 
@@ -162,6 +163,20 @@ export const muiTheme = createMuiTheme({
             defaultProps: {
                 disableRipple: true
             },
-        }
+        },
+        // MuiInputBase: {
+        //     defaultProps: {
+        //         style: {
+        //             background: 'var(--input-background)',
+        //             border: 'var(--input-border)',
+        //             padding: '0 8px 0 8px',
+        //             fontSize: 13,
+        //             height: 32,
+        //             width: '100%',
+        //             color: 'var(--foreground)',
+
+        //         },
+        //     }
+        // }
     }
 });

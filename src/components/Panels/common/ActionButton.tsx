@@ -27,3 +27,18 @@ export const ActionButtonTiny = styled(ButtonBase)(theme => ({
     },
     borderRadius: 3,
 }))
+
+
+export const ActionButtonTinyDark = styled(ButtonBase)(theme => ({
+    minWidth: 0,
+    aspectRatio: '1 / 1',
+    width: 32,
+    height: 32, 
+    '&:hover': {
+        backgroundColor: '#ffffff40'
+    },
+    '&:active': {
+        backgroundColor: '#ffffff60'
+    },
+    borderRadius: 3,
+}))

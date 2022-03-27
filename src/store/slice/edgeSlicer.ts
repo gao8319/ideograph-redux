@@ -1,6 +1,8 @@
 import {
     createEntityAdapter,
     createSlice,
+    EntityState,
+    PayloadAction,
 } from '@reduxjs/toolkit'
 import { IPatternEdge } from '../../utils/common/graph'
 import { RootState } from '../store'
@@ -18,11 +20,14 @@ const edgesSlicer = createSlice({
         addEdge: edgesAdapter.addOne,
         modifyEdge: edgesAdapter.updateOne,
         deleteEdge: edgesAdapter.removeOne,
+        renewal(state, actions: PayloadAction<EntityState<IPatternEdge>>) {
+            state = actions.payload;
+        }
     },
 })
 
 
-export const { addEdge, modifyEdge, deleteEdge } = edgesSlicer.actions
+export const { addEdge, modifyEdge, deleteEdge, renewal: edgeRenewal } = edgesSlicer.actions
 
 export const edgesSelectors = edgesAdapter.getSelectors((state: RootState) => state.edges)
 

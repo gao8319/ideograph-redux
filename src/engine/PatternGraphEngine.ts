@@ -77,6 +77,7 @@ export class PatternGraphEngine {
     }
 
 
+    private _onNodeContextMenu?: (n: PatternNode, event: MouseEvent) => void;
     private _onNodeCreatedCallback?: (n: IPatternNode) => void;
     private _onEdgeCreatedCallback?: (e: IPatternEdge) => void;
     private _onConstraintCreatedCallback?: (c: IConstraint) => void;
@@ -85,7 +86,8 @@ export class PatternGraphEngine {
     public setOnEdgeCreatedCallback = (cb: typeof this._onEdgeCreatedCallback) => { this._onEdgeCreatedCallback = cb; }
     public setOnConstraintCreatedCallback = (cb: typeof this._onConstraintCreatedCallback) => { this._onConstraintCreatedCallback = cb; }
     public setRaiseMessageCallback = (cb: typeof this._onRaiseMessageCallback) => { this._onRaiseMessageCallback = cb; }
-
+    public setOnNodeContextMenu = (cb: typeof this._onNodeContextMenu) => { this._onNodeContextMenu = cb; }
+    
     // public notifyNodeConstrained(nodeId: IPatternNode['id'], isConstrained = true) {
     //     this.nodeDict[nodeId].isConstrained = isConstrained;
     // }
@@ -113,6 +115,9 @@ export class PatternGraphEngine {
         this.svgLayer = d3.select(container)
             .append('svg')
             .attr('class', 'engine-svg');
+        this.svgLayer.on('contextmenu', (ev) => {
+            ev.preventDefault();
+        })
         this.coreLayer = this.svgLayer.append('g')
             .attr('class', 'engine-core')
         this.mouseIndicatorLayer = this.svgLayer.append('g')
@@ -263,7 +268,7 @@ export class PatternGraphEngine {
                         setTimeout(
                             () => {
                                 this.focusedElement = n;
-                            }, 0
+                            }, 240
                         )
                         n.on('click', clickEvent => {
                             this.onNodeClick(n, clickEvent)
@@ -273,6 +278,9 @@ export class PatternGraphEngine {
                         })
                         n.on('pointerleave', mouseEvent => {
                             this.onNodePointerLeave(n, mouseEvent)
+                        })
+                        n.on('contextmenu', mouseEvent => {
+                            this._onNodeContextMenu?.(n, mouseEvent)
                         })
                         this.editPayload = null;
                         this.nodeIndicator?.remove();
@@ -348,13 +356,14 @@ export class PatternGraphEngine {
                     )
                 }
                 else {
-
+                    const edgeTypeName = this.model.getRelationNames(this.createEdgeFrom?.ontologyClass!, n.ontologyClass!)[0].name
                     const e = new PatternEdge(
                         this.createEdgeFrom!,
                         n,
                         true,
                         nanoid(),
-                        
+                        [],
+                        edgeTypeName
                     )
                     this._onEdgeCreatedCallback?.(e.asObject())
                     this.edgeDict[e.uuid] = e;

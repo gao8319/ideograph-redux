@@ -68,7 +68,7 @@ export const ConceptPanelContent = () => {
 
         {editMode === EditMode.CreatingNode && <div>
             {
-                modelObject.classes.map(
+                modelObject?.classes.map(
                     m => <PatternNodeItem key={m.id} item={m} onClick={
                         ev => {
                             dispatch(setEditModeWithPayload(

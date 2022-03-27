@@ -1,6 +1,7 @@
 import {
     createEntityAdapter,
     createSlice,
+    PayloadAction,
 } from '@reduxjs/toolkit'
 import { VisualElementType } from '../../engine/visual/VisualElement'
 import { IConstraint, IPatternEdge, IPatternNode } from '../../utils/common/graph'
@@ -47,10 +48,13 @@ const constraintsSlicer = createSlice({
                 payload
             }
         },
+        renewal(state, actions: PayloadAction<ConstraintsState>) {
+            state = actions.payload;
+        }
     },
 })
 
-export const { modifyConstraint, deleteConstraint, addConstraint } = constraintsSlicer.actions
+export const { modifyConstraint, deleteConstraint, addConstraint, renewal: constraintRenewal } = constraintsSlicer.actions
 
 export const constraintsSelectors = constraintsAdapter.getSelectors((state: RootState) => state.constraints)
 export const lastConstraintOperationSelector = (state: RootState) => state.constraints.lastOperation

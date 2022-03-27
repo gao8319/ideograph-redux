@@ -19,6 +19,7 @@ export class PatternEdge implements IFocusableElement<VisualElementType.Edge> {
 
     public from: PatternNode;
     public to: PatternNode;
+    public name?: string;
     public properties?: CommonModel.IProperty[];
     private isDirected: boolean;
     public uuid: string;
@@ -30,13 +31,15 @@ export class PatternEdge implements IFocusableElement<VisualElementType.Edge> {
         to: PatternNode,
         isDirected: boolean,
         id: string,
-        properties?: CommonModel.IProperty[]
+        properties?: CommonModel.IProperty[],
+        name?: string,
     ) {
         this.from = from;
         this.to = to;
         this.isDirected = isDirected;
         this.uuid = id;
         this.properties = properties;
+        this.name = name;
     }
 
 
@@ -124,11 +127,12 @@ export class PatternEdge implements IFocusableElement<VisualElementType.Edge> {
                 from: this.from.ontologyClass,
                 to: this.to.ontologyClass,
                 properties: this.properties ?? [],
-                name: `${this.from.ontologyClass.name}-->${this.to.ontologyClass.name}`,
+                name: this.name ?? `${this.from.ontologyClass.name}-->${this.to.ontologyClass.name}`,
                 id: `${this.from.ontologyClass.id}-->${this.to.ontologyClass.id}`
             },
             direction: this.isDirected ? EdgeDirection.Specified : EdgeDirection.Unspecified,
-            constraints: []
+            constraints: [],
+
         }
     }
 }

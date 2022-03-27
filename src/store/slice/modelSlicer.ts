@@ -1,9 +1,7 @@
-import { createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { AnyAction, applyMiddleware, createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { EditMode } from "../../engine/visual/EditMode";
 import { VisualElementType } from "../../engine/visual/VisualElement";
-import { askGraphModel } from "../../utils/AskGraph";
-import { convertAskGraphOntModel } from "../../utils/AskGraphConverter";
-import { PrimitiveTypeName } from "../../utils/common/data";
+import { Schema, schemaToCommonModel } from "../../services/Schema";
 import { EdgeDirection, IPatternEdge, IPatternNode } from "../../utils/common/graph";
 import { CommonModel } from "../../utils/common/model";
 import { pangu } from "../../utils/common/pangu";
@@ -11,6 +9,9 @@ import { RootState } from "../store";
 import { constraintsSelectors } from "./constraintSlicer";
 import { edgesSelectors } from "./edgeSlicer";
 import { nodesSelectors } from "./nodeSlicer";
+
+import thunk, { ThunkDispatch } from 'redux-thunk';
+import { queryForage, QueryForageItem } from "../../utils/global/Storage";
 
 export const LEFT_DEFAULT = 240;
 export const LEFT_MIN = 200;
@@ -35,7 +36,7 @@ type FocusElementPayload = {
 }
 
 type WorkspaceState = {
-    model: CommonModel.ISerializedRoot,
+    model: CommonModel.ISerializedRoot | null,
     editMode: EditMode,
     workspaceName: string,
     projectName: string,
@@ -51,83 +52,106 @@ type WorkspaceState = {
 
 
     codeModalState: AcceptableQueryLanguage | undefined,
+
+    queryModalState: boolean,
+
+
+    dataSourceId: string,
+    fileId: string,
 }
 
-const converted = convertAskGraphOntModel(askGraphModel);
-const defaultModel = CommonModel.serializeToObject(
-    new CommonModel.Root(converted.name, converted.classes, converted.relations)
-)
+// const converted = convertAskGraphOntModel(askGraphModel);
+// const defaultModel = CommonModel.serializeToObject(
+//     new CommonModel.Root(converted.name, converted.classes, converted.relations)
+// )
 
 
-const injectedModel = new CommonModel.Root(
-    '测试模型',
-    [
-        {
-            id: 'Person',
-            name: '人',
-            properties: [{
-                id: 'Name',
-                type: PrimitiveTypeName.String,
-                name: '名字'
-            }, {
-                id: 'Age',
-                type: PrimitiveTypeName.Number,
-                name: '年龄'
-            }]
-        },
-        {
-            id: 'Account',
-            name: '账户',
-            properties: [{
-                id: 'AccountID',
-                type: PrimitiveTypeName.String,
-                name: '账户ID'
-            }]
-        },
-        {
-            id: 'Bank',
-            name: '银行',
-            properties: []
-        }
-    ],
-    [
-        {
-            id: 'Transfer',
-            name: '转账',
-            from: 'Account',
-            to: 'Account',
-            properties: [{
-                id: 'Amount',
-                type: PrimitiveTypeName.Number,
-                name: '金额'
-            }],
-            direction: EdgeDirection.Specified,
-        },
-        {
-            id: 'Owns',
-            name: '拥有',
-            from: 'Person',
-            to: 'Account',
-            properties: [],
-            direction: EdgeDirection.Specified,
-        }
-    ]
-)
+// const injectedModel = new CommonModel.Root(
+//     '测试模型',
+//     [
+//         {
+//             id: 'Person',
+//             name: '人',
+//             properties: [{
+//                 id: 'Name',
+//                 type: PrimitiveTypeName.String,
+//                 name: '名字'
+//             }, {
+//                 id: 'Age',
+//                 type: PrimitiveTypeName.Number,
+//                 name: '年龄'
+//             }]
+//         },
+//         {
+//             id: 'Account',
+//             name: '账户',
+//             properties: [{
+//                 id: 'AccountID',
+//                 type: PrimitiveTypeName.String,
+//                 name: '账户ID'
+//             }]
+//         },
+//         {
+//             id: 'Bank',
+//             name: '银行',
+//             properties: []
+//         }
+//     ],
+//     [
+//         {
+//             id: 'Transfer',
+//             name: '转账',
+//             from: 'Account',
+//             to: 'Account',
+//             properties: [{
+//                 id: 'Amount',
+//                 type: PrimitiveTypeName.Number,
+//                 name: '金额'
+//             }],
+//             direction: EdgeDirection.Specified,
+//         },
+//         {
+//             id: 'Owns',
+//             name: '拥有',
+//             from: 'Person',
+//             to: 'Account',
+//             properties: [],
+//             direction: EdgeDirection.Specified,
+//         }
+//     ]
+// )
 
-const injectedModelObject = CommonModel.serializeToObject(injectedModel);
+// const injectedModelObject = CommonModel.serializeToObject(injectedModel);
 
+const initTime = new Date().getTime();
 
 const initialState: WorkspaceState = {
-    model: injectedModelObject,
+    model: null,
     editMode: EditMode.CreatingNode,
-    projectName: injectedModel.name,
-    workspaceName: '新工作区',
-    createTime: new Date().getTime(),
-    lastModifiedTime: new Date().getTime(),
+    projectName: "",
+    workspaceName: '',
+    createTime: initTime,
+    lastModifiedTime: initTime,
     leftPanelWidth: LEFT_DEFAULT,
     rightPanelWidth: RIGHT_DEFAULT,
     bottomPanelHeight: BOTTOM_DEFAULT,
     codeModalState: undefined,
+    queryModalState: false,
+    dataSourceId: "",
+    fileId: ""
+}
+
+
+type NewWorkspaceState = {
+    model: CommonModel.ISerializedRoot | null,
+    editMode: EditMode.CreatingNode,
+    workspaceName: string,
+    projectName: string,
+    lastModifiedTime: number,
+    createTime: number,
+    dataSourceId: string,
+    fileId: string,
+
 }
 
 export type AcceptableQueryLanguage = "AskGraph API" | "Cypher" | "GraphQL" | "SQL" | "JSON"
@@ -136,8 +160,11 @@ const workspaceSlicer = createSlice({
     name: 'workspace',
     initialState,
     reducers: {
-        setModel(state, action: PayloadAction<CommonModel.ISerializedRoot>) {
+        setModel(state, action: PayloadAction<CommonModel.ISerializedRoot | null>) {
             state.model = action.payload
+        },
+        setModelBySchema(state, action: PayloadAction<Schema.Entry>) {
+            state.model = schemaToCommonModel(action.payload)
         },
         setEditMode(state, action: PayloadAction<EditMode>) {
             if (action.payload !== EditMode.CreatingNode) {
@@ -151,14 +178,14 @@ const workspaceSlicer = createSlice({
         setProjectName(state, action: PayloadAction<string>) {
             state.projectName = action.payload
         },
-        applyQuery() {
-            alert('Query is not implemented.')
+        applyQuery(state, action: PayloadAction<boolean>) {
+            state.queryModalState = action.payload
         },
         exportToJson() {
-            alert('Export is not implemented.')
+            // alert('Export is not implemented.')
         },
         inspectGeneratedCode(state, action: PayloadAction<AcceptableQueryLanguage>) {
-            alert('Inspect is not implemented.')
+            // alert('Inspect is not implemented.')
         },
         setRightPanelWidth(state, action: PayloadAction<number>) {
             if (action.payload <= RIGHT_MAX && action.payload >= RIGHT_MIN)
@@ -189,12 +216,55 @@ const workspaceSlicer = createSlice({
         },
         setCodeModal(state, action: PayloadAction<AcceptableQueryLanguage | undefined>) {
             state.codeModalState = action.payload;
+        },
+        applyFileToWorkspace(state, action: PayloadAction<NewWorkspaceState>) {
+            state.projectName = action.payload.projectName;
+            state.workspaceName = action.payload.workspaceName;
+            state.createTime = action.payload.createTime;
+            state.lastModifiedTime = action.payload.lastModifiedTime;
+            state.fileId = action.payload.fileId;
+            state.dataSourceId = action.payload.dataSourceId;
+            state.model = null;
+            state.editMode = EditMode.CreatingNode;
+        },
+        clearWorkspace(state) {
+            state.projectName = '';
+            state.workspaceName = '';
+            state.createTime = 0;
+            state.lastModifiedTime = 0;
+            state.fileId = '';
+            state.dataSourceId = '';
+            state.model = null;
+            state.editMode = EditMode.CreatingNode;
         }
     }
 })
 
+
+export const saveFileWorkspace = () => (
+    async (dispatch: ThunkDispatch<RootState, null, AnyAction>, getState: () => RootState) => {
+        const state = getState();
+        const file: QueryForageItem = {
+            id: state.workspace.fileId,
+            name: state.workspace.workspaceName,
+            nodes: state.nodes,
+            edges: state.edges,
+            constraints: state.constraints,
+            dataSourceId: state.workspace.dataSourceId,
+            solutionCaches: [],
+            createTime: state.workspace.createTime,
+            lastEditTime: new Date().getTime(),
+        }
+        queryForage.setItem(file.id, file);
+        console.log(`[FileSystem] ${file.name} (${file.id}) saved at ${file.lastEditTime}.`);
+    }
+)
+
+
 export const {
-    // setModel,
+    setModel,
+    setModelBySchema,
+    clearWorkspace,
     setEditMode,
     setWorkspaceName,
     setProjectName,
@@ -207,11 +277,13 @@ export const {
     setFocus,
     setEditModeWithPayload,
     setEditPayloadDangerously,
-    setCodeModal
+    setCodeModal,
+    applyFileToWorkspace,
 } = workspaceSlicer.actions;
 
 export const modelSelector = (state: RootState) => state.workspace.model
 export const codeModalSelector = (state: RootState) => state.workspace.codeModalState
+export const queryModalSelector = (state: RootState) => state.workspace.queryModalState
 export const editModeSelector = (state: RootState) => state.workspace.editMode
 export const projectNameSelector = (state: RootState) => state.workspace.projectName
 export const workspaceNameSelector = (state: RootState) => state.workspace.workspaceName
@@ -227,6 +299,7 @@ export const focusElementSelector = createSelector(
     modelSelector,
     _focusElementSelector,
     (nodes, edges, model, fe): ((IPatternNode | IPatternEdge) & { type: VisualElementType }) | undefined => {
+        if (!model) return undefined;
         if (fe?.type === VisualElementType.Node) {
             return { ...nodes[fe.payload.id!]!, type: VisualElementType.Node }
         }
@@ -251,6 +324,7 @@ export const elementConstraintsSelector = createSelector(
         return constraints.filter(c => c.targetId === fe?.payload.id)
     }
 )
+
 
 export const editPayloadSelector = (state: RootState) => state.workspace.editPayload
 

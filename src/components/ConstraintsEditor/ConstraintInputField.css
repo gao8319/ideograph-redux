@@ -67,7 +67,7 @@
     top: 32px;
     z-index: 9999;
     font-size: 14px;
-    box-shadow: rgba(0, 0, 0, 0.133) 0px 6.390625px 14px 0px, rgba(0, 0, 0, 0.11) 0px 1.1875px 3px 0px;
+    box-shadow: rgba(0, 0, 0, 0.133) 0px 6.4px 14px 0px, rgba(0, 0, 0, 0.11) 0px 1.1875px 3px 0px;
 }
 
 .contextual-menu-item{

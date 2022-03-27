@@ -24,6 +24,13 @@ export interface IBox {
 
 export type IRect = IPoint & IBox
 
+export type IOffsetRect = {
+    top: number,
+    bottom: number,
+    right: number,
+    left: number
+}
+
 export class Rectangle implements IRect, DOMRect {
     public x: number;
     public y: number;

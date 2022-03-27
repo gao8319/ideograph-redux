@@ -75,7 +75,8 @@ export namespace CommonModel {
         from: IdType,
         to: IdType,
         direction: EdgeDirection,
-        properties?: IProperty[]
+        properties?: IProperty[],
+        name: string
     }
 
     export interface IProperty extends IIdentifiable, INamable {
@@ -134,6 +135,10 @@ export namespace CommonModel {
             )
             return disjointSet.parents;
         }
+
+        public getRelationNames(from: IClass, to: IClass) {
+            return this.relations.filter(r => r.from === from.id && r.to === to.id)
+        }
     }
 
 
@@ -141,9 +146,10 @@ export namespace CommonModel {
         name: string, classes: IColoredClass[], relations: IRelation[]
     }
 
-    export const deserializeFromObject = (json: ISerializedRoot) => {
-        console.log("Deserialized")
-        return new Root(json.name, json.classes, json.relations)
+    export const deserializeFromObject = (json: ISerializedRoot | null) => {
+        if (json)
+            return new Root(json.name, json.classes, json.relations)
+        return null
     }
 
     export const serializeToObject = (root: Root) => ({ name: root.name, classes: Object.values(root.colorSlots), relations: root.relations })

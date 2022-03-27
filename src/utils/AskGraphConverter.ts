@@ -5,6 +5,9 @@ import { EdgeDirection } from "./common/graph";
 import { CommonModel } from "./common/model";
 import { AskGraph } from "./AskGraph";
 
+
+
+
 export const convertAskGraphOntModel = (ontModel: AskGraph.RootModel): CommonModel.ISerializedRoot => {
     const nodeGroups: Record<string, AskGraph.Node[]> = _.groupBy(ontModel.nodes, n => n.type);
     const edgeGroups: Record<string, AskGraph.Edge[]> = _.groupBy(ontModel.edges, n => n.type);
@@ -46,7 +49,7 @@ export const convertAskGraphOntModel = (ontModel: AskGraph.RootModel): CommonMod
     //         concepts[e.to]?.FROM?.push(concepts[e.from]?.id);
     //     }
     // )
-    const name = "first.askgraph.xyz.model";
+    const name = "medical.askgraph.xyz.model";
     const classes = Object.entries(concepts).map(e => {
         const c = e[1]
         return {

@@ -73,7 +73,6 @@ export const WorkspaceCommand = (props: IWorkspaceCommandProps) => {
             theme={ideographDarkTheme}
             directionalHint={DirectionalHint.topCenter}
             delay={TooltipDelay.long}
-
             calloutProps={generalCalloutStyle}
         >
             <CommandBarButton {...props} styles={props.autoLength ? autoLengthStyle : workspaceCommandButtonStyle} theme={props.activated || props.forcedHighlight ? ideographAltTheme : ideographDarkTheme}>

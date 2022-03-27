@@ -1,6 +1,8 @@
 import {
     createEntityAdapter,
     createSlice,
+    EntityState,
+    PayloadAction,
 } from '@reduxjs/toolkit'
 import { IPatternNode } from '../../utils/common/graph'
 import { RootState } from '../store'
@@ -19,10 +21,16 @@ const nodesSlicer = createSlice({
         modifyNode: nodesAdapter.updateOne,
         deleteNode: nodesAdapter.removeOne,
 
+        renewal(state, actions: PayloadAction<EntityState<IPatternNode>>) {
+            state = actions.payload;
+        }
+
     },
 })
 
-export const { addNode, modifyNode, deleteNode } = nodesSlicer.actions
+
+
+export const { addNode, modifyNode, deleteNode, renewal: nodeRenewal } = nodesSlicer.actions
 
 export const nodesSelectors = nodesAdapter.getSelectors((state: RootState) => state.nodes)
 

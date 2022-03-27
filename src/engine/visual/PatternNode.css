@@ -1,3 +1,28 @@
+@keyframes nodeScale {
+    0% {
+        r: 0!important;
+        opacity: 0!important;
+    }
+    60% {
+        r: 0!important;
+        opacity: 0!important;
+    }
+    100% {
+
+    }
+}
+
+@keyframes textReveal {
+    from {
+        opacity: 0.2;
+    }
+    to {
+
+    }
+}
+
+
+
 g.p-n>circle.constrain-ring{
     opacity: 0;
     stroke-width: 2px;
@@ -8,11 +33,21 @@ g.p-n>text.alias{
     opacity: 0;
     visibility: none;
     text-anchor: middle;
-    dominant-baseline: central;
+    dominant-baseline: center;
     font-family: "SF Mono";
     font-size: 14px;
     font-weight: 500;
 }
+
+g.p-n>text.type{
+    text-anchor: middle;
+    dominant-baseline: text-before-edge;
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 500;
+    animation: textReveal 0.5s;
+}
+
 
 
 g.p-n>circle.constrain-ring{
@@ -28,6 +63,7 @@ g.p-n[constrained=true]>circle.constrain-ring{
 
 g.p-n>circle.node{
     transition: r 0.16s;
+    animation: nodeScale .2s;
 }
 
 g.p-n[constrained=true]>circle.node {

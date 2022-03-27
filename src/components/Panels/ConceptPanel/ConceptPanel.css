@@ -1,6 +1,8 @@
 .concept-panel-root{
     /* width: 320px; */
-    height: 100%;
+    height: calc(100vh - 48px);
+    overflow-y: auto;
+    overflow-x: hidden;
     position: absolute;
     top: 0;
     left: 0;

@@ -2,13 +2,13 @@ import { useEffect, useMemo, useRef } from "react"
 import { PatternGraphEngine, RaiseMessageCallback } from "../engine/PatternGraphEngine";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { addEdge } from "../store/slice/edgeSlicer";
-import { editModeSelector, editPayloadSelector, elementConstraintsSelector, focusElementSelector, setEditModeWithPayload, setEditPayloadDangerously, setFocus, workspaceSelector } from "../store/slice/modelSlicer";
+import { editModeSelector, editPayloadSelector, elementConstraintsSelector, focusElementSelector, setEditModeWithPayload, setEditPayloadDangerously, setFocus, setModel, workspaceSelector } from "../store/slice/modelSlicer";
 import { addNode } from "../store/slice/nodeSlicer";
 import { CommonModel } from "./common/model"
 import { isNotEmpty } from "./common/utils";
 
 export const usePatternEngine = (
-    modelObject: CommonModel.ISerializedRoot,
+    modelObject: CommonModel.ISerializedRoot | null,
     raiseMessage: RaiseMessageCallback,
     deps?: React.DependencyList,
 ) => {
@@ -28,7 +28,7 @@ export const usePatternEngine = (
 
 
     useEffect(() => {
-        if (containerRef.current) {
+        if (containerRef.current && modelInstance) {
             const engine = new PatternGraphEngine(
                 modelInstance,
                 containerRef.current
@@ -85,14 +85,11 @@ export const usePatternEngine = (
             engine.setRaiseMessageCallback(raiseMessage)
             // engine.setOnConstraintCreatedCallback(c => dispatch(addConstraint(c)))
 
-
-
-
-
             engineRef.current = engine;
             return () => {
                 engine.detach();
                 engineRef.current = undefined;
+                dispatch(setModel(null))
             }
         }
     }, deps)
