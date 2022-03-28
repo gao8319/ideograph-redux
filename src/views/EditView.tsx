@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useAppDispatch, useAppSelector } from '../store/hooks'
 import { WorkspaceHeader } from '../components/WorkspaceHeader/WorkspaceHeader';
 import { clearWorkspace, codeModalSelector, editModeSelector, leftPanelWidthSelector, modelSelector, queryModalSelector, rightPanelWidthSelector, saveFileWorkspace, setCodeModal, setEditMode, setModel, setModelBySchema, workspaceSelector } from '../store/slice/modelSlicer';
-import { useIdeographShortcuts } from '../utils/useIdeographShortcuts';
+// import { useIdeographShortcuts } from '../utils/useIdeographShortcuts';
 import { ConceptPanel } from '../components/Panels/ConceptPanel/ConceptPanel';
 import { PropertyPanel } from '../components/Panels/PropertyPanel/PropertyPanel';
 import { GlobalPanel } from '../components/Panels/GlobalPanel/GlobalPanel';
@@ -29,7 +29,7 @@ import { QueryForageItem } from '../utils/global/Storage';
 
 export const EditView = () => {
 
-    useIdeographShortcuts();
+    // useIdeographShortcuts();
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const model = useAppSelector(modelSelector);
