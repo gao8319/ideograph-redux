@@ -1,11 +1,12 @@
-import { Cursor_220, MacCommand16, MacOption16, MacShift16, Search20 } from '@carbon/icons-react';
+import { ChevronLeft20, Cursor_220, Home20, MacCommand16, MacOption16, MacShift16, Search20 } from '@carbon/icons-react';
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTitle } from 'react-use';
 import { EditMode } from '../../engine/visual/EditMode';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { constraintsSelectors } from '../../store/slice/constraintSlicer';
 import { edgesSelectors } from '../../store/slice/edgeSlicer';
-import { applyQuery, editModeSelector, exportToJson, setCodeModal, lastModifiedTimeSelector, projectNameSelector, setEditMode, setWorkspaceName, workspaceNameSelector } from '../../store/slice/modelSlicer';
+import { applyQuery, editModeSelector, exportToJson, setCodeModal, lastModifiedTimeSelector, projectNameSelector, setEditMode, setWorkspaceName, workspaceNameSelector, exportFileWorkspace } from '../../store/slice/modelSlicer';
 import { nodesSelectors } from '../../store/slice/nodeSlicer';
 import { dateFormatterPrecised } from '../../utils/common/date';
 import { pangu } from '../../utils/common/pangu';
@@ -16,7 +17,7 @@ import { ConnectCommand20 } from './ConnectCommand';
 import { TextableCommand } from './TextableCommand';
 import { WorkspaceCommand } from './WorkspaceCommand';
 import './WorkspaceHeader.css'
-
+import { Image } from '@fluentui/react';
 // interface IWorkspaceProfile {
 //     name: string,
 //     projectName: string,
@@ -46,10 +47,17 @@ export const WorkspaceHeader = (props: IWorkspaceHeaderProps) => {
     useTitle(pangu.spacing(`${workspaceName}\u2009-\u2009Ideograph`));
 
     // const { engine } = props;
+    const naviagte = useNavigate();
 
     return <div className='ideograph-header'>
-        <div style={{ height: '100%', width: '100%', display: 'flex', alignItems: 'center', paddingLeft: 8 }}>
+        <div style={{ height: '100%', width: '100%', display: 'flex', alignItems: 'center', paddingLeft: 4 }}>
             <WorkspaceCommand
+                activated={editMode === EditMode.Default}
+                onClick={_ => naviagte('/')}>
+                <ChevronLeft20 />
+            </WorkspaceCommand>
+
+            {/* <WorkspaceCommand
                 activated={editMode === EditMode.Default}
                 onClick={_ => dispatch(setEditMode(EditMode.Default))}
                 hint='选择和移动'
@@ -71,7 +79,7 @@ export const WorkspaceHeader = (props: IWorkspaceHeaderProps) => {
                 hint='添加关系约束'
                 shortcut='E'>
                 <ConnectCommand20 fill={'#fff'} />
-            </WorkspaceCommand>
+            </WorkspaceCommand> */}
         </div>
         <div style={{ height: '100%', width: '100%', display: 'flex', alignItems: 'center' }}>
             <TextableCommand projectName={projectName} value={workspaceName} onChange={(ev) => { ev.target.value && dispatch(setWorkspaceName(ev.target.value)) }} onRenderCallout={
@@ -82,7 +90,7 @@ export const WorkspaceHeader = (props: IWorkspaceHeaderProps) => {
                             text: 'time',
                         },
                         {
-                            onRenderContent: () => <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%',  columnGap:24 }}>
+                            onRenderContent: () => <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', columnGap: 24 }}>
                                 <SpacedText style={statisticPillStyle}>{nodeSize + '个点'}</SpacedText>
                                 <SpacedText style={statisticPillStyle}>{edgeSize + '条边'}</SpacedText>
                                 <SpacedText style={statisticPillStyle}>{constraintSize + '个约束'}</SpacedText>
@@ -90,15 +98,16 @@ export const WorkspaceHeader = (props: IWorkspaceHeaderProps) => {
                             text: 'meta',
                         }],
                         [
-                            { text: "导出为JSON", onRenderHelper: () => <><span></span><MacCommand16 />{"E"}</>, onClick: () => { dispatch(exportToJson()) } },
-                            { text: "导出为Protocol Buffers", onRenderHelper: () => <><MacCommand16 /><MacShift16 />{"E"}</>, onClick: () => { dispatch(exportToJson()) } }
+                            { text: "导出为JSON文件", onRenderHelper: () => <><span></span><MacCommand16 />{"E"}</>, onClick: () => { dispatch(exportFileWorkspace()) } },
+                            // { text: "导出为Protocol Buffers", onRenderHelper: () => <><MacCommand16 /><MacShift16 />{"E"}</>, onClick: () => { dispatch(exportToJson()) } }
                         ],
+                        // [
+                        //     { text: "导入", onRenderHelper: () => <><span></span><MacCommand16 />{"I"}</>, onClick: () => { dispatch(exportToJson()) } }
+                        // ], 
                         [
-                            { text: "导入", onRenderHelper: () => <><span></span><MacCommand16 />{"I"}</>, onClick: () => { dispatch(exportToJson()) } }
-                        ], [
-                            { text: "生成JSON语句", onRenderHelper: () => <><MacCommand16 /><MacOption16 />{"J"}</>, onClick: () => { dispatch(setCodeModal("JSON")) } },
+                            { text: "生成JSON查询语句", onRenderHelper: () => <><MacCommand16 /><MacOption16 />{"J"}</>, onClick: () => { dispatch(setCodeModal("JSON")) } },
                             // { text: "生成AskGraph API调用语句", onRenderHelper: () => <><MacCommand16 /><MacOption16 />{"A"}</>, onClick: () => { dispatch(setCodeModal("AskGraph API")) } },
-                            { text: "生成Cypher语句", onRenderHelper: () => <><MacCommand16 /><MacOption16 />{"C"}</>, onClick: () => { dispatch(setCodeModal("Cypher")) } },
+                            // { text: "生成Cypher语句", onRenderHelper: () => <><MacCommand16 /><MacOption16 />{"C"}</>, onClick: () => { dispatch(setCodeModal("Cypher")) } },
                             // { text: "生成GraphQL语句", onRenderHelper: () => <><MacCommand16 /><MacOption16 />{"G"}</>, onClick: () => { dispatch(setCodeModal("GraphQL")) } },
                             // { text: "生成SQL语句", onRenderHelper: () => <><MacCommand16 /><MacOption16 />{"S"}</>, onClick: () => { dispatch(setCodeModal("SQL")) } }
                         ],

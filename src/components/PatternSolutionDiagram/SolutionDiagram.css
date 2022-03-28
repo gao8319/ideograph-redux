@@ -3,3 +3,16 @@
     dominant-baseline: text-before-edge;
     text-anchor: middle;
 }
+
+/* .transformed>g {
+    transform: scale(0.8) translateX(28px);
+    /* transform-origin: 1 1; 
+} */
+
+.class-text {
+    font-size: 8px;
+    dominant-baseline: text-before-edge;
+    text-anchor: middle;
+    user-select: none;
+    -webkit-user-select: none;
+}

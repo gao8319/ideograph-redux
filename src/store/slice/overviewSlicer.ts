@@ -1,4 +1,5 @@
 import { AnyAction, createSlice, PayloadAction, ThunkDispatch } from "@reduxjs/toolkit"
+import { stringify } from "ajv"
 import { EditMode } from "../../engine/visual/EditMode"
 import { fetchSchema } from "../../services/Schema"
 import { dataSourceForage, DataSourceForageItem, getFileOverviews, initDatabase, queryForage, QueryForageItem } from "../../utils/global/Storage"
@@ -25,13 +26,31 @@ const overviewSlicer = createSlice({
     reducers: {
         setOverviews: (state, action: PayloadAction<OverviewState['overviews']>) => {
             state.overviews = action.payload;
+        },
+        deleteFile: (state, action: PayloadAction<QueryForageItem>) => {
+            const dbIndex = state.overviews.findIndex(o => o.dataSource.id === action.payload.dataSourceId)
+            const fIndex = state.overviews[dbIndex].queries.findIndex(q => q.id == action.payload.id)
+
+            const fList = state.overviews[dbIndex].queries
+            state.overviews[dbIndex].queries =
+                [
+                    ...fList.slice(0, fIndex),
+                    ...fList.slice(fIndex + 1, fList.length)
+                ] as [QueryForageItem, ...QueryForageItem[]]
+
+            queryForage.removeItem(action.payload.id)
+            
+        },
+        renameFile: (state, action: PayloadAction<{ id: string, newName: string }>) => {
+
         }
     }
 })
 
 
 export const {
-    setOverviews
+    setOverviews,
+    deleteFile,
 } = overviewSlicer.actions
 
 
@@ -54,6 +73,9 @@ export const createNewFileAsync = (
         const dataSource = await dataSourceForage.getItem<DataSourceForageItem>(dataSourceId);
         if (dataSource) {
             const createTime = new Date().getTime();
+            dispatch(nodeRenewal({ ids: [], entities: {} }))
+            dispatch(edgeRenewal({ ids: [], entities: {} }))
+            dispatch(constraintRenewal({ ids: [], entities: {} }))
             dispatch(
                 applyFileToWorkspace({
                     model: null,
@@ -75,9 +97,11 @@ export const createNewFileAsync = (
 
 export const loadFileAsync = (
     fileId: string,
+    onFileLoaded: (file: QueryForageItem) => void,
 ) => (
     async (dispatch: ThunkDispatch<RootState, null, AnyAction>, getState: any) => {
         const file = await queryForage.getItem<QueryForageItem>(fileId);
+
         if (file) {
             const dataSource = await dataSourceForage.getItem<DataSourceForageItem>(file.dataSourceId);
 
@@ -99,18 +123,17 @@ export const loadFileAsync = (
             )
             const schema = await fetchSchema()
             dispatch(setModelBySchema(schema))
-
+            onFileLoaded(file)
         }
-
-
     }
 )
 
 
-export const tryImportFileAsync = (file: QueryForageItem) =>
+export const tryImportFileAsync = (file: QueryForageItem, onLoaded: () => void) =>
 (
     async (dispatch: ThunkDispatch<RootState, null, AnyAction>, getState: any) => {
 
+        queryForage.setItem(file.id, file)
 
         const dataSource = await dataSourceForage.getItem<DataSourceForageItem>(file.dataSourceId);
 
@@ -130,7 +153,7 @@ export const tryImportFileAsync = (file: QueryForageItem) =>
                 fileId: file.id,
             })
         )
-
+        onLoaded()
         const schema = await fetchSchema()
         dispatch(setModelBySchema(schema))
     }

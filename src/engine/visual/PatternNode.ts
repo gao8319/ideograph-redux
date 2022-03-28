@@ -27,7 +27,9 @@ export class PatternNode implements IFocusableElement<VisualElementType.Node> {
 
     // private constraints: Map<string, Constraint> = new Map();
 
-    protected renderElements?: RenderElements
+    public renderElements?: RenderElements
+
+
 
     constructor(
         ontologyClass: CommonModel.IColoredClass,
@@ -51,6 +53,8 @@ export class PatternNode implements IFocusableElement<VisualElementType.Node> {
             .attr('node-uuid', this.uuid)
             .attr('transform', `translate(${this.logicPosition.x}, ${this.logicPosition.y})`);
 
+        // elementGroup.node()?.setAttribute('draggable', 'true')
+
         const selection = elementGroup.append('circle')
             .attr('class', 'selection')
 
@@ -58,6 +62,8 @@ export class PatternNode implements IFocusableElement<VisualElementType.Node> {
             .attr('class', 'node')
             .attr('r', 12)
             .attr('fill', this.ontologyClass.colorSlot.primary)
+
+        // circle.node()?.setAttribute('draggable', 'true')
 
         const ring = elementGroup.append('circle')
             .attr('class', 'constrain-ring')
@@ -173,6 +179,8 @@ export class PatternNode implements IFocusableElement<VisualElementType.Node> {
             }
         }
     }
+
+
     public getDisabled() {
         return this._isDisabled;
     }

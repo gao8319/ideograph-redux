@@ -30,13 +30,10 @@ interface IPropertyPanelContent {
 export const PropertyPanelContent = (props: IPropertyPanelContent) => {
     const dispatch = useAppDispatch()
     const focusElement = useAppSelector(focusElementSelector);
-    const model = useAppSelector(modelSelector);
 
     const constraints = useAppSelector(elementConstraintsSelector)
 
     // const [isTemporalFieldOpen, setTemporalFieldOpen] = useState(false);
-
-    console.log(focusElement);
 
     if (!focusElement) return <div>
         <PanelTitle text="定义和属性约束" />
@@ -46,7 +43,7 @@ export const PropertyPanelContent = (props: IPropertyPanelContent) => {
     return <div>
         <PanelTitle text="定义" />
         <ElementMetaField focusElement={focusElement} key={focusElement.id} />
-        {focusElement.class.properties?.length ? <>
+        {focusElement.class?.properties?.length ? <>
             <PanelTitle text="属性约束" topBordered>
                 <ActionButtonTiny
                     disableRipple

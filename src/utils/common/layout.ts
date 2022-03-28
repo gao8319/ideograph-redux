@@ -10,6 +10,8 @@ export const getVector = (from: IPoint, to: IPoint): IVector => ({
     y: to.y - from.y
 })
 
+export const getDistanceSquared = (from: IPoint, to: IPoint) => ((from.x - to.x) ** 2) + ((from.y - to.y) ** 2)
+
 export const getAngleDegs = (from: IPoint, to: IPoint): number => {
     const x = to.x - from.x;
     const y = to.y - from.y;

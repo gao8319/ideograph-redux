@@ -49,7 +49,9 @@ const constraintsSlicer = createSlice({
             }
         },
         renewal(state, actions: PayloadAction<ConstraintsState>) {
-            state = actions.payload;
+            state.ids = actions.payload.ids;
+            state.entities = actions.payload.entities;
+            state.lastOperation = actions.payload.lastOperation;
         }
     },
 })

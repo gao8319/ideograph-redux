@@ -16,20 +16,22 @@ import { ActionButtonTiny, ActionButtonTinyDark } from '../components/Panels/com
 import { CodeEditor } from '../components/CodeEditor/CodeEditor';
 import { PanelTitle } from '../components/Panels/common/PanelTitle';
 import { GlobalPanelContent, IGlobalPanelContentRef } from '../components/Panels/GlobalPanel/GlobalPanelContent';
-import { prepareCypherSyntaxHighlights } from '../utils/CypherTextmate';
-import * as monaco from 'monaco-editor'
-import { wireTmGrammars } from '../utils/editor-wire';
-import { querySolvePattern, testPattern3 } from '../services/SolvePattern';
+import { useNavigate } from 'react-router-dom';
 import { fetchSchema } from '../services/Schema';
 import { QueryModal } from '../components/QueryModal/QueryModal';
-import { useSearchParam } from 'react-use';
+import { useSearchParam, useTitle } from 'react-use';
 import { loadFileAsync } from '../store/slice/overviewSlicer';
+import { PatternNode } from '../engine/visual/PatternNode';
+import { Callout, DirectionalHint, Tooltip } from '@fluentui/react';
+import { ideographDarkTheme } from '../utils/ideographTheme';
+import { EditMode } from '../engine/visual/EditMode';
+import { QueryForageItem } from '../utils/global/Storage';
 
 export const EditView = () => {
 
     useIdeographShortcuts();
     const dispatch = useAppDispatch();
-
+    const navigate = useNavigate();
     const model = useAppSelector(modelSelector);
     const lPanelWidth = useAppSelector(leftPanelWidthSelector);
     const rPanelWidth = useAppSelector(rightPanelWidthSelector);
@@ -38,35 +40,71 @@ export const EditView = () => {
 
     const fileId = useSearchParam('fileId');
 
-    useEffect(() => {
-        if (!model) {
-            fetchSchema().then(s => setModelBySchema(s))
-        }
-        if(fileId) {
-            dispatch(loadFileAsync(fileId))
-        }
-        return () => {
-            dispatch(clearWorkspace())
-        }
-    }, [])
+
 
     useEffect(() => {
         const onSave = () => {
             dispatch(saveFileWorkspace())
         }
+
+        const delayedOnSave = () => {
+            setTimeout(() => dispatch(saveFileWorkspace()), 100)
+        }
+
         window.addEventListener('unload', onSave);
         window.addEventListener('blur', onSave);
+        window.addEventListener('click', delayedOnSave);
+
         return () => {
             window.removeEventListener('unload', onSave);
             window.removeEventListener('blur', onSave);
+            window.removeEventListener('click', delayedOnSave);
         }
     }, [])
 
-    const { containerRef } = usePatternEngine(
+
+
+    const [contextMenuTarget, setContextMenuTarget] = useState<{ node: PatternNode, event: MouseEvent }>();
+
+    const [fileCache, setFileCache] = useState<QueryForageItem>();
+
+    const { engineRef, containerRef } = usePatternEngine(
         model,
-        (...args) => { setSnackBarContent({ ...args, timestamp: new Date().getTime() }); setSnackbarOpen(true); },
+        (...args) => {
+            setSnackBarContent({ ...args, timestamp: new Date().getTime() }); setSnackbarOpen(true);
+        },
+        (node, event) => {
+            setContextMenuTarget({ node, event });
+        },
         [model]
     );
+
+    useEffect(() => {
+        fileCache && engineRef.current?.restoreFromFile(fileCache);
+    }, [fileCache])
+
+    useEffect(() => {
+
+        if (fileId) {
+
+            dispatch(loadFileAsync(fileId, (f) => {
+                setFileCache(f)
+            }))
+
+            if (!model) {
+                fetchSchema().then(s => setModelBySchema(s))
+            }
+
+            return () => {
+                dispatch(clearWorkspace())
+            }
+
+        }
+        else {
+            navigate('/');
+        }
+
+    }, [])
 
     const codeModal = useAppSelector(codeModalSelector);
 
@@ -86,7 +124,6 @@ export const EditView = () => {
             <div className='workspace-container'>
                 <Snackbar
                     anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
-                    // key={snackBarContent?.timestamp ?? 0}
                     open={snackbarOpen}
                     autoHideDuration={3000}
                     onClose={_ => setSnackbarOpen(false)}
@@ -101,6 +138,66 @@ export const EditView = () => {
                 <PropertyPanel />
                 <GlobalPanelContent ref={globalConstraintPoolRef} />
             </div>
+            {contextMenuTarget?.node?.renderElements &&
+                <Callout
+                    target={contextMenuTarget?.event}
+                    directionalHint={DirectionalHint.bottomLeftEdge}
+                    onDismiss={ev => setContextMenuTarget(undefined)}
+                    theme={ideographDarkTheme}
+                    beakWidth={0}
+                    calloutMaxWidth={320}
+                    styles={{
+                        calloutMain: {
+                            borderRadius: 0,
+                            padding: '8px 0'
+                        }
+                    }}>
+                    <div className='contextual-callout-item'
+                        style={{ pointerEvents: 'none', fontWeight: 600, color: 'var(--grey700)' }}>
+                        <div>连接</div>
+                        <span className='contextual-callout-item-helper'></span>
+                    </div>
+                    <div className='contextual-callout-item'
+                        onClick={ev => {
+                            engineRef.current?.setEditModeWithPayload(
+                                EditMode.CreatingEdgeTo,
+                                contextMenuTarget?.node.uuid
+                            )
+                        }}
+                        style={{}}>
+                        <div style={{ fontSize: 13 }}>连接到已有节点</div>
+                        <span className='contextual-callout-item-helper'></span>
+                    </div>
+
+                    <div className='contextual-callout-item'
+                        style={{}}>
+                        <div style={{ fontSize: 13 }}>连接到新的节点</div>
+                        <span className='contextual-callout-item-helper'></span>
+                    </div>
+
+                    <div className='contextual-callout-sep' />
+
+                    <div className='contextual-callout-item'
+                        style={{ pointerEvents: 'none', fontWeight: 600, color: 'var(--grey700)' }}>
+                        <div>属性约束</div>
+                        <span className='contextual-callout-item-helper'></span>
+                    </div>
+                    <div className='contextual-callout-item'
+                        style={{}}>
+                        <div style={{ fontSize: 13 }}>清除所有约束</div>
+                        <span className='contextual-callout-item-helper'></span>
+                    </div>
+
+                    <div className='contextual-callout-sep' />
+
+
+                    <div className='contextual-callout-item'
+                        style={{}}>
+                        <div style={{ fontSize: 13 }}>移除节点</div>
+                        <span className='contextual-callout-item-helper'></span>
+                    </div>
+                </Callout>
+            }
             {codeModal !== undefined
                 && <>
                     <div style={{ left: 0, top: 0, width: '100vw', height: '100vh', backgroundColor: '#20222a60', fontSize: 14, position: 'absolute', zIndex: 99998, }}></div>

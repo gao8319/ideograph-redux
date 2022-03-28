@@ -10,6 +10,9 @@ g[focused=true]>g.a-g.hover{--line-color:#e1e2e5!important;--line-width:12px!imp
 
 g[disabled=true]>g.a-g.hover{--line-color:#f3f4f6!important;--line-width:12px!important;--opacity:0!important}
 a-g path{transition: opacity 0.2s;}
+
+
+g.a-g.narrowed{--line-color:#91929780;--line-width:1.4px;--opacity:1}
 /* g.a-g>g.hover-layer{opacity:0;transition:opacity .16s}
 g.a-g:hover>g.hover-layer{opacity:.25}
 g.a-g>g.hover-layer>path.a-body-h{stroke-width:12px;stroke-linecap:round;stroke-linejoin:round;stroke:var(--line-color)}

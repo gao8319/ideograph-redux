@@ -10,6 +10,7 @@ import { isNotEmpty } from "./common/utils";
 export const usePatternEngine = (
     modelObject: CommonModel.ISerializedRoot | null,
     raiseMessage: RaiseMessageCallback,
+    layoutContextMenu: NonNullable<PatternGraphEngine["_onNodeContextMenu"]>,
     deps?: React.DependencyList,
 ) => {
 
@@ -85,6 +86,7 @@ export const usePatternEngine = (
             engine.setRaiseMessageCallback(raiseMessage)
             // engine.setOnConstraintCreatedCallback(c => dispatch(addConstraint(c)))
 
+            engine.setOnNodeContextMenu(layoutContextMenu);
             engineRef.current = engine;
             return () => {
                 engine.detach();

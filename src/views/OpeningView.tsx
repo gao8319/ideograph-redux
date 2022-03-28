@@ -12,11 +12,17 @@ import { SpacedText } from "../components/SpacedSpan";
 import { ActionButtonTiny, ActionButtonTinyDark } from "../components/Panels/common/ActionButton";
 import { StyledButton, StyledDefaultButton, StyledInput, StyledSelect } from "../components/Styled/StyledComponents";
 import { CreateDialog } from "../components/Dialogs/CreateDialog";
-import { getFileOverviews, IdeographDatabase, initDatabase, QueryForageItem } from "../utils/global/Storage";
-import { initOverviewAsync, loadFileAsync, overviewSelectors, setOverviews, tryImportFileAsync } from "../store/slice/overviewSlicer";
+import { getFileOverviews, IdeographDatabase, initDatabase, queryForage, QueryForageItem } from "../utils/global/Storage";
+import { deleteFile, initOverviewAsync, loadFileAsync, overviewSelectors, setOverviews, tryImportFileAsync } from "../store/slice/overviewSlicer";
 import { pangu } from "../utils/common/pangu";
 import { useNavigate } from 'react-router-dom';
 import { ConnectDialog } from "../components/Dialogs/ConnectDialog";
+import { useTitle } from "react-use";
+import { FileThumbnail } from "../components/Thumbnail/FileThumbnail";
+import _ from "lodash";
+import { Callout, DirectionalHint } from "@fluentui/react";
+import { ideographDarkTheme } from "../utils/ideographTheme";
+import { nanoid } from "@reduxjs/toolkit";
 
 
 const OpenningTab = styled(Button)(t => ({
@@ -117,8 +123,7 @@ type DialogType = "create" | "import" | "connect"
 const dateFormatter = Intl.DateTimeFormat('zh-CN', {
     month: 'long',
     day: 'numeric',
-    // weekday: 'long', 
-    hour: '2-digit',
+    hour: 'numeric',
     minute: '2-digit'
 });
 
@@ -130,17 +135,21 @@ export const OpeningView = () => {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
 
+    useTitle('Ideograph')
+
     useEffect(() => {
         dispatch(initOverviewAsync());
     }, [])
 
     const overviews = useAppSelector(overviewSelectors);
 
+    const [contextMenuTarget, setContextMenuTarget] = useState<{ event: MouseEvent, file: QueryForageItem }>();
+
     return <>
         <OpeningViewHeader />
 
         <div style={{ backgroundColor: '#fff', height: 'calc(100vh - 48px)', width: '100vw', position: 'relative', display: 'grid', gridTemplateColumns: `${lPanelWidth + 1}px 1fr` }}>
-            <div className="concept-panel-root panel" style={{ width: lPanelWidth }}>
+            <div className="concept-panel-root panel opening-left-panel" style={{ width: lPanelWidth }}>
                 <div style={{ height: '100%', padding: '16px 0', gridTemplateRows: 'auto 1fr auto', display: 'grid' }}>
                     {
                         tabs.map((tab, index) => {
@@ -154,19 +163,36 @@ export const OpeningView = () => {
                     }
                 </div>
             </div>
-            <div style={{ gridColumnStart: 2, paddingTop: 48, height: 'calc(100vh - 48px)', overflow: 'auto' }}>
+            {activeTab === 0 && <div className="opening-tab">
+
+                <div style={{ fontWeight: 600, fontSize: 14, height: 60, alignItems: 'center', display: 'inline-flex', paddingLeft: 24, columnGap: 8, paddingTop: 12 }}>
+                    <SpacedText>
+                        新建
+                    </SpacedText>
+                </div>
 
                 <input type="file" accept=".json" style={{ display: 'none' }} ref={fileInputRef} onChange={
                     async ev => {
                         const files = (ev.target as HTMLInputElement).files
                         const file = files?.item(0)
                         if (file) {
+                            const dt = new Date().getTime();
+
                             const parsed: QueryForageItem = JSON.parse(await file.text());
-                            dispatch(tryImportFileAsync(parsed))
+                            parsed.name = `${parsed.name} - 导入自“${file.name}”`;
+                            parsed.id = nanoid();
+                            parsed.createTime = dt;
+                            parsed.lastEditTime = dt;
+
+                            dispatch(
+                                tryImportFileAsync(parsed,
+                                    () => navigate(`file?fileId=${parsed.id}`))
+                            )
+
                         }
                     }
                 } />
-                <div style={{ display: 'grid', columnGap: 16, rowGap: 16, padding: 24, gridTemplateColumns: 'repeat(auto-fit, 280px)' }}>
+                <div style={{ display: 'grid', columnGap: 16, rowGap: 16, padding: '8px 24px 24px 24px', gridTemplateColumns: 'repeat(auto-fit, 280px)' }}>
                     <CreateNewButton onClick={_ => setDialog("create")}>
                         <img src="/static/file.svg" width={48} height={48} />
                         <div>
@@ -191,6 +217,55 @@ export const OpeningView = () => {
                         </div>
                     </CreateNewButton>
                 </div>
+
+                {contextMenuTarget &&
+                    <Callout
+                        target={contextMenuTarget.event}
+                        directionalHint={DirectionalHint.bottomLeftEdge}
+                        onDismiss={ev => setContextMenuTarget(undefined)}
+                        theme={ideographDarkTheme}
+                        beakWidth={0}
+                        calloutMaxWidth={320}
+                        styles={{
+                            calloutMain: {
+                                borderRadius: 0,
+                                padding: '8px 0',
+                                minWidth: 180,
+                            }
+                        }}>
+
+                        <div className='contextual-callout-item'>
+                            <div>查询匹配结果</div>
+                        </div>
+
+                        <div className='contextual-callout-sep' />
+
+                        <div className='contextual-callout-item'
+                            onClick={
+                                async (ev) => {
+                                    // await queryForage.setItem(contextMenuTarget.file.id, {
+                                    //     ...contextMenuTarget.file,
+                                    //     name: "new name",
+                                    // });
+                                    setContextMenuTarget(undefined);
+                                }
+                            }
+                        >
+                            <div>重命名</div>
+                        </div>
+
+                        <div className='contextual-callout-item' onClick={
+                            ev => {
+                                queryForage.removeItem(contextMenuTarget.file.id);
+                                dispatch(deleteFile(contextMenuTarget.file))
+                                setContextMenuTarget(undefined);
+                            }
+                        }>
+                            <div>删除</div>
+                        </div>
+
+                    </Callout>
+                }
                 {
                     overviews.map(
                         overview => <React.Fragment key={overview.dataSource.id}>
@@ -212,93 +287,43 @@ export const OpeningView = () => {
                                 padding: '8px 24px 24px',
                             }}>
                                 {
-                                    overview.queries.map(f => <DocumentButton
-                                        key={f.id}
-                                        onClick={_ => {
-                                            // dispatch(loadFileAsync(f.id))
-                                            navigate(`file?fileId=${f.id}`)
-                                        }}
-                                    >
-                                        <div style={{ background: 'var(--grey50)', width: 'calc(100% + 32px)', height: 'calc(100% + 8px)', margin: '-16px -16px 0 -16px' }}></div>
-                                        <SpacedText>{f.name}</SpacedText>
-                                        <span style={{ fontSize: 12, fontWeight: 400, color: 'var(--grey200)' }}>
-                                            {pangu.spacing(`修改于${dateFormatter.format(f.lastEditTime)}`)}
-                                        </span>
-                                    </DocumentButton>)
+                                    _.sortBy(overview.queries, it => -it.createTime).map(
+                                        f => <DocumentButton
+                                            key={f.id}
+                                            onClick={_ => {
+                                                navigate(`file?fileId=${f.id}`)
+                                            }}
+                                            onContextMenu={ev => {
+                                                setContextMenuTarget({ event: ev.nativeEvent, file: f });
+                                                ev.preventDefault();
+                                            }}
+                                        >
+                                            <div style={{ background: 'var(--grey50)', width: 'calc(100% + 32px)', height: 'calc(100% + 8px)', margin: '-16px -16px 0 -16px' }}>
+                                                <FileThumbnail file={f} />
+                                            </div>
+                                            <SpacedText>{f.name}</SpacedText>
+                                            <span style={{ fontSize: 12, fontWeight: 400, color: 'var(--grey200)' }}>
+                                                {pangu.spacing(`${f.lastEditTime === f.createTime ? "创建" : "修改"}于${dateFormatter.format(f.lastEditTime)}`)}
+                                            </span>
+                                        </DocumentButton>
+
+                                    )
                                 }
                             </div>
                         </React.Fragment>
                     )
                 }
-                {/* 
-                <div style={{ fontWeight: 600, fontSize: 14, height: 72, alignItems: 'center', display: 'inline-flex', paddingLeft: 24, columnGap: 8, paddingTop: 24 }}>
-                    <SpacedText>
-                        医疗数据库
-                    </SpacedText>
-                    <SpacedText style={{ color: 'var(--grey200)', fontWeight: 600, fontFamily: 'var(--mono-font)' }}>
-                        162.105.88.139:27025
-                    </SpacedText>
+
+            </div>}
+
+
+            {
+                activeTab === 2 && <div className="opening-tab">
+                    <div>
+
+                    </div>
                 </div>
-
-                <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(5, 1fr)',
-                    rowGap: 16,
-                    width: '100%',
-                    columnGap: 16,
-                    padding: '8px 24px 24px',
-                }}>
-                    <DocumentButton>
-                        <Add24 />
-                    </DocumentButton>
-                    <DocumentButton>
-                        Query1
-                    </DocumentButton>
-                    <DocumentButton>
-                        Query1
-                    </DocumentButton>
-                    <DocumentButton>
-                        Query1
-                    </DocumentButton>
-                    <DocumentButton>
-                        Query1
-                    </DocumentButton>
-                    <DocumentButton>
-                        Query1
-                    </DocumentButton>
-                    <DocumentButton>
-                        Query1
-                    </DocumentButton>
-                    <DocumentButton>
-                        Query1
-                    </DocumentButton>
-                </div>
-
-
-                <div style={{ fontWeight: 600, fontSize: 14, height: 72, alignItems: 'center', display: 'inline-flex', paddingLeft: 24, columnGap: 8, paddingTop: 24 }}>
-                    <SpacedText>
-                        智慧城市
-                    </SpacedText>
-                    <SpacedText style={{ color: 'var(--grey200)', fontWeight: 600, fontFamily: 'var(--mono-font)' }}>
-                        127.0.0.1:8080
-                    </SpacedText>
-                </div>
-
-                <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(5, 1fr)',
-                    rowGap: 16,
-                    width: '100%',
-                    columnGap: 16,
-                    padding: '8px 24px 24px',
-                }}>
-                    <DocumentButton>
-                        <Add24 />
-                    </DocumentButton>
-                </div> */}
-
-
-            </div>
+            }
         </div>
 
 

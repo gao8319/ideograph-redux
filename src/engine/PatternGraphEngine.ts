@@ -1,11 +1,8 @@
-import { ColoredOntologyClass, IOntologyClass } from "./ontology/OntologyClass";
-import { flattenOntologyTree, IOntologyModel } from "./ontology/OntologyModel";
-import { ColorSlot } from "./visual/ColorSlot";
 import { EditMode } from "./visual/EditMode";
-import { IFocusableElement, IVisualElement, VisualElementType } from "./visual/VisualElement";
+import { IFocusableElement, VisualElementType } from "./visual/VisualElement";
 import * as d3 from 'd3';
+import { drag } from 'd3-drag';
 import './visual/PatternGraphEngine.css'
-import { figmaColorScheme } from "./visual/ColorSchemes";
 import { PatternNode } from "./visual/PatternNode";
 import { PatternEdge } from "./visual/PatternEdge";
 import { Arrow } from "./elements/Arrow";
@@ -14,6 +11,8 @@ import { CommonModel } from "../utils/common/model";
 import { IConstraint, IPatternEdge, IPatternNode } from "../utils/common/graph";
 import { isNotEmpty } from "../utils/common/utils";
 import { Dictionary } from "lodash";
+import { QueryForageItem } from "../utils/global/Storage";
+import { getDistanceSquared, IPoint } from "../utils/common/layout";
 
 
 export enum RaiseMessageType {
@@ -52,7 +51,8 @@ export class PatternGraphEngine {
 
     public renderContainer: HTMLDivElement
     public svgLayer: D3<SVGSVGElement>
-    public coreLayer: D3<SVGGElement>
+    public nodeLayer: D3<SVGGElement>
+    public edgeLayer: D3<SVGGElement>
 
 
     /**
@@ -87,7 +87,7 @@ export class PatternGraphEngine {
     public setOnConstraintCreatedCallback = (cb: typeof this._onConstraintCreatedCallback) => { this._onConstraintCreatedCallback = cb; }
     public setRaiseMessageCallback = (cb: typeof this._onRaiseMessageCallback) => { this._onRaiseMessageCallback = cb; }
     public setOnNodeContextMenu = (cb: typeof this._onNodeContextMenu) => { this._onNodeContextMenu = cb; }
-    
+
     // public notifyNodeConstrained(nodeId: IPatternNode['id'], isConstrained = true) {
     //     this.nodeDict[nodeId].isConstrained = isConstrained;
     // }
@@ -118,7 +118,9 @@ export class PatternGraphEngine {
         this.svgLayer.on('contextmenu', (ev) => {
             ev.preventDefault();
         })
-        this.coreLayer = this.svgLayer.append('g')
+        this.edgeLayer = this.svgLayer.append('g')
+            .attr('class', 'engine-core')
+        this.nodeLayer = this.svgLayer.append('g')
             .attr('class', 'engine-core')
         this.mouseIndicatorLayer = this.svgLayer.append('g')
             .attr('class', 'engine-mouse-indicator');
@@ -185,7 +187,6 @@ export class PatternGraphEngine {
                 break;
             }
             case EditMode.CreatingEdgeFrom: {
-
                 break;
             }
             case EditMode.CreatingEdgeTo: {
@@ -196,10 +197,12 @@ export class PatternGraphEngine {
                         const newArrow = new Arrow(
                             this.createEdgeFrom!.logicPosition,
                             this.mouseHoveringAtNode.logicPosition,
-                            18, true);
+                            18,
+                            true);
                         if (!this.connectionIndicator) {
                             this.connectionIndicator = newArrow;
-                            this.connectionIndicator.attachTo(this.mouseIndicatorLayer)
+                            this.connectionIndicator
+                                .attachTo(this.mouseIndicatorLayer)
                                 .attr('opacity', 0.4)
                                 .attr('stroke-dasharray', 'none');
                         }
@@ -264,7 +267,7 @@ export class PatternGraphEngine {
                         this._onNodeCreatedCallback?.(n.asObject())
                         this.nodeDict[n.uuid] = n;
 
-                        n.attachTo(this.coreLayer);
+                        n.attachTo(this.nodeLayer);
                         setTimeout(
                             () => {
                                 this.focusedElement = n;
@@ -282,6 +285,15 @@ export class PatternGraphEngine {
                         n.on('contextmenu', mouseEvent => {
                             this._onNodeContextMenu?.(n, mouseEvent)
                         })
+                        n.renderElements?.root.call(
+                            d3.drag<SVGGElement, any>()
+                                .on('start', () => {
+
+                                    this.dragStartNode = n
+                                })
+                                .on('drag', this._onNodeDrag)
+                                .on('end', this._onNodeDragEnd)
+                        )
                         this.editPayload = null;
                         this.nodeIndicator?.remove();
                         this.nodeIndicator = undefined;
@@ -294,7 +306,6 @@ export class PatternGraphEngine {
             }
             case EditMode.CreatingEdgeFrom: {
                 this.focusedElement = null;
-
                 break;
             }
             case EditMode.CreatingEdgeTo: {
@@ -368,7 +379,7 @@ export class PatternGraphEngine {
                     this._onEdgeCreatedCallback?.(e.asObject())
                     this.edgeDict[e.uuid] = e;
 
-                    e.attachTo(this.coreLayer);
+                    e.attachTo(this.edgeLayer);
                     e.on('click', clickEvent => {
                         this.onEdgeClick(e, clickEvent)
                     });
@@ -415,5 +426,210 @@ export class PatternGraphEngine {
         }
         this.focusedElement = e;
         ev.stopPropagation();
+    }
+
+    private dragStartNode?: PatternNode;
+    private isDragNailed = false;
+    private _onNodeDrag = (ev: DragEvent) => {
+        if (this.dragStartNode) {
+            if (getDistanceSquared(this.dragStartNode.logicPosition, ev) > 200) {
+
+                if (!this.isDragNailed) {
+                    this.setEditModeWithPayload(
+                        EditMode.CreatingEdgeTo,
+                        this.dragStartNode.uuid
+                    )
+                    this.createEdgeFrom = this.dragStartNode;
+
+                    const createEdgeFromClassId = this.dragStartNode.ontologyClass.id
+                    Object.values(this.nodeDict).forEach(to => {
+                        if (
+                            this.model.connectable[createEdgeFromClassId].to.includes(to.ontologyClass.id)
+                            || (this.dragStartNode?.uuid === to.uuid)
+                        ) {
+                            to.setDisabled(false);
+                        }
+                        else {
+                            to.setDisabled(true);
+                        }
+                    })
+
+                    Object.values(this.edgeDict).forEach(_n => _n.setDisabled(true));
+                    this.isDragNailed = true;
+                }
+                console.log(this.mouseHoveringAtNode)
+                if (this.mouseHoveringAtNode && !this.mouseHoveringAtNode.getDisabled()) {
+                    const newArrow = new Arrow(
+                        this.createEdgeFrom!.logicPosition,
+                        this.mouseHoveringAtNode.logicPosition,
+                        18,
+                        true);
+                    if (!this.connectionIndicator) {
+                        this.connectionIndicator = newArrow;
+                        this.connectionIndicator
+                            .attachTo(this.mouseIndicatorLayer!)
+                            .attr('opacity', 0.4)
+                            .attr('stroke-dasharray', 'none');
+                    }
+                    else {
+                        this.connectionIndicator.applyAttributes(newArrow.getAttributes())
+                        this.connectionIndicator
+                            .attr('stroke-dasharray', 'none');
+                    }
+                }
+                else {
+                    if (!this.connectionIndicator) {
+                        this.connectionIndicator = new Arrow(
+                            this.dragStartNode.logicPosition,
+                            ev,
+                            18, false);
+                        this.connectionIndicator.attachTo(this.mouseIndicatorLayer!)
+                            .attr('opacity', 0.4)
+                            .attr('stroke-dasharray', '8, 8');
+                    }
+                    else {
+                        this.connectionIndicator.modifyEndpoint(ev)
+                        this.connectionIndicator
+                            .attr('stroke-dasharray', '8, 8');
+                    }
+                }
+
+
+
+
+
+            }
+        }
+    }
+
+
+    private _onNodeDragEnd = (ev: DragEvent) => {
+        if (this.dragStartNode && this.isDragNailed) {
+            const n = this.mouseHoveringAtNode;
+            if (isNotEmpty(this.createEdgeFrom) && isNotEmpty(n)) {
+
+                if (n!.getDisabled()) {
+                    // debugger;
+                    this._onRaiseMessageCallback?.(
+                        `无法添加从&thinsp;<b>${this.createEdgeFrom!.ontologyClass.name}</b>&thinsp;到&thinsp;<b>${n!.ontologyClass.name}</b>&thinsp;的边约束`,
+                        RaiseMessageType.Error,
+                        true
+                    )
+                }
+                else if (n!.uuid === this.createEdgeFrom?.uuid) {
+                    this._onRaiseMessageCallback?.(
+                        `不支持自环`,
+                        RaiseMessageType.Error,
+                        true
+                    )
+                }
+                else {
+                    const edgeTypeName = this.model.getRelationNames(this.createEdgeFrom?.ontologyClass!, n!.ontologyClass!)[0].name
+                    console.error(edgeTypeName)
+                    const e = new PatternEdge(
+                        this.createEdgeFrom!,
+                        n!,
+                        true,
+                        nanoid(),
+                        [],
+                        edgeTypeName
+                    )
+                    this._onEdgeCreatedCallback?.(e.asObject())
+                    this.edgeDict[e.uuid] = e;
+
+                    e.attachTo(this.edgeLayer);
+                    e.on('click', clickEvent => {
+                        this.onEdgeClick(e, clickEvent)
+                    });
+                    setTimeout(
+                        () => {
+                            this.focusedElement = e;
+                        }, 0
+                    )
+                }
+            }
+            Object.values(this.nodeDict).forEach(_n => _n.setDisabled(false))
+            Object.values(this.edgeDict).forEach(_n => _n.setDisabled(false))
+
+            this.focusedElement = null;
+            this.createEdgeFrom = null;
+            this.mouseHoveringAtNode = null;
+            this.dragStartNode = undefined;
+            this.isDragNailed = false;
+            this.editMode = EditMode.Default;
+        }
+    }
+
+
+
+    public restoreFromFile = (file: QueryForageItem) => {
+        Object.values(file.nodes.entities).forEach((n) => {
+            const patternNode = new PatternNode(
+                n!.class,
+                n!.position,
+                n!.id,
+            )
+
+            this._onNodeCreatedCallback?.(patternNode.asObject())
+            this.nodeDict[patternNode.uuid] = patternNode;
+
+            patternNode.attachTo(this.nodeLayer);
+
+            patternNode.on('click', clickEvent => {
+                this.onNodeClick(patternNode, clickEvent)
+            })
+            patternNode.on('pointerenter', mouseEvent => {
+                this.onNodePointerEnter(patternNode, mouseEvent)
+            })
+            patternNode.on('pointerleave', mouseEvent => {
+                this.onNodePointerLeave(patternNode, mouseEvent)
+            })
+            patternNode.on('contextmenu', mouseEvent => {
+                this._onNodeContextMenu?.(patternNode, mouseEvent)
+            })
+
+            patternNode.renderElements?.root.call(
+                d3.drag<SVGGElement, any>()
+                    .on('start', () => {
+                        this.dragStartNode = patternNode
+                    })
+                    .on('drag', this._onNodeDrag)
+                    .on('end', this._onNodeDragEnd)
+            )
+
+
+            // this.editPayload = null;
+            // this.nodeIndicator?.remove();
+            // this.nodeIndicator = undefined;
+        })
+
+        Object.values(file.edges.entities).forEach(e => {
+            if (!e) return;
+            const fromNode = this.nodeDict[e.from]
+            const toNode = this.nodeDict[e.to]
+            // const edgeTypeName = this.model.getRelationNames(fromNode.ontologyClass, toNode.ontologyClass)[0].name
+            const patternEdge = new PatternEdge(
+                fromNode,
+                toNode,
+                true,
+                e.id,
+                [],
+                e.class.name
+            )
+            this._onEdgeCreatedCallback?.(patternEdge.asObject())
+            this.edgeDict[patternEdge.uuid] = patternEdge;
+
+            patternEdge.attachTo(this.edgeLayer);
+            patternEdge.on('click', clickEvent => {
+                this.onEdgeClick(patternEdge, clickEvent)
+            });
+        })
+
+        Object.values(file.constraints.entities).forEach(c => {
+            this.notifyElementConstrained({
+                ...file.nodes.entities[c!.targetId]!,
+                type: VisualElementType.Node
+            })
+        })
     }
 }

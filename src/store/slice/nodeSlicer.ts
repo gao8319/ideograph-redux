@@ -22,7 +22,8 @@ const nodesSlicer = createSlice({
         deleteNode: nodesAdapter.removeOne,
 
         renewal(state, actions: PayloadAction<EntityState<IPatternNode>>) {
-            state = actions.payload;
+            state.ids = actions.payload.ids;
+            state.entities = actions.payload.entities;
         }
 
     },

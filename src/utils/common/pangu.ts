@@ -100,22 +100,9 @@ class PanguThinSpace {
 
         const self = this;
 
-        // DEBUG
-        // String.prototype.rawReplace = String.prototype.replace;
-        // String.prototype.replace = function(regexp, newSubstr) {
-        //   const oldText = this;
-        //   const newText = this.rawReplace(regexp, newSubstr);
-        //   if (oldText !== newText) {
-        //     console.log(`regexp: ${regexp}`);
-        //     console.log(`oldText: ${oldText}`);
-        //     console.log(`newText: ${newText}`);
-        //   }
-        //   return newText;
-        // };
 
         let newText = text;
 
-        // https://stackoverflow.com/questions/4285472/multiple-regex-replace
         newText = newText.replace(CONVERT_TO_FULLWIDTH_CJK_SYMBOLS_CJK, (match, leftCjk, symbols, rightCjk) => {
             const fullwidthSymbols = self.convertToFullwidth(symbols);
             return `${leftCjk}${fullwidthSymbols}${rightCjk}`;

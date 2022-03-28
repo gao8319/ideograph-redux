@@ -21,7 +21,8 @@ const edgesSlicer = createSlice({
         modifyEdge: edgesAdapter.updateOne,
         deleteEdge: edgesAdapter.removeOne,
         renewal(state, actions: PayloadAction<EntityState<IPatternEdge>>) {
-            state = actions.payload;
+            state.ids = actions.payload.ids;
+            state.entities = actions.payload.entities;
         }
     },
 })

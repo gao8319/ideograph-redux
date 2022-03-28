@@ -12,6 +12,8 @@ import { nodesSelectors } from "./nodeSlicer";
 
 import thunk, { ThunkDispatch } from 'redux-thunk';
 import { queryForage, QueryForageItem } from "../../utils/global/Storage";
+import FileSaver from "file-saver";
+import { isNotEmpty } from "../../utils/common/utils";
 
 export const LEFT_DEFAULT = 240;
 export const LEFT_MIN = 200;
@@ -226,6 +228,9 @@ const workspaceSlicer = createSlice({
             state.dataSourceId = action.payload.dataSourceId;
             state.model = null;
             state.editMode = EditMode.CreatingNode;
+            state.focusElement = undefined;
+            state.editPayload = undefined;
+            state.queryModalState = false;
         },
         clearWorkspace(state) {
             state.projectName = '';
@@ -236,6 +241,9 @@ const workspaceSlicer = createSlice({
             state.dataSourceId = '';
             state.model = null;
             state.editMode = EditMode.CreatingNode;
+            state.focusElement = undefined;
+            state.editPayload = undefined;
+            state.queryModalState = false;
         }
     }
 })
@@ -257,6 +265,61 @@ export const saveFileWorkspace = () => (
         }
         queryForage.setItem(file.id, file);
         console.log(`[FileSystem] ${file.name} (${file.id}) saved at ${file.lastEditTime}.`);
+    }
+)
+
+
+export const exportFileWorkspace = () => (
+    async (dispatch: ThunkDispatch<RootState, null, AnyAction>, getState: () => RootState) => {
+        const state = getState();
+        const file: QueryForageItem = {
+            id: state.workspace.fileId,
+            name: state.workspace.workspaceName,
+            nodes: state.nodes,
+            edges: state.edges,
+            constraints: state.constraints,
+            dataSourceId: state.workspace.dataSourceId,
+            solutionCaches: [],
+            createTime: state.workspace.createTime,
+            lastEditTime: new Date().getTime(),
+        }
+
+
+        // @ts-ignore
+        // if (window.showOpenFilePicker) {
+        //     const options = {
+        //         types: [
+        //             {
+        //                 description: 'JSON',
+        //                 accept: {
+        //                     'application/json': ['.json'],
+        //                 },
+        //             },
+        //         ],
+        //         suggestedName: `${file.name}.json`
+        //     };
+        //     // @ts-ignore
+        //     const fileHandle: FileSystemFileHandle = await window.showSaveFilePicker(options);
+
+
+        //     // @ts-ignore
+        //     const writable = await fileHandle.createWritable();
+
+        //     console.log(writable);
+
+        //     // Write the contents of the file to the stream.
+        //     await writable.write(JSON.stringify(file));
+
+        //     // Close the file and write the contents to disk.
+        //     await writable.close();
+        // }
+        // else {
+        var blob = new Blob([JSON.stringify(file)], { type: "text/plain;charset=utf-8" });
+
+        FileSaver.saveAs(blob, `${file.name}.json`);
+        // }
+
+        console.log(`[FileSystem] ${file.name} (${file.id}) exported at ${file.lastEditTime}.`);
     }
 )
 
@@ -306,7 +369,7 @@ export const focusElementSelector = createSelector(
         else if (fe?.type === VisualElementType.Edge) {
             const fromClass = nodes[fe.payload.from!]?.class.id
             const toClass = nodes[fe.payload.to!]?.class.id
-            if (fromClass && toClass) {
+            if (isNotEmpty(fromClass) && isNotEmpty(toClass)) {
                 const properties = model.relations.filter(it => it.from === fromClass && it.to === toClass)
                 return { ...edges[fe.payload.id!]!, type: VisualElementType.Edge, class: { ...edges[fe.payload.id!]!.class, properties: properties.flatMap(it => it.properties).filter(it => it !== undefined) as CommonModel.IProperty[] } }
             }

@@ -32,11 +32,16 @@ g.p-n>circle.constrain-ring{
 g.p-n>text.alias{
     opacity: 0;
     visibility: none;
+    display: none;
     text-anchor: middle;
     dominant-baseline: center;
     font-family: "SF Mono";
     font-size: 14px;
     font-weight: 500;
+}
+
+g.p-n>text{
+    pointer-events: none;
 }
 
 g.p-n>text.type{
