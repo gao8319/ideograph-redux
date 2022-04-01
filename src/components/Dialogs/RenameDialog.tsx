@@ -16,7 +16,7 @@ import { pangu } from "../../utils/common/pangu";
 import _ from "lodash";
 
 interface IRenameDialogProps {
-    file: readonly QueryForageItem
+    file: QueryForageItem
     // onRename: (newName: string) => void;
 }
 

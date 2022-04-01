@@ -1,6 +1,7 @@
 import { Graph, Path, Shape, Node } from '@antv/x6';
 import { Update } from '@reduxjs/toolkit';
 import { IConstraint } from '../../../utils/common/graph';
+import { IPoint } from '../../../utils/common/layout';
 import { isNotEmpty } from '../../../utils/common/utils';
 import { operatorLiteral } from '../../ConstraintsEditor/ConstraintField';
 
@@ -48,72 +49,71 @@ export const addLogicNode = (
     id: string,
     nIn: number = 2,
     nOut: number = 1,
-    primary?: string,
-    background?: string,
-    width?: number
-) => {
-    graph.addNode({
-        width: width ?? 192,
-        height: 28,
-        x: 16,
-        y: 16,
-        label: text,
-        id,
-        attrs: {
-            label: {
-                refX: 8,
-                refY: 15,
-                textAnchor: 'start',
-                textVerticalAnchor: 'middle',
-                fontFamily: 'var(--mono-font)',
-                fontFeatureSetting: '"liga" 1',
-                fill: primary ?? '#000',
-                fontWeight: 600,
-            },
-            body: {
-                stroke: primary ?? '#919297',
-                fill: background ?? '#fff',
-                strokeWidth: 2,
-                rx: 4,
-                ry: 4,
-            }
+    primary: string,
+    background: string,
+    width: number
+) => graph.addNode({
+    width: width ?? 192,
+    height: 28,
+    x: 16,
+    y: 16,
+    label: text,
+    id,
+    attrs: {
+        label: {
+            refX: 8,
+            refY: 15,
+            textAnchor: 'start',
+            textVerticalAnchor: 'middle',
+            fontFamily: 'var(--mono-font)',
+            fontFeatureSetting: '"liga" 1',
+            fill: primary ?? '#000',
+            fontWeight: 600,
         },
-        ports: {
-            groups: {
-                group1: {
-                    attrs: {
-                        circle: {
-                            r: 4,
-                            magnet: true,
-                            stroke: primary ?? '#919297',
-                            strokeWidth: 2,
-                            fill: '#fff',
-                        },
-                    },
-                    position: {
-                        name: 'absolute',
+        body: {
+            stroke: primary ?? '#919297',
+            fill: background ?? '#fff',
+            strokeWidth: 2,
+            rx: 4,
+            ry: 4,
+        }
+    },
+    ports: {
+        groups: {
+            group1: {
+                attrs: {
+                    circle: {
+                        r: 4,
+                        magnet: true,
+                        stroke: primary ?? '#919297',
+                        strokeWidth: 2,
+                        fill: '#fff',
                     },
                 },
-                group2: {
-                    attrs: {
-                        circle: {
-                            r: 4,
-                            magnet: true,
-                            stroke: primary ?? '#919297',
-                            strokeWidth: 2,
-                            fill: '#fff',
-                        },
-                    },
-                    position: {
-                        name: 'absolute',
-                    },
-                }
+                position: {
+                    name: 'absolute',
+                },
             },
-            items: nIn === 1 ? portItems1_1(width) : portItems2_1(width),
-        }
-    })
-}
-export const addLogicAddNode = (graph: Graph, id: string) => addLogicNode(graph, "与", id, 2, 1, '#EF6C00', '#FFF8E1', 64);
+            group2: {
+                attrs: {
+                    circle: {
+                        r: 4,
+                        magnet: true,
+                        stroke: primary ?? '#919297',
+                        strokeWidth: 2,
+                        fill: '#fff',
+                    },
+                },
+                position: {
+                    name: 'absolute',
+                },
+            }
+        },
+        items: nIn === 1 ? portItems1_1(width) : portItems2_1(width),
+    }
+})
+
+export const addLogicAndNode = (graph: Graph, id: string) => addLogicNode(graph, "与", id, 2, 1, '#EF6C00', '#FFF8E1', 64);
 export const addLogicOrNode = (graph: Graph, id: string) => addLogicNode(graph, "或", id, 2, 1, '#0277BD', '#E1F5FE', 64);
 export const addLogicNotNode = (graph: Graph, id: string) => addLogicNode(graph, "非", id, 1, 1, '#512DA8', '#EDE7F6', 64);
 
@@ -218,7 +218,8 @@ const describeConstraint = (c: IConstraint | Update<IConstraint>) => {
     }
 }
 
-export const createConstraintNode = (g: Graph, c: IConstraint) => {
+export const createConstraintNode = (g: Graph, c: IConstraint, position?: IPoint) => {
+    // console.log(c);
     return g.addNode(
         {
             data: {

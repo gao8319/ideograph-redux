@@ -25,7 +25,10 @@ import { PatternNode } from '../engine/visual/PatternNode';
 import { Callout, DirectionalHint, Tooltip } from '@fluentui/react';
 import { ideographDarkTheme } from '../utils/ideographTheme';
 import { EditMode } from '../engine/visual/EditMode';
-import { QueryForageItem } from '../utils/global/Storage';
+import { getConstraintContextFromQueryForage, QueryForageItem } from '../utils/global/Storage';
+import _ from 'lodash';
+
+
 
 export const EditView = () => {
 
@@ -39,30 +42,6 @@ export const EditView = () => {
     const [snackBarContent, setSnackBarContent] = useState<Parameters<RaiseMessageCallback> & { timestamp: number }>();
 
     const fileId = useSearchParam('fileId');
-
-
-
-    useEffect(() => {
-        const onSave = () => {
-            dispatch(saveFileWorkspace())
-        }
-
-        const delayedOnSave = () => {
-            setTimeout(() => dispatch(saveFileWorkspace()), 100)
-        }
-
-        window.addEventListener('unload', onSave);
-        window.addEventListener('blur', onSave);
-        window.addEventListener('click', delayedOnSave);
-
-        return () => {
-            window.removeEventListener('unload', onSave);
-            window.removeEventListener('blur', onSave);
-            window.removeEventListener('click', delayedOnSave);
-        }
-    }, [])
-
-
 
     const [contextMenuTarget, setContextMenuTarget] = useState<{ node: PatternNode, event: MouseEvent }>();
 
@@ -91,6 +70,7 @@ export const EditView = () => {
 
             dispatch(loadFileAsync(fileId, (f) => {
                 setFileCache(f)
+                f.constraintContext
             }))
 
             if (!model) {
@@ -120,6 +100,28 @@ export const EditView = () => {
 
     const isQueryModalOpen = useAppSelector(queryModalSelector);
 
+
+    useEffect(() => {
+        const onSave = () => {
+            dispatch(saveFileWorkspace(getConstraintContext() ?? undefined))
+        }
+        // , 500)
+
+        const delayedOnSave = _.debounce(() => {
+            setTimeout(() => dispatch(saveFileWorkspace(getConstraintContext() ?? undefined)), 100)
+        }, 400)
+
+        window.addEventListener('unload', onSave);
+        window.addEventListener('blur', onSave);
+        window.addEventListener('click', delayedOnSave);
+
+        return () => {
+            window.removeEventListener('unload', onSave);
+            window.removeEventListener('blur', onSave);
+            window.removeEventListener('click', delayedOnSave);
+        }
+    }, [])
+
     return (
         <>
             <WorkspaceHeader />
@@ -138,7 +140,9 @@ export const EditView = () => {
                 <div ref={containerRef} className="engine-root-container" />
                 <ConceptPanel />
                 <PropertyPanel />
-                <GlobalPanelContent ref={globalConstraintPoolRef} />
+                <GlobalPanelContent ref={globalConstraintPoolRef} initialContext={
+                    fileCache ? getConstraintContextFromQueryForage(fileCache) : undefined
+                }/>
             </div>
             {contextMenuTarget?.node?.renderElements &&
                 <Callout

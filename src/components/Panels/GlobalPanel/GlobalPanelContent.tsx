@@ -4,8 +4,8 @@ import { useAppSelector } from "../../../store/hooks";
 import { lastConstraintOperationSelector } from "../../../store/slice/constraintSlicer";
 import { IConstraint } from "../../../utils/common/graph";
 import { PanelTitle } from "../common/PanelTitle";
-import { Graph, Node } from '@antv/x6';
-import { addLogicAddNode, addLogicNotNode, addLogicOrNode, createConstraintNode, createLogicComposingGraph, modifyConstraintNode } from "./X6Elements";
+import { Edge, Graph, Node } from '@antv/x6';
+import { addLogicAndNode, addLogicNotNode, addLogicOrNode, createConstraintNode, createLogicComposingGraph, modifyConstraintNode } from "./X6Elements";
 import { ActionButtonTiny } from "../common/ActionButton";
 import { Add20 } from "@carbon/icons-react";
 import { ClickAwayListener } from "@mui/material";
@@ -14,15 +14,60 @@ import React from "react";
 import { IConstraintContext, ILogicOperator } from "../../../utils/PatternContext";
 import { BinaryLogicOperator, LogicOperator, UnaryLogicOperator } from "../../../utils/common/operator";
 import { GlobalPanel } from "./GlobalPanel";
+import _ from "lodash";
 
 export interface IGlobalPanelContentRef {
-    getConstraintContext: () => Omit<IConstraintContext, "constraints"> | null
+    getConstraintContext: () => Omit<IConstraintContext, "constraints"> | null;
+    // initialContext: IConstraintContext;
 }
 
-export const GlobalPanelContent = React.forwardRef<IGlobalPanelContentRef, {}>((_, ref) => {
+export interface IGlobalPanelContentProps {
+    // getConstraintContext: () => Omit<IConstraintContext, "constraints"> | null;
+    initialContext?: IConstraintContext;
+}
+
+const restoreContextGraph = (graph: Graph, context: IConstraintContext) => {
+    const nodes = context.constraints.map(
+        constraint => createConstraintNode(graph, constraint)
+    );
+
+    const logics = context.logicOperators.map(
+        op => {
+            switch (op.type) {
+                case UnaryLogicOperator.Not: {
+                    return addLogicNotNode(graph, op.id);
+                }
+                case BinaryLogicOperator.And: {
+                    return addLogicAndNode(graph, op.id);
+                }
+                case BinaryLogicOperator.Or: {
+                    return addLogicOrNode(graph, op.id);
+                }
+            }
+        }
+    )
+
+    const nodeDict = _.keyBy(nodes.concat(logics), it => it.id)
+
+    graph.addEdges(
+        context.connections.map(
+            conn => {
+                console.log(nodeDict[conn.from].ports, nodeDict[conn.to].ports)
+                return {
+                    sourcePort: nodeDict[conn.from].ports.items[0].id,
+                    targetPort: nodeDict[conn.to].ports.items[0].id
+                }
+            }
+        )
+    )
+
+}
+
+export const GlobalPanelContent = React.forwardRef<IGlobalPanelContentRef, IGlobalPanelContentProps>((props, ref) => {
 
     const lastConstraintOperation = useAppSelector(lastConstraintOperationSelector);
     const x6ContainerRef = useRef<HTMLDivElement>(null);
+    const observedRef = useRef<HTMLDivElement>(null);
     const logicOperatorSet = useRef<Set<ILogicOperator>>();
 
     const x6Ref = useRef<Graph>();
@@ -43,6 +88,12 @@ export const GlobalPanelContent = React.forwardRef<IGlobalPanelContentRef, {}>((
             }
         }
     }, [x6ContainerRef])
+
+    useEffect(() => {
+        if (x6Ref.current && props.initialContext) {
+            restoreContextGraph(x6Ref.current, props.initialContext);
+        }
+    }, [props.initialContext, x6Ref])
 
     useEffect(
         () => {
@@ -73,11 +124,11 @@ export const GlobalPanelContent = React.forwardRef<IGlobalPanelContentRef, {}>((
 
 
     useImperativeHandle(
-        ref, 
+        ref,
         () => ({
             getConstraintContext: () => {
                 const x6 = x6Ref.current;
-                if(x6 && logicOperatorSet.current) {
+                if (x6 && logicOperatorSet.current) {
                     const conns = x6.getEdges().map(
                         e => {
                             return {
@@ -86,7 +137,6 @@ export const GlobalPanelContent = React.forwardRef<IGlobalPanelContentRef, {}>((
                             }
                         }
                     )
-                    console.log(conns)
                     return {
                         logicOperators: [...logicOperatorSet.current],
                         connections: conns
@@ -99,6 +149,23 @@ export const GlobalPanelContent = React.forwardRef<IGlobalPanelContentRef, {}>((
 
     const [logicOperatorMenuOpen, setLogicOperatorMenuOpen] = useState(false);
     const buttonRef = useRef<HTMLButtonElement>(null);
+
+
+    useEffect(() => {
+        if (x6Ref.current && observedRef.current) {
+            const ro = new ResizeObserver(_.debounce(rects => {
+                x6Ref.current?.resize(
+                    rects[0].contentRect.width,
+                    rects[0].contentRect.height,
+                )
+            }, 200))
+            ro.observe(observedRef.current)
+            return () => {
+                observedRef.current && ro.unobserve(observedRef.current)
+            }
+        }
+    }, [x6Ref])
+
     return <GlobalPanel>
         <PanelTitle text="全局逻辑">
             <ClickAwayListener onClickAway={ev => { setLogicOperatorMenuOpen(false) }}>
@@ -114,8 +181,8 @@ export const GlobalPanelContent = React.forwardRef<IGlobalPanelContentRef, {}>((
                 </ActionButtonTiny>
             </ClickAwayListener>
         </PanelTitle>
-        <div className="constraint-pool-root">
-            <div className="x6-container" ref={x6ContainerRef}/>
+        <div className="constraint-pool-root" ref={observedRef}>
+            <div className="x6-container" ref={x6ContainerRef} />
         </div>
         <Callout
             target={buttonRef.current}
@@ -138,7 +205,7 @@ export const GlobalPanelContent = React.forwardRef<IGlobalPanelContentRef, {}>((
                             id: nanoid(),
                         }
                         logicOperatorSet.current?.add(newAndOperator)
-                        x6Ref.current && addLogicAddNode(x6Ref.current, newAndOperator.id);
+                        x6Ref.current && addLogicAndNode(x6Ref.current, newAndOperator.id);
                         setLogicOperatorMenuOpen(false)
                     }}>
                     <span>与</span>

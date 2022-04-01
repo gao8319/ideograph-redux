@@ -14,6 +14,7 @@ import thunk, { ThunkDispatch } from 'redux-thunk';
 import { queryForage, QueryForageItem } from "../../utils/global/Storage";
 import FileSaver from "file-saver";
 import { isNotEmpty } from "../../utils/common/utils";
+import { IConstraintContext } from "../../utils/PatternContext";
 
 export const LEFT_DEFAULT = 240;
 export const LEFT_MIN = 200;
@@ -249,7 +250,9 @@ const workspaceSlicer = createSlice({
 })
 
 
-export const saveFileWorkspace = () => (
+export const saveFileWorkspace = (
+    constraint?: Omit<IConstraintContext, "constraints">
+) => (
     async (dispatch: ThunkDispatch<RootState, null, AnyAction>, getState: () => RootState) => {
         const state = getState();
         const file: QueryForageItem = {
@@ -262,6 +265,7 @@ export const saveFileWorkspace = () => (
             solutionCaches: [],
             createTime: state.workspace.createTime,
             lastEditTime: new Date().getTime(),
+            constraintContext: constraint
         }
         queryForage.setItem(file.id, file);
         console.log(`[FileSystem] ${file.name} (${file.id}) saved at ${file.lastEditTime}.`);

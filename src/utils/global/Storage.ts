@@ -2,7 +2,9 @@ import { EntityAdapter, EntityState } from "@reduxjs/toolkit";
 import localforage from "localforage";
 import _ from "lodash";
 import { Solution } from "../../services/PatternSolution";
+import { ConstraintsState } from "../../store/slice/constraintSlicer";
 import { IConstraint, IPatternEdge, IPatternNode } from "../common/graph";
+import { IConstraintContext } from "../PatternContext";
 
 export const queryForage = localforage.createInstance({ name: "query" })
 export const dataSourceForage = localforage.createInstance({ name: "datasource" })
@@ -77,8 +79,19 @@ export interface QueryForageItem {
 
     edges: EntityState<IPatternEdge>,
     nodes: EntityState<IPatternNode>,
-    constraints: EntityState<IConstraint>,
+    constraints: ConstraintsState,
     solutionCaches?: Solution.PatternSolution[],
+
+    constraintContext?: Omit<IConstraintContext, "constraints">
+}
+
+
+export const getConstraintContextFromQueryForage = (file: QueryForageItem): IConstraintContext | undefined => {
+    if (file.constraintContext)
+        return Object.assign(file.constraintContext, {
+            constraints: Object.values(file.constraints.entities) as IConstraint[]
+        })
+    return undefined;
 }
 
 export const getFileOverviews = async (database: IdeographDatabase) => {

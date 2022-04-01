@@ -16,7 +16,7 @@ type constraintsAdapterOpType = "addOne" | "updateOne" | "removeOne"; //keyof ty
 type constraintsAdapterOpPayload<T extends constraintsAdapterOpType>
     = { payload: (Parameters<(typeof constraintsAdapter[T])>[1]) } & { action: T }
 
-type ConstraintsState<T extends constraintsAdapterOpType = constraintsAdapterOpType>
+export type ConstraintsState<T extends constraintsAdapterOpType = constraintsAdapterOpType>
     = ReturnType<typeof constraintsAdapter['getInitialState']> & {
         lastOperation?: constraintsAdapterOpPayload<T>
     }

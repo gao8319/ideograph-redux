@@ -147,18 +147,18 @@ export class PatternGraphEngine {
             }) as any
         )
 
-        // this.renderContainer.addEventListener(
-        //     "pointermove",
-        //     this.onPointerMove
-        // )
-        // this.renderContainer.addEventListener(
-        //     "pointerleave",
-        //     this.onPointerLeave
-        // )
-        // this.renderContainer.addEventListener(
-        //     "pointerenter",
-        //     this.onPointerMove
-        // )
+        this.renderContainer.addEventListener(
+            "pointermove",
+            this.onPointerMove
+        )
+        this.renderContainer.addEventListener(
+            "pointerleave",
+            this.onPointerLeave
+        )
+        this.renderContainer.addEventListener(
+            "pointerenter",
+            this.onPointerMove
+        )
         this.renderContainer.addEventListener(
             "click",
             this.onClick
@@ -212,46 +212,47 @@ export class PatternGraphEngine {
                 break;
             }
             case EditMode.CreatingEdgeTo: {
+                break;
                 if (!this.mouseIndicatorLayer) break;
 
-                if (isNotEmpty(this.createEdgeFrom)) {
-                    if (this.mouseHoveringAtNode && !this.mouseHoveringAtNode.getDisabled()) {
-                        const newArrow = new Arrow(
-                            this.createEdgeFrom!.logicPosition,
-                            this.mouseHoveringAtNode.logicPosition,
-                            18,
-                            true);
-                        if (!this.connectionIndicator) {
-                            this.connectionIndicator = newArrow;
-                            this.connectionIndicator
-                                .attachTo(this.mouseIndicatorLayer)
-                                .attr('opacity', 0.4)
-                                .attr('stroke-dasharray', 'none');
-                        }
-                        else {
-                            this.connectionIndicator.applyAttributes(newArrow.getAttributes())
-                            this.connectionIndicator
-                                .attr('stroke-dasharray', 'none');
-                        }
-                    }
-                    else {
-                        if (!this.connectionIndicator) {
-                            this.connectionIndicator = new Arrow(
-                                this.createEdgeFrom!.logicPosition,
-                                { x: ev.offsetX, y: ev.offsetY },
-                                18, false);
-                            this.connectionIndicator.attachTo(this.mouseIndicatorLayer)
-                                .attr('opacity', 0.4)
-                                .attr('stroke-dasharray', '8, 8');
-                        }
-                        else {
-                            const newPoint = this.zoomTransform?.invert([ev.offsetX, ev.offsetY])
-                            this.connectionIndicator.modifyEndpoint({ x: newPoint ? newPoint[0] : ev.offsetX, y: newPoint ? newPoint[1] : ev.offsetY })
-                            this.connectionIndicator
-                                .attr('stroke-dasharray', '8, 8');
-                        }
-                    }
-                }
+                // if (isNotEmpty(this.createEdgeFrom)) {
+                //     if (this.mouseHoveringAtNode && !this.mouseHoveringAtNode.getDisabled()) {
+                //         const newArrow = new Arrow(
+                //             this.createEdgeFrom!.logicPosition,
+                //             this.mouseHoveringAtNode.logicPosition,
+                //             18,
+                //             true);
+                //         if (!this.connectionIndicator) {
+                //             this.connectionIndicator = newArrow;
+                //             this.connectionIndicator
+                //                 .attachTo(this.mouseIndicatorLayer)
+                //                 .attr('opacity', 0.4)
+                //                 .attr('stroke-dasharray', 'none');
+                //         }
+                //         else {
+                //             this.connectionIndicator.applyAttributes(newArrow.getAttributes())
+                //             this.connectionIndicator
+                //                 .attr('stroke-dasharray', 'none');
+                //         }
+                //     }
+                //     else {
+                //         if (!this.connectionIndicator) {
+                //             this.connectionIndicator = new Arrow(
+                //                 this.createEdgeFrom!.logicPosition,
+                //                 { x: ev.offsetX, y: ev.offsetY },
+                //                 18, false);
+                //             this.connectionIndicator.attachTo(this.mouseIndicatorLayer)
+                //                 .attr('opacity', 0.4)
+                //                 .attr('stroke-dasharray', '8, 8');
+                //         }
+                //         else {
+                //             const newPoint = this.zoomTransform?.invert([ev.offsetX, ev.offsetY])
+                //             this.connectionIndicator.modifyEndpoint({ x: newPoint ? newPoint[0] : ev.offsetX, y: newPoint ? newPoint[1] : ev.offsetY })
+                //             this.connectionIndicator
+                //                 .attr('stroke-dasharray', '8, 8');
+                //         }
+                //     }
+                // }
                 break;
             }
             default: {

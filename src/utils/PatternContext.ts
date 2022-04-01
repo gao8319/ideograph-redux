@@ -25,6 +25,8 @@ export interface IConstraintContext {
     }[]
 }
 
+
+
 export interface IPatternContext {
     nodes: IPatternNode[];
     edges: IPatternEdge[];
