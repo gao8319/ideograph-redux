@@ -46,7 +46,6 @@ export const WorkspaceHeader = (props: IWorkspaceHeaderProps) => {
 
     useTitle(pangu.spacing(`${workspaceName}\u2009-\u2009Ideograph`));
 
-    // const { engine } = props;
     const naviagte = useNavigate();
 
     return <div className='ideograph-header'>
@@ -82,7 +81,9 @@ export const WorkspaceHeader = (props: IWorkspaceHeaderProps) => {
             </WorkspaceCommand> */}
         </div>
         <div style={{ height: '100%', width: '100%', display: 'flex', alignItems: 'center' }}>
-            <TextableCommand projectName={projectName} value={workspaceName} onChange={(ev) => { ev.target.value && dispatch(setWorkspaceName(ev.target.value)) }} onRenderCallout={
+            <TextableCommand projectName={projectName} value={workspaceName} onSetName={(n) => {
+                n && dispatch(setWorkspaceName(n))
+            }} onRenderCallout={
                 () => {
                     return <>
                         <ContextualCallout groups={[[{

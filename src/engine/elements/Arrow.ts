@@ -105,13 +105,6 @@ export class Arrow {
         if (delta2 <= this.avoidRadiusSquared) {
             return { bodyPath: 'M0,0', headTransform };
         }
-        // else if (deltaX === 0) {
-        //     const bodyPath = `M0,${deltaY > 0 ? this.avoidRadius : -this.avoidRadius}L0,${deltaY}`
-        //     return { bodyPath, headTransform }
-        // } else if (deltaY === 0) {
-        //     const bodyPath = `M${deltaX > 0 ? this.avoidRadius : -this.avoidRadius},0L${deltaX},0`
-        //     return { bodyPath, headTransform }
-        // } 
         else {
             const bodyPath = `M${startX},${startY}L${this.avoidHead ? deltaX - startX : deltaX},${this.avoidHead ? deltaY - startY : deltaY}`
             return { bodyPath, headTransform }

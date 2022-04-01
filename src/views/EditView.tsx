@@ -71,7 +71,9 @@ export const EditView = () => {
     const { engineRef, containerRef } = usePatternEngine(
         model,
         (...args) => {
-            setSnackBarContent({ ...args, timestamp: new Date().getTime() }); setSnackbarOpen(true);
+            setSnackBarContent({ ...args, timestamp: new Date().getTime() });
+            setSnackbarOpen(true);
+            // console.log("!!!!!")
         },
         (node, event) => {
             setContextMenuTarget({ node, event });
@@ -122,9 +124,9 @@ export const EditView = () => {
         <>
             <WorkspaceHeader />
             <div className='workspace-container'>
-                <Snackbar
+                {snackbarOpen && <Snackbar
                     anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
-                    open={snackbarOpen}
+                    open
                     autoHideDuration={3000}
                     onClose={_ => setSnackbarOpen(false)}
                     style={{ top: 48, left: lPanelWidth, zIndex: 1 }}>
@@ -132,7 +134,7 @@ export const EditView = () => {
                         <Error20 fill="#EB5757" />
                         <div dangerouslySetInnerHTML={{ __html: snackBarContent?.[0] ?? "" }} />
                     </div>
-                </Snackbar>
+                </Snackbar>}
                 <div ref={containerRef} className="engine-root-container" />
                 <ConceptPanel />
                 <PropertyPanel />
@@ -179,13 +181,22 @@ export const EditView = () => {
 
                     <div className='contextual-callout-item'
                         style={{ pointerEvents: 'none', fontWeight: 600, color: 'var(--grey700)' }}>
-                        <div>属性约束</div>
-                        <span className='contextual-callout-item-helper'></span>
+                        <div>约束</div>
                     </div>
+
                     <div className='contextual-callout-item'
                         style={{}}>
-                        <div style={{ fontSize: 13 }}>清除所有约束</div>
-                        <span className='contextual-callout-item-helper'></span>
+                        <div style={{ fontSize: 13 }}>添加约束</div>
+                    </div>
+
+                    <div className='contextual-callout-item'
+                        style={{}}>
+                        <div style={{ fontSize: 13 }}>移除所有约束</div>
+                    </div>
+                    <div className='contextual-callout-sep' />
+                    <div className='contextual-callout-item'
+                        style={{}}>
+                        <div style={{ fontSize: 13 }}>缩小匹配范围</div>
                     </div>
 
                     <div className='contextual-callout-sep' />

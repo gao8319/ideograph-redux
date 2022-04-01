@@ -1,9 +1,24 @@
+/* 
+@keyframes globalPanelReveal {
+    from {
+        opacity: 0;
+        bottom: -48px;
+    }
+    to {
+        opacity: 1;
+        bottom: 0px;
+    }
+} */
+
+
 .global-panel-root{
     position: absolute;
-    bottom: 0;
+    bottom: 0px;
+    /* opacity: 0; */
     background-color: #fff;
     z-index: 1;
     border-top: 1px solid var(--grey100);
+    /* animation: 0.3s globalPanelReveal 0.15s forwards; */
 }
 
 .global-panel-handler {

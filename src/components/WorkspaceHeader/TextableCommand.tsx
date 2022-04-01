@@ -5,13 +5,15 @@ import { useRef, useState } from "react";
 import { generalCalloutStyle, ideographAltTheme, ideographDarkTheme, ideographTheme } from "../../utils/ideographTheme";
 import { pangu } from "../../utils/common/pangu";
 import { SpacedText } from "../SpacedSpan";
+import { useAppSelector } from "../../store/hooks";
+import { workspaceNameSelector, workspaceSelector } from "../../store/slice/modelSlicer";
 
 
 type ITextableCommandProps = {
     // children: React.ReactNode,
     // text?: string,
     onRenderCallout: () => JSX.Element,
-    onChange: InputBaseProps['onChange'],
+    onSetName: (value: string) => void,
     value: string,
     projectName: string,
 }// & Omit<IButtonProps, "styles" | "onClick">
@@ -62,27 +64,42 @@ export const TextableCommand = (props: ITextableCommandProps) => {
     const [isCalloutOpen, setCalloutOpen] = useState(false);
     const buttonRef = useRef<HTMLElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
-    return <>
     
+    const [newFileName, setNewFileName] = useState(props.value);
+    return <>
+
         {!activated && <>
             <SpacedText style={{ color: '#aaa', margin: '0 8px', padding: '0 8px' }}>{props.projectName}</SpacedText>
             <svg className="svg" width="9" height="18" viewBox="0 0 9 18" xmlns="http://www.w3.org/2000/svg"><path d="M1.032 16.825l6-16 .936.35-6 16-.936-.35z" fillRule="nonzero" fillOpacity="1" fill="#aaa" stroke="none"></path></svg>
         </>}
 
         {activated && <StyledInput
-            value={props.value}
-            onChange={props.onChange}
-            onFocus={
-                ev => ev.target.select()
+            value={newFileName}
+            onChange={
+                (ev) => setNewFileName(ev.target.value)
             }
             onBlur={
-                ev => setActivated(false)
+                ev => {
+                    setActivated(false)
+                    props.onSetName(newFileName)
+                }
             }
             onKeyDown={
                 ev => {
                     if (ev.key === "Enter") {
                         setActivated(false)
+                        // props.onSetName(newFileName)
                     }
+                }
+            }
+            onFocus={
+                ev => {
+                    ev.target.select();
+                }
+            }
+            onMouseUp={
+                ev => {
+                    (ev.target as HTMLInputElement).select();
                 }
             }
             autoFocus
@@ -106,10 +123,10 @@ export const TextableCommand = (props: ITextableCommandProps) => {
                 </CommandBarButton>
             </ClickAwayListener>
 
-            {isCalloutOpen&&<Callout {...generalCalloutStyle}
+            {isCalloutOpen && <Callout {...generalCalloutStyle}
                 target={buttonRef.current}
                 directionalHint={DirectionalHint.bottomCenter}
-                onClick={()=>{setCalloutOpen(false)}}>
+                onClick={() => { setCalloutOpen(false) }}>
                 {props.onRenderCallout()}
             </Callout>}
         </>}

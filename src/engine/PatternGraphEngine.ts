@@ -1,7 +1,6 @@
 import { EditMode } from "./visual/EditMode";
 import { IFocusableElement, VisualElementType } from "./visual/VisualElement";
 import * as d3 from 'd3';
-import { drag } from 'd3-drag';
 import './visual/PatternGraphEngine.css'
 import { PatternNode } from "./visual/PatternNode";
 import { PatternEdge } from "./visual/PatternEdge";
@@ -14,6 +13,11 @@ import { Dictionary } from "lodash";
 import { QueryForageItem } from "../utils/global/Storage";
 import { getDistanceSquared, IPoint } from "../utils/common/layout";
 
+
+const applyCTM = (m: DOMMatrix, p: IPoint) => ({
+    x: m.a * p.x + m.c * p.y + m.e,
+    y: m.b * p.x + m.d * p.y + m.f
+})
 
 export enum RaiseMessageType {
     Error,
@@ -108,6 +112,9 @@ export class PatternGraphEngine {
     private nodeDict: Dictionary<PatternNode> = {};
     private edgeDict: Dictionary<PatternEdge> = {};
 
+    private zoomTransform?: d3.ZoomTransform;
+
+
     constructor(model: CommonModel.Root, container: HTMLDivElement) {
         // debugger;
         this.model = model;
@@ -115,6 +122,7 @@ export class PatternGraphEngine {
         this.svgLayer = d3.select(container)
             .append('svg')
             .attr('class', 'engine-svg');
+
         this.svgLayer.on('contextmenu', (ev) => {
             ev.preventDefault();
         })
@@ -122,22 +130,35 @@ export class PatternGraphEngine {
             .attr('class', 'engine-core')
         this.nodeLayer = this.svgLayer.append('g')
             .attr('class', 'engine-core')
-        this.mouseIndicatorLayer = this.svgLayer.append('g')
+        const mouseRoot = this.svgLayer.append('g');
+        this.mouseIndicatorLayer = mouseRoot.append('g')
             .attr('class', 'engine-mouse-indicator');
+        this.eventProtecter = d3.select(this.renderContainer).append('div').node()!;
 
+        this.svgLayer.call(
+            d3.zoom().on('zoom', e => {
+                requestAnimationFrame(() => {
+                    const t = e.transform.toString();
+                    this.zoomTransform = e.transform;
+                    this.nodeLayer.attr('transform', t)
+                    this.edgeLayer.attr('transform', t)
+                    mouseRoot.attr('transform', t);
+                })
+            }) as any
+        )
 
-        this.renderContainer.addEventListener(
-            "pointermove",
-            this.onPointerMove
-        )
-        this.renderContainer.addEventListener(
-            "pointerleave",
-            this.onPointerLeave
-        )
-        this.renderContainer.addEventListener(
-            "pointerenter",
-            this.onPointerMove
-        )
+        // this.renderContainer.addEventListener(
+        //     "pointermove",
+        //     this.onPointerMove
+        // )
+        // this.renderContainer.addEventListener(
+        //     "pointerleave",
+        //     this.onPointerLeave
+        // )
+        // this.renderContainer.addEventListener(
+        //     "pointerenter",
+        //     this.onPointerMove
+        // )
         this.renderContainer.addEventListener(
             "click",
             this.onClick
@@ -150,6 +171,7 @@ export class PatternGraphEngine {
 
 
     protected mouseIndicatorLayer?: D3<SVGGElement>;
+    protected eventProtecter: HTMLDivElement;
     protected nodeIndicator?: D3<SVGCircleElement>;
     protected connectionIndicator?: Arrow;
 
@@ -223,7 +245,8 @@ export class PatternGraphEngine {
                                 .attr('stroke-dasharray', '8, 8');
                         }
                         else {
-                            this.connectionIndicator.modifyEndpoint({ x: ev.offsetX, y: ev.offsetY })
+                            const newPoint = this.zoomTransform?.invert([ev.offsetX, ev.offsetY])
+                            this.connectionIndicator.modifyEndpoint({ x: newPoint ? newPoint[0] : ev.offsetX, y: newPoint ? newPoint[1] : ev.offsetY })
                             this.connectionIndicator
                                 .attr('stroke-dasharray', '8, 8');
                         }
@@ -288,7 +311,6 @@ export class PatternGraphEngine {
                         n.renderElements?.root.call(
                             d3.drag<SVGGElement, any>()
                                 .on('start', () => {
-
                                     this.dragStartNode = n
                                 })
                                 .on('drag', this._onNodeDrag)
@@ -417,8 +439,6 @@ export class PatternGraphEngine {
         }
     }
 
-
-
     private onEdgeClick = (e: PatternEdge, ev: MouseEvent) => {
         if (this.editMode >= 2) {
             this.createEdgeFrom = null;
@@ -430,7 +450,7 @@ export class PatternGraphEngine {
 
     private dragStartNode?: PatternNode;
     private isDragNailed = false;
-    private _onNodeDrag = (ev: DragEvent) => {
+    private _onNodeDrag = (ev: DragEvent & { sourceEvent: MouseEvent }) => {
         if (this.dragStartNode) {
             if (getDistanceSquared(this.dragStartNode.logicPosition, ev) > 200) {
 
@@ -456,9 +476,12 @@ export class PatternGraphEngine {
 
                     Object.values(this.edgeDict).forEach(_n => _n.setDisabled(true));
                     this.isDragNailed = true;
+
+                    this.eventProtecter.className = "event-protect-active"
                 }
-                console.log(this.mouseHoveringAtNode)
+                // console.log(this.mouseHoveringAtNode)
                 if (this.mouseHoveringAtNode && !this.mouseHoveringAtNode.getDisabled()) {
+
                     const newArrow = new Arrow(
                         this.createEdgeFrom!.logicPosition,
                         this.mouseHoveringAtNode.logicPosition,
@@ -479,23 +502,53 @@ export class PatternGraphEngine {
                 }
                 else {
                     if (!this.connectionIndicator) {
+                        // const inverted = this.zoomTransform?.invert([ev.sourceEvent.x, ev.sourceEvent.x]);
+                        // console.log(this.zoomTransform, ev, inverted);
+                        // const start = this.zoomTransform?.apply([this.dragStartNode.logicPosition.x, this.dragStartNode.logicPosition.y])
                         this.connectionIndicator = new Arrow(
                             this.dragStartNode.logicPosition,
-                            ev,
-                            18, false);
+                            ev, 18, false);
                         this.connectionIndicator.attachTo(this.mouseIndicatorLayer!)
                             .attr('opacity', 0.4)
                             .attr('stroke-dasharray', '8, 8');
                     }
                     else {
+                        // const inverted = this.zoomTransform?.invert([ev.sourceEvent.x, ev.sourceEvent.clientY]);
+
+                        // const ctm = this.mouseIndicatorLayer?.node()?.getCTM();
+                        // console.log(ctm && applyCTM(ctm, ev));
+
+                        // console.log(
+                        //     this.dragStartNode.logicPosition,
+                        //     this.zoomTransform?.invert([ev.sourceEvent.clientX, ev.sourceEvent.clientY]),
+                        //     this.zoomTransform?.invert([ev.sourceEvent.offsetX, ev.sourceEvent.offsetY]),
+                        //     this.zoomTransform?.invert([ev.sourceEvent.pageX, ev.sourceEvent.pageY]),
+                        //     this.zoomTransform?.invert([ev.x, ev.y]),
+                        //     // @ts-ignore
+                        //     this.zoomTransform?.invert([ev.subject.x, ev.subject.y]),
+
+                        //     this.zoomTransform?.apply([ev.sourceEvent.clientX, ev.sourceEvent.clientY]),
+                        //     this.zoomTransform?.apply([ev.sourceEvent.offsetX, ev.sourceEvent.offsetY]),
+                        //     this.zoomTransform?.apply([ev.sourceEvent.pageX, ev.sourceEvent.pageY]),
+                        //     this.zoomTransform?.apply([ev.x, ev.y]),
+                        //     // @ts-ignore
+                        //     this.zoomTransform?.apply([ev.subject.x, ev.subject.y]),
+
+
+                        //     ([ev.sourceEvent.clientX, ev.sourceEvent.clientY]),
+                        //     ([ev.sourceEvent.offsetX, ev.sourceEvent.offsetY]),
+                        //     ([ev.sourceEvent.pageX, ev.sourceEvent.pageY]),
+                        //     ([ev.x, ev.y]),
+                        //     // @ts-ignore
+                        //     ([ev.subject.x, ev.subject.y]),
+                        // )
+                        // console.log(inverted, ev)
+
                         this.connectionIndicator.modifyEndpoint(ev)
                         this.connectionIndicator
                             .attr('stroke-dasharray', '8, 8');
                     }
                 }
-
-
-
 
 
             }
@@ -556,9 +609,12 @@ export class PatternGraphEngine {
             this.mouseHoveringAtNode = null;
             this.dragStartNode = undefined;
             this.isDragNailed = false;
+
+            this.eventProtecter.className = "event-protect-inactive"
             this.editMode = EditMode.Default;
         }
     }
+
 
 
 

@@ -150,11 +150,9 @@ body.cursor-ns {
 
 
 .global-message {
-    animation: snackbar-in 3000ms;
+    animation: .8s snackbarReveal forwards;
     background-color: #fff;
-    /* border: 1px solid var(--grey100); */
     height: 48px;
-    /* margin-top: 48; */
     padding: 0 16px;
     display: grid;
     grid-template-columns: auto auto 1fr;
@@ -171,25 +169,15 @@ body.cursor-ns {
 }
 
 
-@keyframes snackbar-in {
-    0% {
+@keyframes snackbarReveal {
+    from {
         opacity: 0;
-        transform: translateY(-8px);
+        top: -8px;
     }
 
-    6% {
+    to {
         opacity: 1;
-        transform: translateY(0px);
-    }
-
-    94% {
-        opacity: 1;
-        transform: translateY(0px);
-    }
-
-    100% {
-        opacity: 0;
-        transform: translateY(-8px);
+        top: 0;
     }
 }
 
@@ -214,5 +202,5 @@ tspan {
 
 
 text {
-    user-select: none!important;
+    user-select: none !important;
 }
