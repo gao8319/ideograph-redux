@@ -20,13 +20,13 @@ interface IConstraintFieldProps {
     onConstraintChange: (c: Partial<IConstraint>) => void,
 }
 
-const ConstraintBlockInput = styled(InputBase)(({ theme }) => ({
+export const ConstraintBlockInput = styled(InputBase)(({ theme }) => ({
     fontSize: 14,
     fontFamily: 'var(--font)',
     height: '100%',
 }))
 
-const ConstraintBlockInputMono = styled(InputBase)(({ theme }) => ({
+export const ConstraintBlockInputMono = styled(InputBase)(({ theme }) => ({
     fontSize: 14,
     fontFamily: 'var(--mono-font)',
     height: '100%',
@@ -43,7 +43,7 @@ export const operatorLiteral: Record<ComparisonOperator, string> = {
     [ComparisonOperator.MatchRegex]: "~=",
 }
 
-const operatorDescription: Record<ComparisonOperator, string> = {
+export const operatorDescription: Record<ComparisonOperator, string> = {
     [ComparisonOperator.Equal]: "等于",
     [ComparisonOperator.GreaterOrEqual]: "大于等于",
     [ComparisonOperator.LessOrEqual]: "小于等于",
@@ -55,7 +55,7 @@ const operatorDescription: Record<ComparisonOperator, string> = {
 
 
 
-const acceptableOperatorDict: Required<Record<PrimitiveTypeName, ComparisonOperator[]>> = {
+export const acceptableOperatorDict: Required<Record<PrimitiveTypeName, ComparisonOperator[]>> = {
     "string":
         [ComparisonOperator.Equal, ComparisonOperator.NotEqual, ComparisonOperator.MatchRegex],
     "number":
@@ -157,7 +157,7 @@ export const ConstraintField = React.forwardRef<IConstraintFieldRef, IConstraint
             }
         }, [isValueInputFocused, isOperatorInputFocused, isPropNameInputFocused])
 
-        return <div style={{ position: 'relative', height: 32, }}>
+        return <div style={{ position: 'relative', height: 32, background: '#fff', borderRadius: 4 }}>
             <div className={"constraint-input-root" +
                 (isPropNameInputFocused || isValueInputFocused || isOperatorInputFocused ? " input-activated" : '')
                 + (((propOptions.length > 0 && isPropNameInputFocused) || isOperatorInputFocused) ? " menu-revealed" : '')

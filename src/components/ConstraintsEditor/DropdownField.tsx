@@ -14,7 +14,7 @@ interface IClassDropdownProps<T extends CommonModel.IClass | CommonModel.IEdgeCl
 }
 
 
-const DropdownButton = styled(ButtonBase)(theme => ({
+export const DropdownButton = styled(ButtonBase)(theme => ({
     height: 32,
     width: '100%',
     border: '1px solid transparent',
@@ -34,7 +34,7 @@ const DropdownListbox = styled('ul')(theme => ({
 
 }))
 
-const DropdownOption = styled('div')(theme => ({
+export const DropdownOption = styled('div')(theme => ({
     width: '100%',
     height: 32,
     // padding: '0 16px',
@@ -55,13 +55,50 @@ const DropdownOption = styled('div')(theme => ({
 
 }))
 
-const DropdownContent = styled('div')(theme => ({
+export const DropdownOptionUnstyled = styled('div')(theme => ({
+    width: '100%',
+    height: 32,
+    // padding: '0 16px',
+    color: '#fff',
+    verticalAlign: 'center',
+    // display: 'flex',
+    // alignItems: 'center',
+    '&:hover': {
+        backgroundColor: 'var(--primary)',
+    },
+    cursor: 'default',
+    // '>div>svg>circle': {
+    //     stroke: '#fff',
+    // },
+    // '>.edge-class-opt>div>div>svg>path': {
+    //     stroke: '#fff',
+    // },
+
+}))
+
+export const DropdownContent = styled('div')(theme => ({
     width: '100%',
     height: '100%',
     display: 'grid',
     alignItems: 'center',
     fontSize: 14,
     gridTemplateColumns: '24px 1fr 20px',
+    padding: '0 4px',
+    textAlign: 'left',
+    columnGap: 4,
+    '>svg>path': {
+        transition: 'transform 0.2s',
+    },
+}))
+
+
+export const DropdownContentUnstyled = styled('div')(theme => ({
+    width: '100%',
+    height: '100%',
+    display: 'grid',
+    alignItems: 'center',
+    fontSize: 14,
+    // gridTemplateColumns: '24px 1fr 20px',
     padding: '0 4px',
     textAlign: 'left',
     columnGap: 4,

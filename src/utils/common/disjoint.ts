@@ -142,10 +142,11 @@ export class DisjointSet<K extends PropertyKey = PropertyKey, T extends any = II
 
                 if (rankDiff === 0) {
                     this._rank[xRepId] += 1;
-                } else if (rankDiff < 0) {
-                    [xRep, yRep] = [yRep, xRep];
-                    [xRepId, yRepId] = [yRepId, xRepId];
                 }
+                //  else if (rankDiff < 0) {
+                //     [xRep, yRep] = [yRep, xRep];
+                //     [xRepId, yRepId] = [yRepId, xRepId];
+                // }
 
                 this._parent[yRepId] = xRep;
                 this._size[xRepId] += this._size[yRepId];

@@ -1,16 +1,13 @@
-@keyframes nodeScale {
+/* @keyframes nodeScale {
     0% {
         r: 0!important;
         opacity: 0!important;
     }
-    60% {
+    /* 60% {
         r: 0!important;
         opacity: 0!important;
-    }
-    100% {
-
-    }
-}
+    } 
+} */
 
 @keyframes textReveal {
     from {
@@ -68,7 +65,7 @@ g.p-n[constrained=true]>circle.constrain-ring{
 
 g.p-n>circle.node{
     transition: r 0.16s;
-    animation: nodeScale .2s;
+    /* animation: nodeScale .2s; */
 }
 
 g.p-n[constrained=true]>circle.node {

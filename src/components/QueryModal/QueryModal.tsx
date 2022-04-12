@@ -1,19 +1,22 @@
 import { Close20 } from "@carbon/icons-react";
+import { Skeleton } from "@mui/material";
 import { useEffect, useState } from "react";
 import { Solution } from "../../services/PatternSolution";
-import { querySolvePattern, SolvePatternResponse } from "../../services/SolvePattern";
+import { querySolveCompositePattern, querySolvePattern, SolvePatternResponse } from "../../services/SolvePattern";
 import { useAppDispatch, useAppSelector } from "../../store/hooks"
 import { constraintsSelectors } from "../../store/slice/constraintSlicer";
 import { edgesSelectors } from "../../store/slice/edgeSlicer";
 import { applyQuery } from "../../store/slice/modelSlicer";
 import { nodesSelectors } from "../../store/slice/nodeSlicer";
+import { patternHistoryForage, PatternHistoryForageItem } from "../../utils/global/Storage";
 import { IConstraintContext, IdeographPatternContext } from "../../utils/PatternContext";
 import { ActionButtonTiny, ActionButtonTinyDark } from "../Panels/common/ActionButton";
 import { PanelTitle } from "../Panels/common/PanelTitle";
 import { SolutionDiagramGridView } from "../PatternSolutionDiagram/PatternSolutionDiagram";
 
 interface IQueryModalProps {
-    getConstraintContext: () => Omit<IConstraintContext, "constraints"> | null
+    getConstraintContext: () => Omit<IConstraintContext, "constraints"> | null,
+    onSaveHistory: (history: PatternHistoryForageItem) => void;
 }
 
 enum PatternQueryStatus {
@@ -36,6 +39,7 @@ export const QueryModal = (props: IQueryModalProps) => {
     useEffect(
         () => {
             const partialConstraintContext = props.getConstraintContext();
+            console.log(partialConstraintContext)
             const ipc = partialConstraintContext ?
                 new IdeographPatternContext(nodes, edges, {
                     constraints: constraints,
@@ -47,6 +51,7 @@ export const QueryModal = (props: IQueryModalProps) => {
                     connections: [],
                     logicOperators: []
                 });
+
             setStatus(PatternQueryStatus.ValidatingInput)
             ipc.generatePrunnedPattern().then(
                 async (pattern) => {
@@ -68,8 +73,19 @@ export const QueryModal = (props: IQueryModalProps) => {
                             ) : "";
                     }
                     setStatus(PatternQueryStatus.SendingRequest)
-                    const sol = await querySolvePattern(pattern);
-                    setSolutions(sol)
+                    // const sol = await querySolvePattern(pattern);
+                    const compositePattern: Solution.CompositePattern = {
+                        ...pattern,
+                        connections: partialConstraintContext?.connections ?? [],
+                        logicOperators: partialConstraintContext?.logicOperators.map(
+                            it => ({ patternId: it.id, type: Solution.LogicOperator2Literal[it.type] })
+                        ) ?? []
+                    }
+                    const compositeSolution = await querySolveCompositePattern(
+                        compositePattern
+                    )
+                    props.onSaveHistory({ ...compositeSolution, queryTimestamp: new Date().getTime() });
+                    setSolutions(compositeSolution)
                     setStatus(PatternQueryStatus.SolvingResponse);
                 }
             )
@@ -96,6 +112,15 @@ export const QueryModal = (props: IQueryModalProps) => {
             {solutions !== undefined && <div style={{ fontFamily: 'var(--mono-font)', color: '#fff', height: 'calc(72vh - 56px)', overflowY: 'auto' }}>
                 <SolutionDiagramGridView solutions={solutions.solutions} columnCount={4} />
             </div>}
+            {
+                status == PatternQueryStatus.SendingRequest && <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 320px)', columnGap: 16, padding: '0 16px', rowGap: 16, overflow: 'hidden', height: 'calc(72vh - 56px)', }}>
+                    {
+                        new Array(12).fill(0).map(_ => {
+                            return <Skeleton variant="rectangular" width={320} height={240} style={{ borderRadius: 0, backgroundColor: '#f1f2f4' }} animation="wave" />
+                        })
+                    }
+                </div>
+            }
         </div>
     </>
 }

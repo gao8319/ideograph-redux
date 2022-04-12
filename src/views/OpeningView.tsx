@@ -2,7 +2,7 @@ import { OpeningViewHeader } from "../components/WorkspaceHeader/OpeningViewHead
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { leftPanelWidthSelector } from "../store/slice/modelSlicer";
 import '../components/Panels/ConceptPanel/ConceptPanel.css'
-import { Button, ButtonBase, MenuItem } from "@mui/material";
+import { Autocomplete, Button, ButtonBase, Input, MenuItem } from "@mui/material";
 import styled from "@emotion/styled";
 import { Add20, Add24, Add32, ChartHistogram16, ChevronDown16, Close20, Connect32, DataBase16, Document16, Document20, DocumentImport32, Plug32, Query32, Settings16, Settings20, Time16, Workspace32, WorkspaceImport32 } from "@carbon/icons-react";
 import React, { useEffect, useRef, useState } from "react";
@@ -12,7 +12,7 @@ import { SpacedText } from "../components/SpacedSpan";
 import { ActionButtonTiny, ActionButtonTinyDark } from "../components/Panels/common/ActionButton";
 import { StyledButton, StyledDefaultButton, StyledInput, StyledSelect } from "../components/Styled/StyledComponents";
 import { CreateDialog } from "../components/Dialogs/CreateDialog";
-import { getFileOverviews, IdeographDatabase, initDatabase, queryForage, QueryForageItem } from "../utils/global/Storage";
+import { getAll, getFileOverviews, getHashMap, IdeographDatabase, initDatabase, patternHistoryForage, PatternHistoryForageItem, queryForage, QueryForageItem } from "../utils/global/Storage";
 import { deleteFile, initOverviewAsync, loadFileAsync, overviewSelectors, setOverviews, tryImportFileAsync } from "../store/slice/overviewSlicer";
 import { pangu } from "../utils/common/pangu";
 import { useNavigate } from 'react-router-dom';
@@ -23,6 +23,8 @@ import _ from "lodash";
 import { Callout, DirectionalHint } from "@fluentui/react";
 import { ideographDarkTheme } from "../utils/ideographTheme";
 import { nanoid } from "@reduxjs/toolkit";
+import { SolutionDiagramGridView } from "../components/PatternSolutionDiagram/PatternSolutionDiagram";
+
 
 
 const OpenningTab = styled(Button)(t => ({
@@ -58,19 +60,19 @@ const OpenningTabActive = styled(OpenningTab)(t => ({
     },
 }))
 
-const tabs = [
-    {
-        name: "项目和文件",
-        key: "files",
-    },
-    {
-        name: "查询历史",
-        key: "history",
-    },
-    {
-        name: "设置",
-        key: "settings",
-    }
+const tabs: any = [
+    // {
+    //     name: "项目和文件",
+    //     key: "files",
+    // },
+    // {
+    //     name: "查询历史",
+    //     key: "history",
+    // },
+    // {
+    //     name: "设置",
+    //     key: "settings",
+    // }
 ]
 
 
@@ -139,17 +141,24 @@ export const OpeningView = () => {
 
     useEffect(() => {
         dispatch(initOverviewAsync());
+        getHashMap<PatternHistoryForageItem>(patternHistoryForage).then(
+            items => setHistory(items)
+        )
     }, [])
 
     const overviews = useAppSelector(overviewSelectors);
 
     const [contextMenuTarget, setContextMenuTarget] = useState<{ event: MouseEvent, file: QueryForageItem }>();
 
+    const [history, setHistory] = useState<Record<string, PatternHistoryForageItem>>({});
+
+
+
     return <>
         <OpeningViewHeader />
-
+                
         <div style={{ backgroundColor: '#fff', height: 'calc(100vh - 48px)', width: '100vw', position: 'relative', display: 'grid', gridTemplateColumns: `${lPanelWidth + 1}px 1fr` }}>
-            <div className="concept-panel-root panel opening-left-panel" style={{ width: lPanelWidth }}>
+            {/* <div className="concept-panel-root panel opening-left-panel" style={{ width: lPanelWidth }}>
                 <div style={{ height: '100%', padding: '16px 0', gridTemplateRows: 'auto 1fr auto', display: 'grid' }}>
                     {
                         tabs.map((tab, index) => {
@@ -162,7 +171,7 @@ export const OpeningView = () => {
                         })
                     }
                 </div>
-            </div>
+            </div> */}
             {activeTab === 0 && <div className="opening-tab">
 
                 <div style={{ fontWeight: 600, fontSize: 14, height: 60, alignItems: 'center', display: 'inline-flex', paddingLeft: 24, columnGap: 8, paddingTop: 12 }}>
@@ -171,27 +180,32 @@ export const OpeningView = () => {
                     </SpacedText>
                 </div>
 
-                <input type="file" accept=".json" style={{ display: 'none' }} ref={fileInputRef} onChange={
-                    async ev => {
-                        const files = (ev.target as HTMLInputElement).files
-                        const file = files?.item(0)
-                        if (file) {
-                            const dt = new Date().getTime();
+                <input
+                    type="file"
+                    accept=".json"
+                    style={{ display: 'none' }}
+                    ref={fileInputRef}
+                    onChange={
+                        async ev => {
+                            const files = (ev.target as HTMLInputElement).files
+                            const file = files?.item(0)
+                            if (file) {
+                                const dt = new Date().getTime();
 
-                            const parsed: QueryForageItem = JSON.parse(await file.text());
-                            parsed.name = `${parsed.name} - 导入自“${file.name}”`;
-                            parsed.id = nanoid();
-                            parsed.createTime = dt;
-                            parsed.lastEditTime = dt;
+                                const parsed: QueryForageItem = JSON.parse(await file.text());
+                                parsed.name = `${parsed.name} - 导入自“${file.name}”`;
+                                parsed.id = nanoid();
+                                parsed.createTime = dt;
+                                parsed.lastEditTime = dt;
 
-                            dispatch(
-                                tryImportFileAsync(parsed,
-                                    () => navigate(`file?fileId=${parsed.id}`))
-                            )
+                                dispatch(
+                                    tryImportFileAsync(parsed,
+                                        () => navigate(`file?fileId=${parsed.id}`))
+                                )
 
+                            }
                         }
-                    }
-                } />
+                    } />
                 <div style={{ display: 'grid', columnGap: 16, rowGap: 16, padding: '8px 24px 24px 24px', gridTemplateColumns: 'repeat(auto-fit, 280px)' }}>
                     <CreateNewButton onClick={_ => setDialog("create")}>
                         <img src="/static/file.svg" width={48} height={48} />
@@ -209,13 +223,13 @@ export const OpeningView = () => {
                             <span className="truncate" style={{ display: 'block', color: 'var(--grey200)', fontSize: 12, fontWeight: 400 }}>从 JSON 文件导入查询条件</span>
                         </div>
                     </CreateNewButton>
-                    <CreateNewButton onClick={_ => setDialog("connect")}>
+                    {/* <CreateNewButton onClick={_ => setDialog("connect")}>
                         <img src="/static/database.svg" width={48} height={48} />
                         <div>
                             <span className="truncate" style={{ display: 'block' }}>连接数据源</span>
                             <span className="truncate" style={{ display: 'block', color: 'var(--grey200)', fontSize: 12, fontWeight: 400 }}>连接到 MongoDB 和 DGraph</span>
                         </div>
-                    </CreateNewButton>
+                    </CreateNewButton> */}
                 </div>
 
                 {contextMenuTarget &&
@@ -316,6 +330,30 @@ export const OpeningView = () => {
 
             </div>}
 
+
+            {
+                activeTab === 1 && <div className="opening-tab">
+                    <div style={{ fontWeight: 600, fontSize: 14, height: 60, alignItems: 'center', display: 'flex', paddingLeft: 24, columnGap: 8, paddingTop: 24 }}>
+                        <SpacedText>
+                            查询历史
+                        </SpacedText>
+                    </div>
+                    {
+                        Object.keys(history).map(
+                            hist => <>
+                                <div style={{ fontWeight: 500, fontSize: 14, height: 72, alignItems: 'center', display: 'flex', paddingLeft: 24, columnGap: 42, paddingTop: 24 }}>
+                                    <SpacedText>
+                                        {overviews.flatMap(it => it.queries).find(it => it.id === hist)?.name ?? ""}
+                                    </SpacedText>
+                                    <SpacedText style={{ color: 'var(--grey200)', fontWeight: 500 }}>
+                                        {`${dateFormatter.format(history[hist].queryTimestamp)}，${history[hist].solutions.length}个结果`}
+                                    </SpacedText>
+                                </div>
+                            </>
+                        )
+                    }
+                </div>
+            }
 
             {
                 activeTab === 2 && <div className="opening-tab">

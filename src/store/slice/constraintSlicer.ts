@@ -29,10 +29,7 @@ const constraintsSlicer = createSlice({
     reducers: {
         addConstraint: (state: ConstraintsState, payload: Parameters<typeof constraintsAdapter['addOne']>[1]) => {
             constraintsAdapter.addOne(state, payload);
-            state.lastOperation = {
-                action: 'addOne',
-                payload
-            }
+
         },
         modifyConstraint: (state: ConstraintsState, payload: Parameters<typeof constraintsAdapter['updateOne']>[1]) => {
             constraintsAdapter.updateOne(state, payload);
@@ -51,12 +48,18 @@ const constraintsSlicer = createSlice({
         renewal(state, actions: PayloadAction<ConstraintsState>) {
             state.ids = actions.payload.ids;
             state.entities = actions.payload.entities;
-            state.lastOperation = actions.payload.lastOperation;
+            state.lastOperation = undefined// actions.payload.lastOperation;
+        },
+        addConstraintToContext: (state: ConstraintsState, payload: Parameters<typeof constraintsAdapter['addOne']>[1]) => {
+            state.lastOperation = {
+                action: 'addOne',
+                payload
+            }
         }
     },
 })
 
-export const { modifyConstraint, deleteConstraint, addConstraint, renewal: constraintRenewal } = constraintsSlicer.actions
+export const { modifyConstraint, deleteConstraint, addConstraint, addConstraintToContext, renewal: constraintRenewal } = constraintsSlicer.actions
 
 export const constraintsSelectors = constraintsAdapter.getSelectors((state: RootState) => state.constraints)
 export const lastConstraintOperationSelector = (state: RootState) => state.constraints.lastOperation

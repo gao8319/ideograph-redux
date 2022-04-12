@@ -193,7 +193,9 @@ export class PatternGraphEngine {
                 }
                 else {
                     const targetColorSet = this.model.colorSlots[this.editPayload!].colorSlot ?? { primary: '#b0b1b4' };
-                    this.mouseIndicatorLayer?.attr('transform', `translate(${ev.offsetX}, ${ev.offsetY})`)
+                    
+                    const newEv = this.zoomTransform?.invert([ev.offsetX, ev.offsetY]) ?? [ev.offsetX, ev.offsetY]
+                    this.mouseIndicatorLayer?.attr('transform', `translate(${newEv[0]}, ${newEv[1]})`)
                     if (!this.nodeIndicator) {
                         this.nodeIndicator = this.mouseIndicatorLayer
                             ?.append('circle')
@@ -281,10 +283,11 @@ export class PatternGraphEngine {
                 if (isNotEmpty(this.editPayload)) {
                     const oc = this.model.colorSlots[this.editPayload!];
                     if (oc) {
-
+                        const newEv = this.zoomTransform?.invert([ev.offsetX, ev.offsetY]) ?? [ev.offsetX, ev.offsetY]
+                    
                         const n = new PatternNode(
                             oc,
-                            { x: ev.offsetX, y: ev.offsetY },
+                            { x: newEv[0], y: newEv[1] },
                             nanoid(),
 
                         )
@@ -295,7 +298,7 @@ export class PatternGraphEngine {
                         setTimeout(
                             () => {
                                 this.focusedElement = n;
-                            }, 240
+                            }, 0
                         )
                         n.on('click', clickEvent => {
                             this.onNodeClick(n, clickEvent)
@@ -360,6 +363,10 @@ export class PatternGraphEngine {
                 if (
                     this.model.connectable[createEdgeFromClassId].to.includes(to.ontologyClass.id)
                     || n.uuid === to.uuid
+                    || Object.values(this.edgeDict).findIndex(
+                        it => (it.from.uuid === n.uuid && it.to.uuid === to.uuid)
+                            || it.to.uuid === n.uuid && it.from.uuid === to.uuid
+                    ) !== -1
                 ) {
                     to.setDisabled(false);
                 }
@@ -455,7 +462,7 @@ export class PatternGraphEngine {
         if (this.dragStartNode) {
             if (getDistanceSquared(this.dragStartNode.logicPosition, ev) > 200) {
 
-                if (!this.isDragNailed) {
+                if (!this.isDragNailed && this.dragStartNode) {
                     this.setEditModeWithPayload(
                         EditMode.CreatingEdgeTo,
                         this.dragStartNode.uuid
@@ -465,8 +472,12 @@ export class PatternGraphEngine {
                     const createEdgeFromClassId = this.dragStartNode.ontologyClass.id
                     Object.values(this.nodeDict).forEach(to => {
                         if (
-                            this.model.connectable[createEdgeFromClassId].to.includes(to.ontologyClass.id)
-                            || (this.dragStartNode?.uuid === to.uuid)
+                            (this.model.connectable[createEdgeFromClassId].to.includes(to.ontologyClass.id)
+                            || (this.dragStartNode?.uuid === to.uuid))
+                            && Object.values(this.edgeDict).findIndex(
+                                it => (it.from.uuid === this.dragStartNode!.uuid && it.to.uuid === to.uuid)
+                                    || it.to.uuid === this.dragStartNode!.uuid && it.from.uuid === to.uuid
+                            ) === -1
                         ) {
                             to.setDisabled(false);
                         }

@@ -51,12 +51,14 @@ export const addLogicNode = (
     nOut: number = 1,
     primary: string,
     background: string,
-    width: number
+    width: number,
+    position?: IPoint
 ) => graph.addNode({
     width: width ?? 192,
     height: 28,
-    x: 16,
+    x: 240,
     y: 16,
+    ...position,
     label: text,
     id,
     attrs: {
@@ -113,9 +115,9 @@ export const addLogicNode = (
     }
 })
 
-export const addLogicAndNode = (graph: Graph, id: string) => addLogicNode(graph, "与", id, 2, 1, '#EF6C00', '#FFF8E1', 64);
-export const addLogicOrNode = (graph: Graph, id: string) => addLogicNode(graph, "或", id, 2, 1, '#0277BD', '#E1F5FE', 64);
-export const addLogicNotNode = (graph: Graph, id: string) => addLogicNode(graph, "非", id, 1, 1, '#512DA8', '#EDE7F6', 64);
+export const addLogicAndNode = (graph: Graph, id: string, position?: IPoint) => addLogicNode(graph, "与", id, 2, 1, '#EF6C00', '#FFF8E1', 64, position);
+export const addLogicOrNode = (graph: Graph, id: string, position?: IPoint) => addLogicNode(graph, "或", id, 2, 1, '#0277BD', '#E1F5FE', 64, position);
+export const addLogicNotNode = (graph: Graph, id: string, position?: IPoint) => addLogicNode(graph, "非", id, 1, 1, '#512DA8', '#EDE7F6', 64, position);
 
 
 const registerBumpXConnector = () => {
@@ -230,6 +232,7 @@ export const createConstraintNode = (g: Graph, c: IConstraint, position?: IPoint
             height: 28,
             x: 16,
             y: 16,
+            ...position,
             attrs: {
                 label: getTextedNodeLable(describeConstraint(c)),
                 body: {
@@ -277,7 +280,7 @@ export const createConstraintNode = (g: Graph, c: IConstraint, position?: IPoint
 
 
 export const removeConstraintNode = (g: Graph, cid: IConstraint['id']) => {
-    // g.getNodes().filter(it => it.id === cid);
+
     g.removeNode(cid)
 }
 

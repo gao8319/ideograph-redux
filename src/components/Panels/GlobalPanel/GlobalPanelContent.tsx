@@ -1,13 +1,13 @@
 import { nanoid, Update } from "@reduxjs/toolkit";
 import { useEffect, useImperativeHandle, useRef, useState } from "react";
-import { useAppSelector } from "../../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { lastConstraintOperationSelector } from "../../../store/slice/constraintSlicer";
 import { IConstraint } from "../../../utils/common/graph";
 import { PanelTitle } from "../common/PanelTitle";
 import { Edge, Graph, Node } from '@antv/x6';
 import { addLogicAndNode, addLogicNotNode, addLogicOrNode, createConstraintNode, createLogicComposingGraph, modifyConstraintNode } from "./X6Elements";
 import { ActionButtonTiny } from "../common/ActionButton";
-import { Add20 } from "@carbon/icons-react";
+import { Add20, Search16 } from "@carbon/icons-react";
 import { ClickAwayListener } from "@mui/material";
 import { Callout, DirectionalHint } from "@fluentui/react";
 import React from "react";
@@ -15,6 +15,8 @@ import { IConstraintContext, ILogicOperator } from "../../../utils/PatternContex
 import { BinaryLogicOperator, LogicOperator, UnaryLogicOperator } from "../../../utils/common/operator";
 import { GlobalPanel } from "./GlobalPanel";
 import _ from "lodash";
+import { WorkspaceCommand } from "../../WorkspaceHeader/WorkspaceCommand";
+import { applyQuery } from "../../../store/slice/modelSlicer";
 
 export interface IGlobalPanelContentRef {
     getConstraintContext: () => Omit<IConstraintContext, "constraints"> | null;
@@ -28,20 +30,20 @@ export interface IGlobalPanelContentProps {
 
 const restoreContextGraph = (graph: Graph, context: IConstraintContext) => {
     const nodes = context.constraints.map(
-        constraint => createConstraintNode(graph, constraint)
+        (constraint, i) => createConstraintNode(graph, constraint, { x: 16, y: 16 + 48 * i })
     );
 
     const logics = context.logicOperators.map(
-        op => {
+        (op, i) => {
             switch (op.type) {
                 case UnaryLogicOperator.Not: {
-                    return addLogicNotNode(graph, op.id);
+                    return addLogicNotNode(graph, op.id, { x: 240, y: 16 + 48 * i });
                 }
                 case BinaryLogicOperator.And: {
-                    return addLogicAndNode(graph, op.id);
+                    return addLogicAndNode(graph, op.id, { x: 240, y: 16 + 48 * i });
                 }
                 case BinaryLogicOperator.Or: {
-                    return addLogicOrNode(graph, op.id);
+                    return addLogicOrNode(graph, op.id, { x: 240, y: 16 + 48 * i });
                 }
             }
         }
@@ -49,17 +51,17 @@ const restoreContextGraph = (graph: Graph, context: IConstraintContext) => {
 
     const nodeDict = _.keyBy(nodes.concat(logics), it => it.id)
 
-    graph.addEdges(
-        context.connections.map(
-            conn => {
-                console.log(nodeDict[conn.from].ports, nodeDict[conn.to].ports)
-                return {
-                    sourcePort: nodeDict[conn.from].ports.items[0].id,
-                    targetPort: nodeDict[conn.to].ports.items[0].id
-                }
-            }
-        )
-    )
+    // graph.addEdges(
+    //     context.connections.map(
+    //         conn => {
+    //             console.log(nodeDict[conn.from].ports, nodeDict[conn.to].ports)
+    //             return {
+    //                 sourcePort: nodeDict[conn.from].ports?.items[0]?.id,
+    //                 targetPort: nodeDict[conn.to].ports?.items[0]?.id
+    //             }
+    //         }
+    //     )
+    // )
 
 }
 
@@ -122,6 +124,7 @@ export const GlobalPanelContent = React.forwardRef<IGlobalPanelContentRef, IGlob
         }, [lastConstraintOperation, x6Ref]
     )
 
+    const dispatch = useAppDispatch();
 
     useImperativeHandle(
         ref,
@@ -167,27 +170,99 @@ export const GlobalPanelContent = React.forwardRef<IGlobalPanelContentRef, IGlob
     }, [x6Ref])
 
     return <GlobalPanel>
+
         <PanelTitle text="全局逻辑">
-            <ClickAwayListener onClickAway={ev => { setLogicOperatorMenuOpen(false) }}>
+            {/* <ClickAwayListener onClickAway={ev => { setLogicOperatorMenuOpen(false) }}> */}
+            <div style={{ display: 'flex', columnGap: 8, fontSize: 13, alignItems: 'center' }}>
+                <span style={{ color: 'var(--grey200)', paddingRight: 8, fontWeight: 400 }}>添加逻辑运算</span>
                 <ActionButtonTiny
                     disableRipple
                     ref={buttonRef}
                     onClick={
                         ev => {
-                            setLogicOperatorMenuOpen(true);
+                            const newAndOperator: ILogicOperator = {
+                                type: BinaryLogicOperator.And,
+                                id: nanoid(),
+                            }
+                            logicOperatorSet.current?.add(newAndOperator)
+                            x6Ref.current && addLogicAndNode(x6Ref.current, newAndOperator.id);
+                            setLogicOperatorMenuOpen(false)
                         }
-                    }>
-                    <Add20 />
+                    }
+                    style={{ fontSize: 13, fontWeight: 600 }}>
+                    与
                 </ActionButtonTiny>
-            </ClickAwayListener>
+
+                <ActionButtonTiny
+                    disableRipple
+                    ref={buttonRef}
+                    onClick={
+                        ev => {
+                            const newOrOperator: ILogicOperator = {
+                                type: BinaryLogicOperator.Or,
+                                id: nanoid(),
+                            }
+                            logicOperatorSet.current?.add(newOrOperator);
+                            x6Ref.current && addLogicOrNode(x6Ref.current, newOrOperator.id);
+                            setLogicOperatorMenuOpen(false)
+                        }
+                    }
+                    style={{ fontSize: 13, fontWeight: 600 }}>
+                    或
+                </ActionButtonTiny>
+                <ActionButtonTiny
+                    disableRipple
+                    ref={buttonRef}
+                    onClick={
+                        ev => {
+                            const newNotOperator: ILogicOperator = {
+                                type: UnaryLogicOperator.Not,
+                                id: nanoid(),
+                            }
+                            logicOperatorSet.current?.add(newNotOperator);
+                            x6Ref.current && addLogicNotNode(x6Ref.current, newNotOperator.id);
+                            setLogicOperatorMenuOpen(false)
+                        }
+                    }
+                    style={{ fontSize: 13, fontWeight: 600 }}>
+                    非
+                </ActionButtonTiny>
+            </div>
+            {/* </ClickAwayListener> */}
         </PanelTitle>
         <div className="constraint-pool-root" ref={observedRef}>
             <div className="x6-container" ref={x6ContainerRef} />
         </div>
+        <div style={{display: 'flex', columnGap: 8, position: 'absolute', right: 8, bottom: 8, width: '100%', justifyContent: 'flex-end'}}>
+
+        <WorkspaceCommand activated={false}
+            // hint='匹配查询'
+            // shortcut=' Enter'
+            // cmd
+            autoLength
+            forcedHighlight
+            text='保存'
+            style={{ color: '#fff', marginRight: 8, padding: '0 24px', }}
+            onClick={_ => dispatch(applyQuery(true))}>
+            <Search16 fill="#fff" />
+        </WorkspaceCommand>
+        <WorkspaceCommand activated={false}
+            hint='匹配查询'
+            shortcut=' Enter'
+            cmd
+            autoLength
+            forcedHighlight
+            text='查询'
+            style={{ color: '#fff', marginRight: 8, padding: '0 24px', }}
+            onClick={_ => dispatch(applyQuery(true))}>
+            <Search16 fill="#fff" />
+        </WorkspaceCommand>
+        </div>
+
         <Callout
             target={buttonRef.current}
             isBeakVisible={false}
-            hidden={!logicOperatorMenuOpen}
+            hidden //</GlobalPanel>={!logicOperatorMenuOpen}
             styles={{
                 calloutMain: {
                     borderRadius: 0,
@@ -243,6 +318,8 @@ export const GlobalPanelContent = React.forwardRef<IGlobalPanelContentRef, IGlob
                     <span style={{ opacity: 0.25 }} className="shimmed">N</span>
                 </li>
             </div>
+
+
         </Callout>
     </GlobalPanel>
 })

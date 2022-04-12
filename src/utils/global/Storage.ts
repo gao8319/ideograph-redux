@@ -2,11 +2,14 @@ import { EntityAdapter, EntityState } from "@reduxjs/toolkit";
 import localforage from "localforage";
 import _ from "lodash";
 import { Solution } from "../../services/PatternSolution";
+import { SolvePatternResponse } from "../../services/SolvePattern";
 import { ConstraintsState } from "../../store/slice/constraintSlicer";
 import { IConstraint, IPatternEdge, IPatternNode } from "../common/graph";
 import { IConstraintContext } from "../PatternContext";
 
-export const queryForage = localforage.createInstance({ name: "query" })
+type TypedForage<T> = LocalForage;
+
+export const queryForage: TypedForage<QueryForageItem> = localforage.createInstance({ name: "query" })
 export const dataSourceForage = localforage.createInstance({ name: "datasource" })
 export const patternHistoryForage = localforage.createInstance({ name: "history" })
 
@@ -125,6 +128,6 @@ export interface DataSourceForageItem {
     dgraph: DGraphConnectable,
 }
 
-export interface PatternHistoryForageItem {
-
+export type PatternHistoryForageItem = SolvePatternResponse & {
+    queryTimestamp: number,
 }

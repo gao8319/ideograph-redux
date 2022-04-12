@@ -11,8 +11,6 @@ import AutoSizer from "react-virtualized-auto-sizer";
 import { FixedSizeList as List } from 'react-window'
 import _ from "lodash"
 import React from "react"
-import { Divider } from "@mui/material"
-
 interface ISolutionDiagramProps {
     onPaint: (svg: SVGSVGElement) => (() => void),
     style: React.CSSProperties;

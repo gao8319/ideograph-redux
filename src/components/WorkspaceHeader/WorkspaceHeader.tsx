@@ -1,4 +1,4 @@
-import { ChevronLeft20, Cursor_220, Home20, MacCommand16, MacOption16, MacShift16, Search20 } from '@carbon/icons-react';
+import { ChevronLeft20, Cursor_220, Home20, MacCommand16, MacOption16, MacShift16, Save20, Search16, Search20 } from '@carbon/icons-react';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTitle } from 'react-use';
@@ -18,6 +18,7 @@ import { TextableCommand } from './TextableCommand';
 import { WorkspaceCommand } from './WorkspaceCommand';
 import './WorkspaceHeader.css'
 import { Image } from '@fluentui/react';
+import { StyledButton } from '../Styled/StyledComponents';
 // interface IWorkspaceProfile {
 //     name: string,
 //     projectName: string,
@@ -118,17 +119,17 @@ export const WorkspaceHeader = (props: IWorkspaceHeaderProps) => {
             } />
         </div>
         <div style={{ height: '100%', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: 8 }}>
-            <WorkspaceCommand activated={false}
-                hint='匹配查询'
-                shortcut=' Enter'
-                cmd
-                autoLength
-                forcedHighlight
-                text='查询'
-                style={{ color: '#fff' }}
+
+            {/* <WorkspaceCommand activated={false} style={{ height: '100%', width:'auto', maxWidth:'auto' }}
                 onClick={_ => dispatch(applyQuery(true))}>
-                <Search20 fill="#fff" />
-            </WorkspaceCommand>
+                <Save20 fill="#fff" style={{ marginRight: 8 }} />
+                保存
+            </WorkspaceCommand> */}
+            {/* <StyledButton 
+                onClick={_ => dispatch(applyQuery(true))}>
+                <Search20 fill="#fff" style={{ marginRight: 12 }} />
+                查询
+            </StyledButton> */}
         </div>
     </div>
 }

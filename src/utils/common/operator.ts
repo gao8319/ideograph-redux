@@ -9,6 +9,26 @@ export enum ComparisonOperator {
     MatchRegex,
 }
 
+export const literal2ComparisonOperator: Record<string, ComparisonOperator|undefined> = {
+    "==": ComparisonOperator.Equal,
+    "<": ComparisonOperator.Less,
+    ">": ComparisonOperator.Greater,
+    "<=": ComparisonOperator.LessOrEqual,
+    ">=": ComparisonOperator.GreaterOrEqual,
+    "!=": ComparisonOperator.NotEqual,
+    "~=": ComparisonOperator.MatchRegex,
+}
+
+export const comparisonOperator2Literal: Record<ComparisonOperator, string|undefined> = {
+    [ComparisonOperator.Equal]: "==",
+    [ComparisonOperator.Less]: "<",
+    [ComparisonOperator.Greater]: ">",
+    [ComparisonOperator.LessOrEqual]: "<=",
+    [ComparisonOperator.GreaterOrEqual]: ">=",
+    [ComparisonOperator.NotEqual]: "!=",
+    [ComparisonOperator.MatchRegex]: "~=",
+}
+
 export enum BinaryLogicOperator {
     And = 0x10,
     Or = 0x11,

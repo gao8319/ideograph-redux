@@ -8,7 +8,7 @@ import { PropertyPanel } from '../components/Panels/PropertyPanel/PropertyPanel'
 import { GlobalPanel } from '../components/Panels/GlobalPanel/GlobalPanel';
 import { PatternGraphEngine, RaiseMessageCallback, RaiseMessageType } from '../engine/PatternGraphEngine';
 import { usePatternEngine } from '../utils/usePatternEngine';
-import { Grow, Modal, Snackbar } from '@mui/material';
+import { Autocomplete, Grow, Input, Modal, Snackbar } from '@mui/material';
 import { Alert } from '../components/StyledMessage';
 import { Close20, Close24, Error20, FitToScreen20, Help20, Maximize16, Maximize20, Scale20 } from '@carbon/icons-react';
 import { edgesSelectors } from '../store/slice/edgeSlicer';
@@ -25,9 +25,8 @@ import { PatternNode } from '../engine/visual/PatternNode';
 import { Callout, DirectionalHint, Tooltip } from '@fluentui/react';
 import { ideographDarkTheme } from '../utils/ideographTheme';
 import { EditMode } from '../engine/visual/EditMode';
-import { getConstraintContextFromQueryForage, QueryForageItem } from '../utils/global/Storage';
+import { getConstraintContextFromQueryForage, patternHistoryForage, QueryForageItem } from '../utils/global/Storage';
 import _ from 'lodash';
-
 
 
 export const EditView = () => {
@@ -124,6 +123,7 @@ export const EditView = () => {
 
     return (
         <>
+        
             <WorkspaceHeader />
             <div className='workspace-container'>
                 {snackbarOpen && <Snackbar
@@ -142,8 +142,9 @@ export const EditView = () => {
                 <PropertyPanel />
                 <GlobalPanelContent ref={globalConstraintPoolRef} initialContext={
                     fileCache ? getConstraintContextFromQueryForage(fileCache) : undefined
-                }/>
+                } />
             </div>
+
             {contextMenuTarget?.node?.renderElements &&
                 <Callout
                     target={contextMenuTarget?.event}
@@ -205,7 +206,6 @@ export const EditView = () => {
 
                     <div className='contextual-callout-sep' />
 
-
                     <div className='contextual-callout-item'
                         style={{}}>
                         <div style={{ fontSize: 13 }}>移除节点</div>
@@ -232,7 +232,10 @@ export const EditView = () => {
                         <CodeEditor getConstraintContext={getConstraintContext} />
                     </div>
                 </>}
-            {isQueryModalOpen && <QueryModal getConstraintContext={getConstraintContext} />}
+            {isQueryModalOpen && <QueryModal getConstraintContext={getConstraintContext} onSaveHistory={history => {
+                if (fileId)
+                    patternHistoryForage.setItem(fileId, history)
+            }} />}
         </>
     )
 }

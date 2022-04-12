@@ -88,7 +88,7 @@ input::selection {
     font-family: var(--font);
     --mono-font: "SFMono", ui-monospace, -apple-system, BlinkMacSystemFont, monospace;
     --primary: #1870fb;
-    --primary-darken: #0c60e9;
+    --primary-darken: #0657d8;
     --grey20: #f8f9fa;
     --grey50: #f1f2f4;
     --grey100: #e1e2e5;
@@ -197,7 +197,7 @@ tspan {
 
 .ms-Dropdown:focus::after, .ms-Dropdown-title:hover {
     border: 1px solid var(--primary) !important;
-    border-radius: 0;
+    border-radius: 3px;
 }
 
 

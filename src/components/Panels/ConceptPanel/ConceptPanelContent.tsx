@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { ColorSlot } from "../../../engine/visual/ColorSlot";
 import { EditMode } from "../../../engine/visual/EditMode";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
-import { editModeSelector, modelSelector, projectNameSelector, setEditModeWithPayload, workspaceNameSelector } from "../../../store/slice/modelSlicer";
+import { editModeSelector, editPayloadSelector, modelSelector, projectNameSelector, setEditModeWithPayload, workspaceNameSelector } from "../../../store/slice/modelSlicer";
 import { CommonModel } from "../../../utils/common/model";
 import { PanelTitle } from "../common/PanelTitle";
 
@@ -17,7 +17,8 @@ const editModeMap = {
 
 interface IPatternNodeItemProps {
     item: CommonModel.IColoredClass,
-    onClick?: React.MouseEventHandler<HTMLDivElement>
+    onClick?: React.MouseEventHandler<HTMLDivElement>,
+    style: React.CSSProperties
 }
 
 const PatternNodeItem = (props: IPatternNodeItemProps) => {
@@ -30,6 +31,7 @@ const PatternNodeItem = (props: IPatternNodeItemProps) => {
             height: 40,
             fontSize: 14,
             cursor: 'pointer',
+            ...props.style
         }}
         onClick={props.onClick}
         key={props.item.name}
@@ -48,7 +50,7 @@ const PatternNodeItem = (props: IPatternNodeItemProps) => {
             <svg width={24} height={40}>
                 <circle cx={8} cy={20} r={8} fill={props.item.colorSlot.primary} />
             </svg>
-            <div className="truncate" style={{width: '100%'}}>
+            <div className="truncate" style={{ width: '100%' }}>
                 {props.item.name}
             </div>
         </div>
@@ -62,6 +64,7 @@ export const ConceptPanelContent = () => {
     const dispatch = useAppDispatch();
     const editMode = useAppSelector(editModeSelector);
     const modelObject = useAppSelector(modelSelector);
+    const editPayload = useAppSelector(editPayloadSelector);
 
     return <div>
         <PanelTitle text={editModeMap[editMode]} />
@@ -69,13 +72,17 @@ export const ConceptPanelContent = () => {
         {editMode === EditMode.CreatingNode && <div>
             {
                 modelObject?.classes.map(
-                    m => <PatternNodeItem key={m.id} item={m} onClick={
-                        ev => {
-                            dispatch(setEditModeWithPayload(
-                                { editMode: EditMode.CreatingNode, payload: m.id }
-                            ))
-                        }
-                    } />
+                    m => <PatternNodeItem
+                        key={m.id}
+                        item={m}
+                        style={{backgroundColor: editPayload === m.id ? "rgba(24, 112, 251, 0.125)!important":undefined}}
+                        onClick={
+                            ev => {
+                                dispatch(setEditModeWithPayload(
+                                    { editMode: EditMode.CreatingNode, payload: m.id }
+                                ))
+                            }
+                        } />
                 )
             }
         </div>}

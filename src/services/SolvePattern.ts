@@ -1,7 +1,9 @@
 import axios from "axios";
+import { patternHistoryForage } from "../utils/global/Storage";
 import { Solution } from "./PatternSolution";
 
 export type SolvePatternRequest = Solution.Pattern
+export type SolveCompositePatternRequest = Solution.CompositePattern
 
 export type SolvePatternResponse = {
     solutions: Solution.PatternSolution[],
@@ -70,5 +72,10 @@ export const testPattern3 = {
 
 export const querySolvePattern = async (pattern: SolvePatternRequest) => {
     const response = await axios.post<SolvePatternResponse>(`/api/solvePattern`, pattern)
+    return response.data
+}
+
+export const querySolveCompositePattern = async (pattern: SolveCompositePatternRequest) => {
+    const response = await axios.post<SolvePatternResponse>(`/api/solveCompositePattern`, pattern)
     return response.data
 }

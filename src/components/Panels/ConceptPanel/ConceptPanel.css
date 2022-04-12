@@ -42,14 +42,14 @@
 }
 
 .ontology-create-button:hover{
-    background-color: #e1e2e5!important;
+    background-color: var(--grey50);
 }
 
 .ontology-create-button:hover>button, .ontology-create-button:hover>span>button{
-    background-color: #e1e2e5!important;
+    background-color: var(--grey50);
     visibility: visible!important;
 }
 
 .ontology-create-button>button:hover, .ontology-create-button>span>button:hover{
-    background-color: #c1c3c7!important;
+    background-color: var(--grey50);
 }

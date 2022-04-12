@@ -79,8 +79,8 @@ export class SolutionDiagramCore {
         const paddedLeft = this.padding;
         const paddedRight = this.box.width - this.padding;
 
-        const logicWidth = logicBox.right - logicBox.left;
-        const logicHeight = logicBox.bottom - logicBox.top;
+        const logicWidth = logicBox.right - logicBox.left + 4;
+        const logicHeight = logicBox.bottom - logicBox.top + 4;
 
         const verticalScale = (paddedRight - paddedLeft) / logicWidth;
         const horizontalScale = (paddedBottom - paddedTop) / logicHeight;
@@ -204,8 +204,6 @@ export class SolutionDiagramCore {
             .attr('y', (_, i) => this.layouts[i].y + 10)
             .attr('fill', (_, i) => this.patternNodes[i].class.colorSlot.constrained)
             .text(d => d.name)
-
-
 
         return () => {
             svgSelection.selectAll('*').remove();

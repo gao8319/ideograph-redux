@@ -40,15 +40,20 @@
 .property-panel-handler:hover {
     background-color: var(--primary);
 }
+.damn {
+    transition: background 0.2s;
+}
+.damn:hover {
+    background-color: var(--grey50);
+}
 
 .panel-constraints {
     display: grid;
     row-gap: 16px;
-    padding: 4px 8px 0 16px;
-    grid-template-columns: 1fr 32px;
+    padding: 2px 6px 0 12px;
+    grid-template-columns: 1fr;
     column-gap: 8px;
 }
-
 
 .panel-decl {
     display: grid;

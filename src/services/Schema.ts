@@ -65,7 +65,7 @@ export const schemaToCommonModel = (entry: Schema.Entry, name?: string): CommonM
             id: cn.nodeId,
             name: cn.name,
             properties: [],
-            colorSlot: new ColorSlot(figmaColorScheme[i]).asObject(),
+            colorSlot: new ColorSlot(figmaColorScheme[i % figmaColorScheme.length]).asObject(),
         }
     })
 

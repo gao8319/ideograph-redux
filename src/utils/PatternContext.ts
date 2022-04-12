@@ -11,6 +11,7 @@ import { ElementType } from "@fluentui/react";
 
 const MaybeUndefined = <T extends any>(value: T) => value as (T | undefined)
 
+
 export interface ILogicOperator {
     type: (BinaryLogicOperator | UnaryLogicOperator);
     id: string;
@@ -161,7 +162,7 @@ export class IdeographPatternContext implements IPatternContext {
             })),
             constraints: this._maxSubgraphConstraints.map(c => ({
                 patternId: c.id,
-                targetType: c.targetType === VisualElementType.Node?"Node":"Edge",
+                targetType: c.targetType === VisualElementType.Node ? "Node" : "Edge",
                 targetPatternId: c.targetId,
                 property: c.property?.name!,
                 operator: "MatchRegex",

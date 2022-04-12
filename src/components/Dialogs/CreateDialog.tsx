@@ -103,39 +103,46 @@ export const CreateDialog = (props: ICreateDialogProps) => {
                             border: '1px solid transparent',
                             background: 'var(--grey50)',
                             color: '#000!important',
-                            borderRadius: 0,
+
+                            borderRadius: 3,
                             padding: 0,
                         },
                         dropdown: {
                             height: 36,
                             padding: 0,
+                            borderRadius: 3,
                         },
 
                         dropdownItem: {
                             height: 36,
                             padding: 0,
+                            borderRadius: 3,
                         },
                         callout: {
-                            borderRadius: 0,
+                            borderRadius: 3,
                         },
                         caretDownWrapper: {
                             height: '100%',
                             display: 'inline-flex',
                             alignItems: 'center',
+                            borderRadius: 3,
                         },
                         dropdownItemsWrapper: {
                             height: 36,
                             padding: 0,
+                            borderRadius: 3,
 
                         }
                         ,
                         dropdownItems: {
                             height: 36,
                             padding: 0,
+                            borderRadius: 3,
                         },
                         dropdownItemSelected: {
                             height: 36,
                             background: `var(--primary)!import`,
+                            borderRadius: 3,
                         },
 
                     }}
