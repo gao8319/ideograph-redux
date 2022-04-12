@@ -5,17 +5,17 @@ interface IIdentifiable<K extends PropertyKey> {
 export class DisjointSet<K extends PropertyKey = PropertyKey, T extends any = IIdentifiable<K>> {
 
     public _parent: Record<PropertyKey, T>;
-    public _rank: Record<PropertyKey, number>;
-    public _size: Record<PropertyKey, number>;
+    // public _rank: Record<PropertyKey, number>;
+    // public _size: Record<PropertyKey, number>;
     public _sets: number;
     public _idAccessorFn: (obj: T) => K;
 
-    public get trees() { return this._size; }
+    public get trees() { return 1; }
 
     constructor(idAccessorFn: (obj: T) => K) {
         this._parent = {};
-        this._rank = {};
-        this._size = {};
+        // this._rank = {};
+        // this._size = {};
         this._sets = 0;
         this._idAccessorFn = idAccessorFn;
     }
@@ -52,8 +52,8 @@ export class DisjointSet<K extends PropertyKey = PropertyKey, T extends any = II
 
     private clear() {
         this._parent = {};
-        this._rank = {};
-        this._size = {};
+        // this._rank = {};
+        // this._size = {};
         this._sets = 0;
         return this;
     }
@@ -92,16 +92,16 @@ export class DisjointSet<K extends PropertyKey = PropertyKey, T extends any = II
         return this._parent[this._idAccessorFn(value)] === value;
     }
 
-    public isSingleton(value: T) {
-        return this._size[this._idAccessorFn(value)] === 1;
-    }
+    // public isSingleton(value: T) {
+    //     return this._size[this._idAccessorFn(value)] === 1;
+    // }
 
     public makeSet(value: T) {
         if (!this.includes(value)) {
             const id = this._idAccessorFn(value);
             this._parent[id] = value;
-            this._rank[id] = 0;
-            this._size[id] = 1;
+            // this._rank[id] = 0;
+            // this._size[id] = 1;
             this._sets += 1;
         }
 
@@ -114,8 +114,8 @@ export class DisjointSet<K extends PropertyKey = PropertyKey, T extends any = II
                 if (!this.includes(v)) {
                     const id = this._idAccessorFn(v);
                     this._parent[id] = v;
-                    this._rank[id] = 0;
-                    this._size[id] = 1;
+                    // this._rank[id] = 0;
+                    // this._size[id] = 1;
                     this._sets += 1;
                 }
             }
@@ -123,34 +123,51 @@ export class DisjointSet<K extends PropertyKey = PropertyKey, T extends any = II
         return this;
     }
 
-    public setSize(value: T) {
-        if (!this.includes(value)) {
-            return 0;
-        }
-        return this._size[this._idAccessorFn(this._findSet(value))];
+    // public setSize(value: T) {
+    //     if (!this.includes(value)) {
+    //         return 0;
+    //     }
+    //     return this._size[this._idAccessorFn(this._findSet(value))];
+    // }
+
+
+    public setParentTo(children:T, parent: T) {
+        const childrenId = this._idAccessorFn(children)
+        this._parent[childrenId] = parent;
+        Object.keys(this._parent).forEach(
+            it => {
+                const attached = this._parent[it]
+                const attachedId = this._idAccessorFn(attached)
+                if(this._idAccessorFn(this._parent[attachedId]) == childrenId) {
+                    this.setParentTo(this._parent[it], parent)
+                }
+            }
+        )
     }
 
     public union(parent: T, children: T) {
+        // x <- y
         if (this.includes(parent) && this.includes(children)) {
-            let xRep = this._findSet(parent);
-            let yRep = this._findSet(children);
+            const xParent = this._findSet(parent);
+            const yParent = this._findSet(children);
 
-            if (xRep !== yRep) {
-                let xRepId = this._idAccessorFn(xRep);
-                let yRepId = this._idAccessorFn(yRep);
-                const rankDiff = this._rank[xRepId] - this._rank[yRepId];
+            if (xParent !== yParent) {
+                // let xParentId = this._idAccessorFn(xParent);
+                // let yParentId = this._idAccessorFn(yParent);
+                // const rankDiff = this._rank[xRepId] - this._rank[yRepId];
 
-                if (rankDiff === 0) {
-                    this._rank[xRepId] += 1;
-                }
+                // if (rankDiff === 0) {
+                //     this._rank[xRepId] += 1;
+                // }
                 //  else if (rankDiff < 0) {
                 //     [xRep, yRep] = [yRep, xRep];
                 //     [xRepId, yRepId] = [yRepId, xRepId];
                 // }
 
-                this._parent[yRepId] = xRep;
-                this._size[xRepId] += this._size[yRepId];
-                delete this._size[yRepId];
+                // this._parent[yParentId] = this._parent[xParentId];
+                this.setParentTo(children, parent);
+                // this._size[xParentId] += this._size[yParentId];
+                // delete this._size[yParentId];
                 this._sets -= 1;
             }
         }

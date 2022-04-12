@@ -7,6 +7,7 @@ import { VisualElementType } from "../engine/visual/VisualElement";
 import { IdeographIR } from "./IR";
 import { Solution } from "../services/PatternSolution";
 import { ElementType } from "@fluentui/react";
+import { MaximumSubgraph } from "./common/maximumSubgraph";
 
 
 const MaybeUndefined = <T extends any>(value: T) => value as (T | undefined)
@@ -76,6 +77,7 @@ export class IdeographPatternContext implements IPatternContext {
         this.nodes = nodes;
         this.edges = edges;
         this.constraintContext = constraintContext;
+        debugger
         this.nodeHashMap = _.keyBy(nodes, n => n.id);
     }
 
@@ -92,22 +94,28 @@ export class IdeographPatternContext implements IPatternContext {
     }
 
     private findLargestConnectedNodes = async (emitWarnings = false) => {
-        const disjointSet = new DisjointSet((n: IPatternNode) => n.id);
-        disjointSet.makeSetByArray(this.nodes)
 
+        const subgraph = new MaximumSubgraph(this.nodes)
+
+
+
+        // const disjointSet = new DisjointSet((n: IPatternNode) => n.id);
+        // disjointSet.makeSetByArray(this.nodes)
+
+        // debugger
         this.edges.forEach(
             e => {
                 const from = this.nodeHashMap[e.from];
                 const to = this.nodeHashMap[e.to];
-                from && to && disjointSet.union(from, to);
+                from && to && subgraph.union(to, from);
             }
         );
 
-        const selectedRoot = _.maxBy(Object.entries(disjointSet.trees), i => i[1]);
+        // const selectedRoot = _.maxBy(Object.entries(disjointSet.trees), i => i[1]);
 
-        if (!selectedRoot) return [];
+        // if (!selectedRoot) return [];
 
-        const selectedRootId = selectedRoot[0];
+        // const selectedRootId = selectedRoot[0];
 
         // const disjointParents = disjointSet.parents;
 
@@ -122,9 +130,7 @@ export class IdeographPatternContext implements IPatternContext {
         // ) ?? [null, null];
 
 
-        const largestSubgraphNodeIds = Object.entries(disjointSet.parents).filter(
-            pair => pair[1].id === selectedRootId
-        ).map(pair => pair[0])
+        const largestSubgraphNodeIds = subgraph.SolvedId()
 
         // console.log(largestSubgraphNodeIds);
 
@@ -141,6 +147,7 @@ export class IdeographPatternContext implements IPatternContext {
 
     public generatePrunnedPattern = async (): Promise<Solution.Pattern> => {
         await this.findLargestConnectedNodes();
+        debugger
         const validConstraints = this.constraintContext.constraints.filter(
             constraint => {
                 return (constraint.targetType === VisualElementType.Node && this._maxSubgraphNodeHashMap?.[constraint.targetId])
@@ -149,6 +156,7 @@ export class IdeographPatternContext implements IPatternContext {
         )
         this._maxSubgraphConstraints = validConstraints;
 
+        debugger    
         return {
             nodes: this._maxSubgraphNodes!.map(n => ({
                 patternId: n.id,
