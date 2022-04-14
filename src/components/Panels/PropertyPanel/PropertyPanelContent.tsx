@@ -10,7 +10,7 @@ import { VisualElementType } from "../../../engine/visual/VisualElement";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { addConstraint, addConstraintToContext, constraintsSelectors, deleteConstraint, modifyConstraint } from "../../../store/slice/constraintSlicer";
 import { elementConstraintsSelector, focusElementSelector, modelSelector, projectNameSelector, workspaceNameSelector } from "../../../store/slice/modelSlicer";
-import { deleteNode } from "../../../store/slice/nodeSlicer";
+import { deleteNode, nodesSelectors } from "../../../store/slice/nodeSlicer";
 import { IPatternNode } from "../../../utils/common/graph";
 import { CommonModel } from "../../../utils/common/model";
 import { ComparisonOperator } from "../../../utils/common/operator";
@@ -38,6 +38,7 @@ export const PropertyPanelContent = (props: IPropertyPanelContent) => {
 
     // const constraints = useAppSelector(elementConstraintsSelector);
     const constraints = useAppSelector(constraintsSelectors.selectAll);
+    const nodes = useAppSelector(nodesSelectors.selectAll);
     const [isConstraintDialogOpen, setConstraintDialogOpen] = useState(false);
 
     const addButtonRef = useRef<HTMLDivElement>(null);
@@ -131,12 +132,13 @@ export const PropertyPanelContent = (props: IPropertyPanelContent) => {
                 {
                     constraints.map(
                         c => {
+                            const targetNode = nodes.find(n => n.id === c.targetId)
                             return <div
                                 draggable
                                 key={c.id}
                                 style={{
                                     display: 'grid',
-                                    gridTemplateColumns: '16px 1fr 32px 32px',
+                                    gridTemplateColumns: '16px 80px 1fr 32px 32px',
                                     // background: 'var(--grey20)',
                                     padding: '4px 2px',
                                     borderRadius: 4,
@@ -145,6 +147,12 @@ export const PropertyPanelContent = (props: IPropertyPanelContent) => {
                                 className="damn"
                             >
                                 <Draggable16 style={{ transform: 'translate(-2px)' }} />
+                                <div style={{ display: 'flex', height: '100%', alignItems: 'center', }}>
+                                    <svg width={16} height={16}>
+                                        <circle cx={8} cy={8} r={8} fill={targetNode?.class.colorSlot.primary} />
+                                    </svg>
+                                    <div className="truncate" style={{ width: 56, margin: '0 4px', overflow: 'hidden', textOverflow: 'hidden', fontSize: 13 }}>{targetNode?.alias ?? targetNode?.id}</div>
+                                </div>
                                 <ConstraintField
                                     node={focusElement as IPatternNode}
                                     class={focusElement.class}

@@ -164,6 +164,7 @@ export const ConstraintField = React.forwardRef<IConstraintFieldRef, IConstraint
             }
                 ref={rootRef}
             >
+
                 <ConstraintBlockInput
                     inputProps={getInputProps()}
                     placeholder="属性名"

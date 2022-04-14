@@ -1,6 +1,7 @@
 import { VisualElementType } from "../../../engine/visual/VisualElement";
-import { useAppSelector } from "../../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { focusElementSelector, modelSelector } from "../../../store/slice/modelSlicer";
+import { modifyNode } from "../../../store/slice/nodeSlicer";
 import { IPatternNode } from "../../../utils/common/graph";
 import { CommonModel } from "../../../utils/common/model";
 import { ClassDropdownField, EdgeDropdownField } from "../../ConstraintsEditor/DropdownField";
@@ -15,6 +16,7 @@ interface IElementMetaField {
 export const ElementMetaField = (props: IElementMetaField) => {
     const { focusElement } = props;
     const model = useAppSelector(modelSelector);
+    const dispatch = useAppDispatch();
     if (!focusElement) return <div></div>
     if (focusElement.type === VisualElementType.Node) {
         return <>
@@ -34,7 +36,20 @@ export const ElementMetaField = (props: IElementMetaField) => {
                         onFocus: ev => ev.target.select(),
                         onMouseUp: (ev) => { ev.preventDefault(); },
                     }}
-                    placeholder={focusElement.id} />
+                    placeholder={focusElement.id}
+                    value={(focusElement as IPatternNode).alias}
+                    onChange={(ev) => {
+                        dispatch(
+
+                            modifyNode({
+                                id: focusElement.id,
+                                changes: {
+                                    alias: ev.target.value || undefined
+                                }
+                            })
+                        )
+                    }}
+                    />
             </div>
             <div className="panel-decl col2 hide-padding-top" >
                 <ControlLabel className="offsetx2">X</ControlLabel>

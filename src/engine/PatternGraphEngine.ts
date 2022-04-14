@@ -289,7 +289,6 @@ export class PatternGraphEngine {
                             oc,
                             { x: newEv[0], y: newEv[1] },
                             nanoid(),
-
                         )
                         this._onNodeCreatedCallback?.(n.asObject())
                         this.nodeDict[n.uuid] = n;
@@ -636,6 +635,7 @@ export class PatternGraphEngine {
                 n!.class,
                 n!.position,
                 n!.id,
+                n!.alias,
             )
 
             this._onNodeCreatedCallback?.(patternNode.asObject())

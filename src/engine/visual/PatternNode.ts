@@ -20,7 +20,18 @@ export class PatternNode implements IFocusableElement<VisualElementType.Node> {
 
     // public constraints: PatternConstraint[] = []
     public connections: PatternEdge[] = []
-    public alias?: string
+    public _alias?: string;
+    public get alias() { return this._alias}
+
+    public set alias(value: string |undefined) {
+        this._alias = value;
+        if(value) {
+            this.renderElements?.root.attr('aliased', true);
+        }
+        else {
+            this.renderElements?.root.attr('aliased', true);
+        }
+    }
     public ontologyClass: CommonModel.IColoredClass
     public readonly uuid: string
     public logicPosition: IPoint
@@ -34,11 +45,13 @@ export class PatternNode implements IFocusableElement<VisualElementType.Node> {
     constructor(
         ontologyClass: CommonModel.IColoredClass,
         position: IPoint,
-        id: string
+        id: string,
+        alias?: string
     ) {
         this.ontologyClass = ontologyClass;
         this.logicPosition = position;
         this.uuid = id;
+        this._alias = alias;
     }
 
     static deserializeFromJSON(json: JSON) {
@@ -80,6 +93,9 @@ export class PatternNode implements IFocusableElement<VisualElementType.Node> {
             .attr('y', 16)
             .attr('fill', this.ontologyClass.colorSlot.darkened)
             .text(this.ontologyClass.name)
+        
+
+        elementGroup.attr('aliased', Boolean(this._alias));
 
         this.renderElements = {
             root: elementGroup,
