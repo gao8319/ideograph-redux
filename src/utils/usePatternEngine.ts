@@ -3,9 +3,10 @@ import { PatternGraphEngine, RaiseMessageCallback } from "../engine/PatternGraph
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { addEdge } from "../store/slice/edgeSlicer";
 import { editModeSelector, editPayloadSelector, elementConstraintsSelector, focusElementSelector, setEditModeWithPayload, setEditPayloadDangerously, setFocus, setModel, workspaceSelector } from "../store/slice/modelSlicer";
-import { addNode } from "../store/slice/nodeSlicer";
-import { CommonModel } from "./common/model"
+import { addNode, nodesSelectors } from "../store/slice/nodeSlicer";
+import { CommonModel } from "./common/model";
 import { isNotEmpty } from "./common/utils";
+import { nameCandidates } from "./NameCandidates";
 
 export const usePatternEngine = (
     modelObject: CommonModel.ISerializedRoot | null,
@@ -27,6 +28,7 @@ export const usePatternEngine = (
     const editMode = useAppSelector(editModeSelector);
     const editPayload = useAppSelector(editPayloadSelector);
 
+    const nodes = useAppSelector(nodesSelectors.selectAll)
 
     useEffect(() => {
         if (containerRef.current && modelInstance) {
@@ -87,6 +89,7 @@ export const usePatternEngine = (
             // engine.setOnConstraintCreatedCallback(c => dispatch(addConstraint(c)))
 
             engine.setOnNodeContextMenu(layoutContextMenu);
+
             engineRef.current = engine;
             return () => {
                 engine.detach();
@@ -95,6 +98,18 @@ export const usePatternEngine = (
             }
         }
     }, deps)
+
+    useEffect(() => {
+        engineRef.current?.setAssignNewName(
+            c => {
+                const className = c.name;
+                const nTh = nodes.filter(n => n.class.id === c.id).length ?? 0
+                const index = nameCandidates[nTh] ?? nTh
+                return className + index
+            }
+        )
+    }, [engineRef, nodes])
+
 
     useEffect(() => {
         if (engineRef.current) {

@@ -24,6 +24,9 @@ export const ConstraintBlockInput = styled(InputBase)(({ theme }) => ({
     fontSize: 14,
     fontFamily: 'var(--font)',
     height: '100%',
+    '&>input': {
+        padding: '4px 0 4px 0!important',
+    },
 }))
 
 export const ConstraintBlockInputMono = styled(InputBase)(({ theme }) => ({

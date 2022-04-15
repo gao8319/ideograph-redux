@@ -12,6 +12,7 @@ import { isNotEmpty } from "../utils/common/utils";
 import { Dictionary } from "lodash";
 import { QueryForageItem } from "../utils/global/Storage";
 import { getDistanceSquared, IPoint } from "../utils/common/layout";
+import { nameCandidates } from "../utils/NameCandidates";
 
 
 const applyCTM = (m: DOMMatrix, p: IPoint) => ({
@@ -86,18 +87,17 @@ export class PatternGraphEngine {
     private _onEdgeCreatedCallback?: (e: IPatternEdge) => void;
     private _onConstraintCreatedCallback?: (c: IConstraint) => void;
     private _onRaiseMessageCallback?: RaiseMessageCallback;
+    private _assignNewName: (c: CommonModel.IClass) => string | undefined = c => {
+        const className = c.name;
+        return className + nameCandidates[0]
+    }
+    public setAssignNewName = (cb: typeof this._assignNewName) => { this._assignNewName = cb }
     public setOnNodeCreatedCallback = (cb: typeof this._onNodeCreatedCallback) => { this._onNodeCreatedCallback = cb; }
     public setOnEdgeCreatedCallback = (cb: typeof this._onEdgeCreatedCallback) => { this._onEdgeCreatedCallback = cb; }
     public setOnConstraintCreatedCallback = (cb: typeof this._onConstraintCreatedCallback) => { this._onConstraintCreatedCallback = cb; }
     public setRaiseMessageCallback = (cb: typeof this._onRaiseMessageCallback) => { this._onRaiseMessageCallback = cb; }
     public setOnNodeContextMenu = (cb: typeof this._onNodeContextMenu) => { this._onNodeContextMenu = cb; }
 
-    // public notifyNodeConstrained(nodeId: IPatternNode['id'], isConstrained = true) {
-    //     this.nodeDict[nodeId].isConstrained = isConstrained;
-    // }
-    // public notifyEdgeConstrained(edgeId: IPatternEdge['id'], isConstrained = true) {
-    //     this.edgeDict[edgeId].isConstrained = isConstrained;
-    // }
 
     public notifyElementConstrained(ele: (IPatternNode | IPatternEdge) & {
         type: VisualElementType;
@@ -193,7 +193,7 @@ export class PatternGraphEngine {
                 }
                 else {
                     const targetColorSet = this.model.colorSlots[this.editPayload!].colorSlot ?? { primary: '#b0b1b4' };
-                    
+
                     const newEv = this.zoomTransform?.invert([ev.offsetX, ev.offsetY]) ?? [ev.offsetX, ev.offsetY]
                     this.mouseIndicatorLayer?.attr('transform', `translate(${newEv[0]}, ${newEv[1]})`)
                     if (!this.nodeIndicator) {
@@ -284,11 +284,11 @@ export class PatternGraphEngine {
                     const oc = this.model.colorSlots[this.editPayload!];
                     if (oc) {
                         const newEv = this.zoomTransform?.invert([ev.offsetX, ev.offsetY]) ?? [ev.offsetX, ev.offsetY]
-                    
                         const n = new PatternNode(
                             oc,
                             { x: newEv[0], y: newEv[1] },
                             nanoid(),
+                            this._assignNewName(oc)
                         )
                         this._onNodeCreatedCallback?.(n.asObject())
                         this.nodeDict[n.uuid] = n;
@@ -472,7 +472,7 @@ export class PatternGraphEngine {
                     Object.values(this.nodeDict).forEach(to => {
                         if (
                             (this.model.connectable[createEdgeFromClassId].to.includes(to.ontologyClass.id)
-                            || (this.dragStartNode?.uuid === to.uuid))
+                                || (this.dragStartNode?.uuid === to.uuid))
                             && Object.values(this.edgeDict).findIndex(
                                 it => (it.from.uuid === this.dragStartNode!.uuid && it.to.uuid === to.uuid)
                                     || it.to.uuid === this.dragStartNode!.uuid && it.from.uuid === to.uuid

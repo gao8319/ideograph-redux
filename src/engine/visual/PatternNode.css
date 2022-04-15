@@ -29,10 +29,10 @@ g.p-n>circle.constrain-ring{
 g.p-n>text.alias{
     opacity: 0;
     visibility: none;
-    display: none;
+    /* display: none; */
     text-anchor: middle;
-    dominant-baseline: center;
-    font-family: "SF Mono";
+    dominant-baseline: central;
+    font-family: var(--mono-font);
     font-size: 14px;
     font-weight: 500;
 }

@@ -28,7 +28,7 @@ export const StyledInput = styled(InputBase)(t => ({
         border: '1px solid var(--primary)'
     },
     '&>input': {
-        padding: '4px 0',
+        padding: '4px 0 4px 0!important',
     },
 }))
 

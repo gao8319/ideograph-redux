@@ -14,6 +14,7 @@ import { deleteNode, nodesSelectors } from "../../../store/slice/nodeSlicer";
 import { IPatternNode } from "../../../utils/common/graph";
 import { CommonModel } from "../../../utils/common/model";
 import { ComparisonOperator } from "../../../utils/common/operator";
+import { pangu } from "../../../utils/common/pangu";
 import { isNotEmpty } from "../../../utils/common/utils";
 import { ConstraintDialog } from "../../ConstraintDialog";
 import { ConstraintCreateBlock } from "../../ConstraintsEditor/ConstraintCreateBlock";
@@ -30,6 +31,15 @@ import { ElementMetaField } from "./ElementMetaField";
 
 interface IPropertyPanelContent {
     engine?: PatternGraphEngine
+}
+
+const formatAlias = (alias: string) => {
+    if (alias.length > 3) {
+        return alias.slice(0, 2) + '...' + alias[alias.length - 1]
+    }
+    else {
+        return pangu.spacing(alias)
+    }
 }
 
 export const PropertyPanelContent = (props: IPropertyPanelContent) => {
@@ -151,7 +161,10 @@ export const PropertyPanelContent = (props: IPropertyPanelContent) => {
                                     <svg width={16} height={16}>
                                         <circle cx={8} cy={8} r={8} fill={targetNode?.class.colorSlot.primary} />
                                     </svg>
-                                    <div className="truncate" style={{ width: 56, margin: '0 4px', overflow: 'hidden', textOverflow: 'hidden', fontSize: 13 }}>{targetNode?.alias ?? targetNode?.id}</div>
+                                    <div className="truncate" style={{ width: 56, margin: '0 4px', overflow: 'hidden', textOverflow: 'hidden', fontSize: 13 }}>{
+                                        targetNode?.alias ? formatAlias(targetNode?.alias)
+                                            : targetNode?.id}
+                                    </div>
                                 </div>
                                 <ConstraintField
                                     node={focusElement as IPatternNode}

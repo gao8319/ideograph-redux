@@ -21,9 +21,9 @@ export const LEFT_MIN = 200;
 export const LEFT_MAX = 420;
 
 
-export const RIGHT_DEFAULT = 360;
-export const RIGHT_MIN = 300;
-export const RIGHT_MAX = 720;
+export const RIGHT_DEFAULT = 480;
+export const RIGHT_MIN = 380;
+export const RIGHT_MAX = 960;
 
 
 export const BOTTOM_DEFAULT = 320;
@@ -382,6 +382,7 @@ export const focusElementSelector = createSelector(
         else return undefined
     }
 )
+
 
 
 export const elementConstraintsSelector = createSelector(

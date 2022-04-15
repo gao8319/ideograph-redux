@@ -25,7 +25,6 @@ const nodesSlicer = createSlice({
             state.ids = actions.payload.ids;
             state.entities = actions.payload.entities;
         }
-
     },
 })
 

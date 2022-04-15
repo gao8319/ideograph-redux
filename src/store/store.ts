@@ -4,7 +4,6 @@ import nodeSlice from './slice/nodeSlicer'
 import edgeSlice from './slice/edgeSlicer'
 import workspaceSlice from './slice/modelSlicer'
 import overviewSlice from './slice/overviewSlicer'
-import thunk from 'redux-thunk'
 
 export const store = configureStore({
     reducer: {

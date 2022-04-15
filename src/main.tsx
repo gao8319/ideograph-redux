@@ -10,7 +10,6 @@ import { OpeningView } from './views/OpeningView'
 import './App.css'
 import { initializeIcons } from '@fluentui/react'
 
-
 ReactDOM.render(
     <React.StrictMode>
         <ThemeProvider theme={muiTheme}>

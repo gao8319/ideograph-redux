@@ -6,6 +6,8 @@ import { Constraint, PrimitiveTypeName } from '../ontology/Constraints'
 import { CommonModel } from "../../utils/common/model";
 import { IPatternNode } from "../../utils/common/graph";
 
+
+
 interface RenderElements {
     root: D3<SVGGElement>;
     ring: D3<SVGCircleElement>;
@@ -21,11 +23,11 @@ export class PatternNode implements IFocusableElement<VisualElementType.Node> {
     // public constraints: PatternConstraint[] = []
     public connections: PatternEdge[] = []
     public _alias?: string;
-    public get alias() { return this._alias}
+    public get alias() { return this._alias }
 
-    public set alias(value: string |undefined) {
+    public set alias(value: string | undefined) {
         this._alias = value;
-        if(value) {
+        if (value) {
             this.renderElements?.root.attr('aliased', true);
         }
         else {
@@ -86,14 +88,14 @@ export class PatternNode implements IFocusableElement<VisualElementType.Node> {
         const aliasText = elementGroup.append('text')
             .attr('class', 'alias')
             .attr('fill', this.ontologyClass.colorSlot.foreground)
-            .text(this.ontologyClass?.name[0] ?? '?')
+            .text(this.alias ? this.alias[this.alias.length - 1] : '')
 
         const typeText = elementGroup.append('text')
             .attr('class', 'type')
             .attr('y', 16)
             .attr('fill', this.ontologyClass.colorSlot.darkened)
             .text(this.ontologyClass.name)
-        
+
 
         elementGroup.attr('aliased', Boolean(this._alias));
 
@@ -179,6 +181,7 @@ export class PatternNode implements IFocusableElement<VisualElementType.Node> {
             constraints: [],
             position: this.logicPosition,
             class: this.ontologyClass,
+            alias: this._alias
         }
     }
 
