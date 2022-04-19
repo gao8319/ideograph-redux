@@ -103,6 +103,9 @@ export const loadFileAsync = (
         const file = await queryForage.getItem<QueryForageItem>(fileId);
 
         if (file) {
+
+            const schema = await fetchSchema();
+
             const dataSource = await dataSourceForage.getItem<DataSourceForageItem>(file.dataSourceId);
 
             dispatch(nodeRenewal(file.nodes))
@@ -121,8 +124,8 @@ export const loadFileAsync = (
                     fileId,
                 })
             )
-            const schema = await fetchSchema()
-            dispatch(setModelBySchema(schema))
+
+            dispatch(setModelBySchema(schema));
             onFileLoaded(file)
         }
     }

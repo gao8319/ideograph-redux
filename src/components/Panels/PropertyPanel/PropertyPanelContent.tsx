@@ -10,7 +10,7 @@ import { VisualElementType } from "../../../engine/visual/VisualElement";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { addConstraint, addConstraintToContext, constraintsSelectors, deleteConstraint, modifyConstraint } from "../../../store/slice/constraintSlicer";
 import { elementConstraintsSelector, focusElementSelector, modelSelector, projectNameSelector, workspaceNameSelector } from "../../../store/slice/modelSlicer";
-import { deleteNode, nodesSelectors } from "../../../store/slice/nodeSlicer";
+import { deleteNode, modifyNode, nodesSelectors } from "../../../store/slice/nodeSlicer";
 import { IPatternNode } from "../../../utils/common/graph";
 import { CommonModel } from "../../../utils/common/model";
 import { ComparisonOperator } from "../../../utils/common/operator";
@@ -29,8 +29,8 @@ import { PanelTitle } from "../common/PanelTitle";
 import { ElementMetaField } from "./ElementMetaField";
 
 
-interface IPropertyPanelContent {
-    engine?: PatternGraphEngine
+interface IPropertyPanelContentProps {
+    engineRef: React.MutableRefObject<PatternGraphEngine | undefined>
 }
 
 const formatAlias = (alias: string) => {
@@ -42,7 +42,7 @@ const formatAlias = (alias: string) => {
     }
 }
 
-export const PropertyPanelContent = (props: IPropertyPanelContent) => {
+export const PropertyPanelContent = (props: IPropertyPanelContentProps) => {
     const dispatch = useAppDispatch()
     const focusElement = useAppSelector(focusElementSelector);
 
@@ -62,7 +62,17 @@ export const PropertyPanelContent = (props: IPropertyPanelContent) => {
 
     return <><div>
         <PanelTitle text="定义" />
-        <ElementMetaField focusElement={focusElement} key={focusElement.id} />
+        <ElementMetaField focusElement={focusElement} key={focusElement.id} onChangeAlias={
+            alias => {
+                dispatch(
+                    modifyNode({
+                        id: focusElement.id,
+                        changes: { alias }
+                    })
+                )
+                props.engineRef.current?.modifyAlias(alias, focusElement.id)
+            }
+        } />
         <div style={{ height: 32 }} />
         {focusElement.class?.properties?.length ? <>
             <PanelTitle text="约束定义" topBordered>

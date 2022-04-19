@@ -109,6 +109,9 @@ export class PatternGraphEngine {
         }
     }
 
+    public modifyAlias(alias: string | undefined, id: string) {
+        this.nodeDict[id].alias = alias
+    }
     private nodeDict: Dictionary<PatternNode> = {};
     private edgeDict: Dictionary<PatternEdge> = {};
 
@@ -630,6 +633,7 @@ export class PatternGraphEngine {
 
 
     public restoreFromFile = (file: QueryForageItem) => {
+        
         Object.values(file.nodes.entities).forEach((n) => {
             const patternNode = new PatternNode(
                 n!.class,

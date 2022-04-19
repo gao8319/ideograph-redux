@@ -76,6 +76,7 @@ export const querySolvePattern = async (pattern: SolvePatternRequest) => {
 }
 
 export const querySolveCompositePattern = async (pattern: SolveCompositePatternRequest) => {
+    postMessage(pattern);
     const response = await axios.post<SolvePatternResponse>(`/api/solveCompositePattern`, pattern)
     return response.data
 }

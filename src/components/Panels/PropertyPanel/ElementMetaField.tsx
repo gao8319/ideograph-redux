@@ -9,7 +9,8 @@ import { InputField } from "../../ConstraintsEditor/InputField"
 import { ControlLabel } from "../common/ControlLabel"
 
 interface IElementMetaField {
-    focusElement: ReturnType<typeof focusElementSelector>
+    focusElement: ReturnType<typeof focusElementSelector>,
+    onChangeAlias: (newAlias: string) => void;
 }
 
 
@@ -39,15 +40,8 @@ export const ElementMetaField = (props: IElementMetaField) => {
                     placeholder={focusElement.id}
                     value={(focusElement as IPatternNode).alias}
                     onChange={(ev) => {
-                        dispatch(
-
-                            modifyNode({
-                                id: focusElement.id,
-                                changes: {
-                                    alias: ev.target.value || undefined
-                                }
-                            })
-                        )
+                        const newName = ev.target.value || ""
+                        props.onChangeAlias(newName)
                     }}
                     />
             </div>

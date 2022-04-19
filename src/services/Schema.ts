@@ -86,13 +86,7 @@ export const schemaToCommonModel = (entry: Schema.Entry, name?: string): CommonM
             name: rce.name
         }
     })
-
-    console.log({
-        name: String(name),
-        classes,
-        relations
-    })
-
+    
     return {
         name: String(name),
         classes,

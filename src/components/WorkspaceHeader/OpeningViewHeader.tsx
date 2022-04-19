@@ -49,8 +49,5 @@ export const OpeningViewHeader = () => {
 
         <HeaderSearchInput renderSuffix={_ => <Search16 fill="#888888" />} placeholder="搜索数据源、查询历史或查询结果..." />
 
-        {/* <WorkspaceCommand activated={false} style={{ position: 'absolute', right: 0 }}>
-            <Image src="/static/ideograph.png" width={24} height={24} />
-        </WorkspaceCommand> */}
     </div>
 }

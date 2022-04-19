@@ -15,6 +15,7 @@ interface RenderElements {
     aliasText: D3<SVGTextElement>;
     typeText: D3<SVGTextElement>;
     selection: D3<SVGCircleElement>;
+    aliasContainer: D3<SVGRectElement>;
 }
 
 export class PatternNode implements IFocusableElement<VisualElementType.Node> {
@@ -27,11 +28,28 @@ export class PatternNode implements IFocusableElement<VisualElementType.Node> {
 
     public set alias(value: string | undefined) {
         this._alias = value;
-        if (value) {
+        if (value !== undefined) {
             this.renderElements?.root.attr('aliased', true);
+            const aliasTextString = this.getRenderedAlias(value)
+            if (this.renderElements) {
+                this.renderElements.aliasText.text(aliasTextString)
+                if (aliasTextString.length > 0) {
+                    const aliasWidth = this.renderElements.aliasText.node()?.getBoundingClientRect().width ?? 0;
+                    const typeWidth = this.renderElements.typeText.node()?.getBoundingClientRect().width ?? 0;
+                    this.renderElements.typeText.attr('x', -(typeWidth + aliasWidth + 12) / 2)
+                    this.renderElements.aliasText.attr('x', -(typeWidth + aliasWidth + 12) / 2 + typeWidth + 8)
+                    this.renderElements.aliasContainer.attr('width', aliasTextString.length > 0 ? (aliasWidth + 12) : 0)
+                        .attr('x', -(typeWidth + aliasWidth + 12) / 2 + typeWidth + 2)
+                }
+                else {
+                    const typeWidth = this.renderElements.typeText.node()?.getBoundingClientRect().width ?? 0;
+                    this.renderElements.typeText.attr('x', -typeWidth / 2)
+                    this.renderElements.aliasContainer.attr('width', 0)
+                }
+            }
         }
         else {
-            this.renderElements?.root.attr('aliased', true);
+            this.renderElements?.root.attr('aliased', false);
         }
     }
     public ontologyClass: CommonModel.IColoredClass
@@ -60,6 +78,13 @@ export class PatternNode implements IFocusableElement<VisualElementType.Node> {
 
     }
 
+    public getRenderedAlias(alias: string) {
+        if (alias.startsWith(this.ontologyClass.name)) {
+            return alias.replace(this.ontologyClass.name, '')
+        }
+        return alias
+    }
+
     public attachTo(
         parent: D3<SVGGElement>
     ) {
@@ -85,16 +110,41 @@ export class PatternNode implements IFocusableElement<VisualElementType.Node> {
             .attr('r', 15)
             .attr('stroke', this.ontologyClass.colorSlot.constrained)
 
+        const aliasContainer = elementGroup.append('rect')
+            .attr('class', 'alias-rect')
+            .attr('y', 16)
+            .attr('height', 16)
+            .attr('rx', 8)
+            .attr('ry', 8)
+            .attr('fill', this.ontologyClass.colorSlot.constrained)
+
+        const aliasTextString = this.alias ? this.getRenderedAlias(this.alias) : ''
         const aliasText = elementGroup.append('text')
             .attr('class', 'alias')
+            .attr('y', 24)
             .attr('fill', this.ontologyClass.colorSlot.foreground)
-            .text(this.alias ? this.alias[this.alias.length - 1] : '')
+            .text(aliasTextString)
 
         const typeText = elementGroup.append('text')
             .attr('class', 'type')
-            .attr('y', 16)
+            .attr('y', 24)
             .attr('fill', this.ontologyClass.colorSlot.darkened)
             .text(this.ontologyClass.name)
+
+        if (aliasTextString.length > 0) {
+            const aliasWidth = aliasText.node()?.getBoundingClientRect().width ?? 0;
+            const typeWidth = typeText.node()?.getBoundingClientRect().width ?? 0;
+
+            typeText.attr('x', -(typeWidth + aliasWidth + 12) / 2)
+            aliasText.attr('x', -(typeWidth + aliasWidth + 12) / 2 + typeWidth + 8)
+            aliasContainer.attr('width', aliasTextString.length > 0 ? (aliasWidth + 12) : 0)
+                .attr('x', -(typeWidth + aliasWidth + 12) / 2 + typeWidth + 2)
+        }
+        else {
+            const typeWidth = typeText.node()?.getBoundingClientRect().width ?? 0;
+            typeText.attr('x', -typeWidth / 2)
+        }
+
 
 
         elementGroup.attr('aliased', Boolean(this._alias));
@@ -106,6 +156,7 @@ export class PatternNode implements IFocusableElement<VisualElementType.Node> {
             aliasText,
             typeText,
             selection,
+            aliasContainer
         }
     }
 

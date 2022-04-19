@@ -214,7 +214,7 @@ const describeConstraint = (c: IConstraint | Update<IConstraint>) => {
     //@ts-ignore
     else {         //@ts-ignore
         const ic = c as IConstraint
-        if ((ic.expression || ic.property) && ic.operator && ic.value)
+        if ((ic.expression || ic.property) && isNotEmpty(ic.operator) && ic.value)
             return `${ic.expression ?? ic.property?.name} ${operatorLiteral[ic.operator ?? 0]} ${ic.value}`;
         return ""
     }
@@ -280,7 +280,6 @@ export const createConstraintNode = (g: Graph, c: IConstraint, position?: IPoint
 
 
 export const removeConstraintNode = (g: Graph, cid: IConstraint['id']) => {
-
     g.removeNode(cid)
 }
 

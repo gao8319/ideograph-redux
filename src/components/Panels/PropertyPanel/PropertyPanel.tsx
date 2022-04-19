@@ -4,9 +4,10 @@ import { leftPanelWidthSelector, LEFT_MAX, LEFT_MIN, rightPanelWidthSelector, RI
 import './PropertyPanel.css'
 import Draggable from 'react-draggable';
 import { PropertyPanelContent } from "./PropertyPanelContent";
+import { PatternGraphEngine } from "../../../engine/PatternGraphEngine";
 
 interface IPropertyPanelProps {
-
+    engineRef: React.MutableRefObject<PatternGraphEngine|undefined>
 }
 
 const resizeBound = { left: RIGHT_DEFAULT - RIGHT_MAX, right: RIGHT_DEFAULT - RIGHT_MIN }
@@ -24,8 +25,8 @@ export const PropertyPanel = (props: IPropertyPanelProps) => {
 
     const content = useMemo(
         () => {
-            return <PropertyPanelContent />
-        }, [])
+            return <PropertyPanelContent engineRef={props.engineRef}/>
+        }, [props.engineRef])
 
     return <div className="property-panel-root panel" ref={rootRef} style={{ width: width }}>
         {content}

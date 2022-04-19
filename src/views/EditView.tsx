@@ -69,7 +69,6 @@ export const EditView = () => {
 
             dispatch(loadFileAsync(fileId, (f) => {
                 setFileCache(f)
-                f.constraintContext
             }))
 
             if (!model) {
@@ -139,7 +138,7 @@ export const EditView = () => {
                 </Snackbar>}
                 <div ref={containerRef} className="engine-root-container" />
                 <ConceptPanel />
-                <PropertyPanel />
+                <PropertyPanel engineRef={engineRef}/>
                 <GlobalPanelContent ref={globalConstraintPoolRef} initialContext={
                     fileCache ? getConstraintContextFromQueryForage(fileCache) : undefined
                 } />
