@@ -44,7 +44,7 @@ export const RenameDialog = (props: IRenameDialogProps) => {
                     <PanelTitle text={pangu.spacing(`重命名“${props.file.name}”`)} topUnpadded />
                 </div>
                 <div style={{ display: 'flex' }}>
-                    <ActionButtonTiny onClick={props.onDismiss}>
+                    <ActionButtonTiny>
                         <Close20 />
                     </ActionButtonTiny>
                 </div>
@@ -73,7 +73,7 @@ export const RenameDialog = (props: IRenameDialogProps) => {
                 />
             </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', columnGap: 16, padding: '36px 24px 24px' }}>
-                <StyledDefaultButton style={{ width: '100%' }} onClick={props.onDismiss}>取消</StyledDefaultButton>
+                <StyledDefaultButton style={{ width: '100%' }}>取消</StyledDefaultButton>
                 <StyledButton style={{ width: '100%' }} onClick={() => {
                     const fileId = nanoid();
                     dispatch(
@@ -83,7 +83,7 @@ export const RenameDialog = (props: IRenameDialogProps) => {
                             name,
                         )
                     )
-                    props.onDismiss();
+                    // props.onDismiss();
                 }}>确定</StyledButton>
             </div>
         </div>

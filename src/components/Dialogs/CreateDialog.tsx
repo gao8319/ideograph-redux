@@ -60,7 +60,7 @@ const DataSourceTitle = (props?: ISelectableOption<DataSourceForageItem>) => {
 export const CreateDialog = (props: ICreateDialogProps) => {
 
     const overviews = useAppSelector(overviewSelectors);
-    const [name, setName] = useState(pangu.spacing(`查询${_.sum(overviews.map(o=>o.queries.length))+1}`));
+    const [name, setName] = useState(pangu.spacing(`查询${_.sum(overviews.map(o => o.queries.length)) + 1}`));
     const [dataSourceId, setDataSourceId] = useState<string>(overviews[0].dataSource.id);
     const inputRef = useRef<HTMLInputElement>(null);
     const dispatch = useAppDispatch();
@@ -91,7 +91,7 @@ export const CreateDialog = (props: ICreateDialogProps) => {
                 <StyledInput
                     onMouseUp={ev => (ev.target as HTMLInputElement).select()}
                     value={name} style={{ gridColumnEnd: 4, gridColumnStart: 2 }}
-                    onChange={ev => setName(ev.target.value ?? pangu.spacing(`查询${_.sum(overviews.map(o=>o.queries.length))}`))}
+                    onChange={ev => setName(ev.target.value ?? pangu.spacing(`查询${_.sum(overviews.map(o => o.queries.length))}`))}
                     inputRef={inputRef}
                 />
                 <span>将要连接的数据库<span style={{ color: 'red', paddingLeft: 2 }}>*</span></span>
@@ -180,7 +180,7 @@ export const CreateDialog = (props: ICreateDialogProps) => {
                             name,
                         )
                     )
-                    navigate(`file?fileId=${fileId}` )
+                    navigate(`file?fileId=${fileId}`, { state: { fileId } })
                 }}>确定</StyledButton>
             </div>
         </div>

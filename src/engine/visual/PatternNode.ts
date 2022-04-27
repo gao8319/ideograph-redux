@@ -1,8 +1,7 @@
-import { IFocusableElement, IVisualElement, VisualElementType } from "./VisualElement";
+import { IFocusableElement, VisualElementType } from "./VisualElement";
 import './PatternNode.css'
 import { PatternEdge } from "./PatternEdge";
 import { IPoint } from "../../utils/common/layout";
-import { Constraint, PrimitiveTypeName } from '../ontology/Constraints'
 import { CommonModel } from "../../utils/common/model";
 import { IPatternNode } from "../../utils/common/graph";
 

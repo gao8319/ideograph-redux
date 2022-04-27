@@ -129,7 +129,8 @@ const dateFormatter = Intl.DateTimeFormat('zh-CN', {
     minute: '2-digit'
 });
 
-export const OpeningView = () => {
+export function OpeningView() {
+
     const lPanelWidth = useAppSelector(leftPanelWidthSelector);
     const [activeTab, setActiveTab] = useState(0);
     const [dialog, setDialog] = useState<DialogType>();
@@ -156,7 +157,7 @@ export const OpeningView = () => {
 
     return <>
         <OpeningViewHeader />
-                
+
         <div style={{ backgroundColor: '#fff', height: 'calc(100vh - 48px)', width: '100vw', position: 'relative', display: 'grid', gridTemplateColumns: `${lPanelWidth + 1}px 1fr` }}>
             {/* <div className="concept-panel-root panel opening-left-panel" style={{ width: lPanelWidth }}>
                 <div style={{ height: '100%', padding: '16px 0', gridTemplateRows: 'auto 1fr auto', display: 'grid' }}>
@@ -200,7 +201,7 @@ export const OpeningView = () => {
 
                                 dispatch(
                                     tryImportFileAsync(parsed,
-                                        () => navigate(`file?fileId=${parsed.id}`))
+                                        () => navigate(`file?fileId=${parsed.id}`, { state: { fileId: parsed.id } }))
                                 )
 
                             }
@@ -305,7 +306,7 @@ export const OpeningView = () => {
                                         f => <DocumentButton
                                             key={f.id}
                                             onClick={_ => {
-                                                navigate(`file?fileId=${f.id}`)
+                                                navigate(`file?fileId=${f.id}`,  { state: { fileId: f.id } })
                                             }}
                                             onContextMenu={ev => {
                                                 setContextMenuTarget({ event: ev.nativeEvent, file: f });

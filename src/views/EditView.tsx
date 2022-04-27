@@ -16,7 +16,7 @@ import { ActionButtonTiny, ActionButtonTinyDark } from '../components/Panels/com
 import { CodeEditor } from '../components/CodeEditor/CodeEditor';
 import { PanelTitle } from '../components/Panels/common/PanelTitle';
 import { GlobalPanelContent, IGlobalPanelContentRef } from '../components/Panels/GlobalPanel/GlobalPanelContent';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { fetchSchema } from '../services/Schema';
 import { QueryModal } from '../components/QueryModal/QueryModal';
 import { useSearchParam, useTitle } from 'react-use';
@@ -40,7 +40,9 @@ export const EditView = () => {
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackBarContent, setSnackBarContent] = useState<Parameters<RaiseMessageCallback> & { timestamp: number }>();
 
-    const fileId = useSearchParam('fileId');
+    // const {fileId} = useParams();
+    const { state } = useLocation();
+    
 
     const [contextMenuTarget, setContextMenuTarget] = useState<{ node: PatternNode, event: MouseEvent }>();
 
@@ -64,10 +66,10 @@ export const EditView = () => {
     }, [fileCache])
 
     useEffect(() => {
+        console.log(state);
+        if ((state as any)?.fileId) {
 
-        if (fileId) {
-
-            dispatch(loadFileAsync(fileId, (f) => {
+            dispatch(loadFileAsync((state as any).fileId, (f) => {
                 setFileCache(f)
             }))
 
@@ -122,7 +124,7 @@ export const EditView = () => {
 
     return (
         <>
-        
+
             <WorkspaceHeader />
             <div className='workspace-container'>
                 {snackbarOpen && <Snackbar
@@ -138,7 +140,7 @@ export const EditView = () => {
                 </Snackbar>}
                 <div ref={containerRef} className="engine-root-container" />
                 <ConceptPanel />
-                <PropertyPanel engineRef={engineRef}/>
+                <PropertyPanel engineRef={engineRef} />
                 <GlobalPanelContent ref={globalConstraintPoolRef} initialContext={
                     fileCache ? getConstraintContextFromQueryForage(fileCache) : undefined
                 } />
@@ -232,8 +234,8 @@ export const EditView = () => {
                     </div>
                 </>}
             {isQueryModalOpen && <QueryModal getConstraintContext={getConstraintContext} onSaveHistory={history => {
-                if (fileId)
-                    patternHistoryForage.setItem(fileId, history)
+                if ((state as any)?.fileId)
+                    patternHistoryForage.setItem((state as any).fileId, history)
             }} />}
         </>
     )

@@ -7,76 +7,76 @@ import { applyQuery, editModeSelector, exportToJson, setEditMode } from "../stor
 
 
 export const useShortcutSet = () => {
-    const dispatch = useAppDispatch();
-    const editMode = useAppSelector(editModeSelector);
+//     const dispatch = useAppDispatch();
+//     const editMode = useAppSelector(editModeSelector);
 
-    useHotkeys(
-        'v',
-        e => {
-            dispatch(setEditMode(EditMode.Default))
-        }
-    );
+//     useHotkeys(
+//         'v',
+//         e => {
+//             dispatch(setEditMode(EditMode.Default))
+//         }
+//     );
 
-    useHotkeys(
-        'o',
-        e => {
-            dispatch(setEditMode(EditMode.CreatingNode))
-        }
-    )
+//     useHotkeys(
+//         'o',
+//         e => {
+//             dispatch(setEditMode(EditMode.CreatingNode))
+//         }
+//     )
 
-    useHotkeys(
-        'l',
-        e => {
-            dispatch(setEditMode(EditMode.CreatingEdgeFrom))
-        }
-    )
+//     useHotkeys(
+//         'l',
+//         e => {
+//             dispatch(setEditMode(EditMode.CreatingEdgeFrom))
+//         }
+//     )
 
-    useHotkeys(
-        'ctrl+s',
-        e => {
-            dispatch(applyQuery())
-        }
-    )
+//     useHotkeys(
+//         'ctrl+s',
+//         e => {
+//             dispatch(applyQuery())
+//         }
+//     )
 
-    useHotkeys(
-        'ctrl+e',
-        e => {
-            dispatch(exportToJson())
-        }
-    )
+//     useHotkeys(
+//         'ctrl+e',
+//         e => {
+//             dispatch(exportToJson())
+//         }
+//     )
 
 
-}
+// }
 
-export const useIdeographShortcuts = (
+// export const useIdeographShortcuts = (
 
-) => {
-    const dispatch = useAppDispatch();
-    const editMode = useAppSelector(editModeSelector)
+// ) => {
+//     const dispatch = useAppDispatch();
+//     const editMode = useAppSelector(editModeSelector)
 
-    const controlPressed = useKeyPress('Meta')[0]
+//     const controlPressed = useKeyPress('Meta')[0]
 
-    useKey('v', e => {
-        if((e.target as HTMLElement))
-        dispatch(setEditMode(EditMode.Default))
-    }, { event: 'keypress', target: window }, [editMode]);
+//     useKey('v', e => {
+//         if((e.target as HTMLElement))
+//         dispatch(setEditMode(EditMode.Default))
+//     }, { event: 'keypress', target: window }, [editMode]);
 
-    useKey('n', e => {
-        dispatch(setEditMode(EditMode.CreatingNode))
-    }, { event: 'keypress', target: window }, [editMode]);
+//     useKey('n', e => {
+//         dispatch(setEditMode(EditMode.CreatingNode))
+//     }, { event: 'keypress', target: window }, [editMode]);
 
-    useKey('e', e => {
-        dispatch(setEditMode(EditMode.CreatingEdgeFrom))
-    }, { event: 'keypress', target: window }, [editMode]);
+//     useKey('e', e => {
+//         dispatch(setEditMode(EditMode.CreatingEdgeFrom))
+//     }, { event: 'keypress', target: window }, [editMode]);
 
-    useKey('i', e => {
-        // edit
-        // dispatch()
-    });
+//     useKey('i', e => {
+//         // edit
+//         // dispatch()
+//     });
 
-    useKey('Enter', e => {
-        if (controlPressed) {
-            dispatch(applyQuery())
-        }
-    }, { event: 'keydown', target: window }, [controlPressed]);
+//     useKey('Enter', e => {
+//         if (controlPressed) {
+//             dispatch(applyQuery())
+//         }
+//     }, { event: 'keydown', target: window }, [controlPressed]);
 }

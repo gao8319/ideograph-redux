@@ -3,6 +3,8 @@ import {
     BrowserRouter,
     Routes,
     Route,
+    MemoryRouter,
+    
 } from "react-router-dom";
 import { prepareCypherSyntaxHighlights } from "./utils/CypherTextmate";
 import { wireTmGrammars } from "./utils/editor-wire";
@@ -12,18 +14,18 @@ import * as monaco from 'monaco-editor';
 
 
 const App = () => {
-    useEffect(() => {
-        prepareCypherSyntaxHighlights()
-            .then(cypherTmLangSupport => {
-                wireTmGrammars(monaco, cypherTmLangSupport.registry, cypherTmLangSupport.grammars);
-            })
-    }, [])
-    return <BrowserRouter>
+    // useEffect(() => {
+    //     prepareCypherSyntaxHighlights()
+    //         .then(cypherTmLangSupport => {
+    //             wireTmGrammars(monaco, cypherTmLangSupport.registry, cypherTmLangSupport.grammars);
+    //         })
+    // }, [])
+    return <MemoryRouter>
         <Routes>
             <Route path="/" element={<OpeningView />} />
             <Route path="file" element={<EditView />} />
         </Routes>
-    </BrowserRouter>
+    </MemoryRouter>
 };
 
 export default App;

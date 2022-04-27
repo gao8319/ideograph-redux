@@ -81,11 +81,13 @@ export const QueryModal = (props: IQueryModalProps) => {
                             it => ({ patternId: it.id, type: Solution.LogicOperator2Literal[it.type] })
                         ) ?? []
                     }
+                    console.log(compositePattern, top)
+                    top?.postMessage(compositePattern)
                     const compositeSolution = await querySolveCompositePattern(
                         compositePattern
                     )
                     props.onSaveHistory({ ...compositeSolution, queryTimestamp: new Date().getTime() });
-                    setSolutions(compositeSolution)
+                    // setSolutions(compositeSolution)
                     setStatus(PatternQueryStatus.SolvingResponse);
                 }
             )
