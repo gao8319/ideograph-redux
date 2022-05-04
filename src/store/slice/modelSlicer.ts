@@ -15,6 +15,7 @@ import { queryForage, QueryForageItem } from "../../utils/global/Storage";
 import FileSaver from "file-saver";
 import { isNotEmpty } from "../../utils/common/utils";
 import { IConstraintContext } from "../../utils/PatternContext";
+import { namespace } from "d3";
 
 export const LEFT_DEFAULT = 240;
 export const LEFT_MIN = 200;
@@ -143,7 +144,6 @@ const initialState: WorkspaceState = {
     dataSourceId: "",
     fileId: ""
 }
-
 
 type NewWorkspaceState = {
     model: CommonModel.ISerializedRoot | null,

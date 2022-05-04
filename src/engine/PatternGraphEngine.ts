@@ -11,7 +11,7 @@ import { IConstraint, IPatternEdge, IPatternNode } from "../utils/common/graph";
 import { isNotEmpty } from "../utils/common/utils";
 import { Dictionary } from "lodash";
 import { QueryForageItem } from "../utils/global/Storage";
-import { getDistanceSquared, IPoint } from "../utils/common/layout";
+import { center, getDistanceSquared, IPoint } from "../utils/common/layout";
 import { nameCandidates } from "../utils/NameCandidates";
 
 
@@ -84,6 +84,13 @@ export class PatternGraphEngine {
 
     private _onNodeContextMenu?: (n: PatternNode, event: MouseEvent) => void;
     private _onNodeCreatedCallback?: (n: IPatternNode) => void;
+
+    private _onEdgeSelectTypeCallback?: (
+        position: IPoint,
+        types: CommonModel.IRelation[],
+        onSelectEdgeType: (type: CommonModel.IRelation) => void
+    ) => void;
+
     private _onEdgeCreatedCallback?: (e: IPatternEdge) => void;
     private _onConstraintCreatedCallback?: (c: IConstraint) => void;
     private _onRaiseMessageCallback?: RaiseMessageCallback;
@@ -98,6 +105,9 @@ export class PatternGraphEngine {
     public setRaiseMessageCallback = (cb: typeof this._onRaiseMessageCallback) => { this._onRaiseMessageCallback = cb; }
     public setOnNodeContextMenu = (cb: typeof this._onNodeContextMenu) => { this._onNodeContextMenu = cb; }
 
+    public setOnEdgeSelectTypeCallback = (cb: typeof this._onEdgeSelectTypeCallback) => {
+        this._onEdgeSelectTypeCallback = cb;
+    }
 
     public notifyElementConstrained(ele: (IPatternNode | IPatternEdge) & {
         type: VisualElementType;
@@ -399,27 +409,92 @@ export class PatternGraphEngine {
                     )
                 }
                 else {
-                    const edgeTypeName = this.model.getRelationNames(this.createEdgeFrom?.ontologyClass!, n.ontologyClass!)[0].name
-                    const e = new PatternEdge(
-                        this.createEdgeFrom!,
-                        n,
-                        true,
-                        nanoid(),
-                        [],
-                        edgeTypeName
-                    )
-                    this._onEdgeCreatedCallback?.(e.asObject())
-                    this.edgeDict[e.uuid] = e;
+                    const edgeTypes = this.model.getRelationNames(this.createEdgeFrom?.ontologyClass!, n.ontologyClass!)
 
-                    e.attachTo(this.edgeLayer);
-                    e.on('click', clickEvent => {
-                        this.onEdgeClick(e, clickEvent)
-                    });
-                    setTimeout(
-                        () => {
-                            this.focusedElement = e;
-                        }, 0
-                    )
+                    if (edgeTypes.length > 1) {
+                        const point = center(this.createEdgeFrom!.logicPosition, n.logicPosition)
+                        this._onEdgeSelectTypeCallback?.(
+                            point,
+                            edgeTypes,
+                            (r) => {
+                                const e = new PatternEdge(
+                                    this.createEdgeFrom!,
+                                    n,
+                                    true,
+                                    nanoid(),
+                                    [],
+                                    r.name
+                                )
+                                this._onEdgeCreatedCallback?.(e.asObject())
+                                this.edgeDict[e.uuid] = e;
+
+                                e.attachTo(this.edgeLayer);
+                                e.on('click', clickEvent => {
+                                    this.onEdgeClick(e, clickEvent)
+                                });
+                                setTimeout(
+                                    () => {
+                                        this.focusedElement = e;
+                                    }, 0
+                                )
+                            }
+                        )
+                    }
+                    else {
+                        const edgeTypes = this.model.getRelationNames(this.createEdgeFrom?.ontologyClass!, n.ontologyClass!)
+                        if (edgeTypes.length > 1) {
+                            const point = center(this.createEdgeFrom!.logicPosition, n.logicPosition)
+                            this._onEdgeSelectTypeCallback?.(
+                                point,
+                                edgeTypes,
+                                (type) => {
+                                    const e = new PatternEdge(
+                                        this.createEdgeFrom!,
+                                        n,
+                                        true,
+                                        nanoid(),
+                                        [],
+                                        type.name
+                                    )
+                                    this._onEdgeCreatedCallback?.(e.asObject())
+                                    this.edgeDict[e.uuid] = e;
+
+                                    e.attachTo(this.edgeLayer);
+                                    e.on('click', clickEvent => {
+                                        this.onEdgeClick(e, clickEvent)
+                                    });
+                                    setTimeout(
+                                        () => {
+                                            this.focusedElement = e;
+                                        }, 0
+                                    )
+                                }
+                            )
+                        }
+                        else {
+                            const edgeTypeName = edgeTypes[0].name
+                            const e = new PatternEdge(
+                                this.createEdgeFrom!,
+                                n,
+                                true,
+                                nanoid(),
+                                [],
+                                edgeTypeName
+                            )
+                            this._onEdgeCreatedCallback?.(e.asObject())
+                            this.edgeDict[e.uuid] = e;
+
+                            e.attachTo(this.edgeLayer);
+                            e.on('click', clickEvent => {
+                                this.onEdgeClick(e, clickEvent)
+                            });
+                            setTimeout(
+                                () => {
+                                    this.focusedElement = e;
+                                }, 0
+                            )
+                        }
+                    }
                 }
             }
             Object.values(this.nodeDict).forEach(_n => _n.setDisabled(false))
@@ -591,28 +666,71 @@ export class PatternGraphEngine {
                     )
                 }
                 else {
-                    const edgeTypeName = this.model.getRelationNames(this.createEdgeFrom?.ontologyClass!, n!.ontologyClass!)[0].name
-                    console.error(edgeTypeName)
-                    const e = new PatternEdge(
-                        this.createEdgeFrom!,
-                        n!,
-                        true,
-                        nanoid(),
-                        [],
-                        edgeTypeName
-                    )
-                    this._onEdgeCreatedCallback?.(e.asObject())
-                    this.edgeDict[e.uuid] = e;
+                    const edgeTypes = this.model.getRelationNames(this.createEdgeFrom?.ontologyClass!, n!.ontologyClass!)
 
-                    e.attachTo(this.edgeLayer);
-                    e.on('click', clickEvent => {
-                        this.onEdgeClick(e, clickEvent)
-                    });
-                    setTimeout(
-                        () => {
-                            this.focusedElement = e;
-                        }, 0
-                    )
+                    const fromNode = this.createEdgeFrom!
+                    const toNode = n!
+                    if (edgeTypes.length > 1) {
+
+
+                        const point = center(fromNode.logicPosition, toNode.logicPosition);
+                        
+                        const transformed = this.zoomTransform?.apply([point.x, point.y]) 
+                        const t = transformed? {
+                            x: transformed[0],
+                            y: transformed[1] + 48,
+                        } : point
+                        
+                        this._onEdgeSelectTypeCallback?.(
+                            t,
+                            edgeTypes,
+                            (type) => {
+                                const e = new PatternEdge(
+                                    fromNode,
+                                    toNode,
+                                    true,
+                                    nanoid(),
+                                    [],
+                                    type.name
+                                )
+                                this._onEdgeCreatedCallback?.(e.asObject())
+                                this.edgeDict[e.uuid] = e;
+
+                                e.attachTo(this.edgeLayer);
+                                e.on('click', clickEvent => {
+                                    this.onEdgeClick(e, clickEvent)
+                                });
+                                setTimeout(
+                                    () => {
+                                        this.focusedElement = e;
+                                    }, 0
+                                )
+                            }
+                        )
+                    }
+                    else {
+                        const edgeTypeName = edgeTypes[0].name
+                        const e = new PatternEdge(
+                            fromNode,
+                            toNode,
+                            true,
+                            nanoid(),
+                            [],
+                            edgeTypeName
+                        )
+                        this._onEdgeCreatedCallback?.(e.asObject())
+                        this.edgeDict[e.uuid] = e;
+
+                        e.attachTo(this.edgeLayer);
+                        e.on('click', clickEvent => {
+                            this.onEdgeClick(e, clickEvent)
+                        });
+                        setTimeout(
+                            () => {
+                                this.focusedElement = e;
+                            }, 0
+                        )
+                    }
                 }
             }
             Object.values(this.nodeDict).forEach(_n => _n.setDisabled(false))
@@ -633,7 +751,7 @@ export class PatternGraphEngine {
 
 
     public restoreFromFile = (file: QueryForageItem) => {
-        
+
         Object.values(file.nodes.entities).forEach((n) => {
             const patternNode = new PatternNode(
                 n!.class,

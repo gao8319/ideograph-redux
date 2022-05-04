@@ -12,6 +12,7 @@ export const usePatternEngine = (
     modelObject: CommonModel.ISerializedRoot | null,
     raiseMessage: RaiseMessageCallback,
     layoutContextMenu: NonNullable<PatternGraphEngine["_onNodeContextMenu"]>,
+    layoutElementPopup: NonNullable<PatternGraphEngine["_onEdgeSelectTypeCallback"]>,
     deps?: React.DependencyList,
 ) => {
 
@@ -89,6 +90,7 @@ export const usePatternEngine = (
             // engine.setOnConstraintCreatedCallback(c => dispatch(addConstraint(c)))
 
             engine.setOnNodeContextMenu(layoutContextMenu);
+            engine.setOnEdgeSelectTypeCallback(layoutElementPopup);
 
             engineRef.current = engine;
             return () => {

@@ -28,7 +28,7 @@ export const attachNode = <T, K extends PropertyKey>
 }
 
 const buildTree = <T, K extends PropertyKey>
-    (nodes: IIdentifiableTree<T, K>[])
+(nodes: IIdentifiableTree<T, K>[])
     : ILinkedTree<T> => {
 
     const nodeDict: Record<PropertyKey, T> = Object.fromEntries(nodes.map(it => [it.index, it]))

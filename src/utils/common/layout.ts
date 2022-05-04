@@ -1,6 +1,14 @@
+import * as d3 from 'd3';
 export interface IPoint {
     x: number,
     y: number,
+}
+
+export const center = (...args: IPoint[]): IPoint => {
+    return {
+        x: d3.sum(args, p => p.x) /args.length,
+        y: d3.sum(args, p => p.y) /args.length,
+    }
 }
 
 export type IVector = IPoint

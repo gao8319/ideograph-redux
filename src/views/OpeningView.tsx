@@ -129,7 +129,7 @@ const dateFormatter = Intl.DateTimeFormat('zh-CN', {
     minute: '2-digit'
 });
 
-export function OpeningView() {
+export function FileManagementView() {
 
     const lPanelWidth = useAppSelector(leftPanelWidthSelector);
     const [activeTab, setActiveTab] = useState(0);

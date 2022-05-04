@@ -27,6 +27,7 @@ import { ideographDarkTheme } from '../utils/ideographTheme';
 import { EditMode } from '../engine/visual/EditMode';
 import { getConstraintContextFromQueryForage, patternHistoryForage, QueryForageItem } from '../utils/global/Storage';
 import _ from 'lodash';
+import { pangu } from '../utils/common/pangu';
 
 
 export const EditView = () => {
@@ -42,11 +43,13 @@ export const EditView = () => {
 
     // const {fileId} = useParams();
     const { state } = useLocation();
-    
+
 
     const [contextMenuTarget, setContextMenuTarget] = useState<{ node: PatternNode, event: MouseEvent }>();
 
     const [fileCache, setFileCache] = useState<QueryForageItem>();
+
+    const [elementPopup, setElementPopup] = useState<Parameters<NonNullable<PatternGraphEngine["_onEdgeSelectTypeCallback"]>>>();
 
     const { engineRef, containerRef } = usePatternEngine(
         model,
@@ -58,6 +61,9 @@ export const EditView = () => {
         (node, event) => {
             setContextMenuTarget({ node, event });
         },
+        (point, types, onSelect) => {
+            setElementPopup([point, types, onSelect]);
+        },
         [model]
     );
 
@@ -66,7 +72,6 @@ export const EditView = () => {
     }, [fileCache])
 
     useEffect(() => {
-        console.log(state);
         if ((state as any)?.fileId) {
 
             dispatch(loadFileAsync((state as any).fileId, (f) => {
@@ -214,6 +219,41 @@ export const EditView = () => {
                     </div>
                 </Callout>
             }
+
+            {
+                elementPopup && <Callout
+                    target={elementPopup[0]}
+                    directionalHint={DirectionalHint.topCenter}
+                    onDismiss={ev => setElementPopup(undefined)}
+                    theme={ideographDarkTheme}
+                    // beakWidth={0}
+                    calloutMaxWidth={320}
+                    styles={{
+                        calloutMain: {
+                            borderRadius: 0,
+                            padding: '8px 0'
+                        }
+                    }}>
+                        <div className='contextual-callout-item'
+                            style={{pointerEvents: 'none'}}>
+                            <div style={{ fontSize: 13 }}>选择关系类型</div>
+                            <span className='contextual-callout-item-helper'></span>
+                        </div>
+
+                        <div className='contextual-callout-sep' />
+                        {elementPopup[1].map(relType => <div className='contextual-callout-item'
+                            style={{}}
+                            key={relType.id}
+                            onClick={() => {
+                                elementPopup[2](relType)
+                                setElementPopup(undefined)
+                            }}>
+                            {pangu.spacing(relType.name)}
+                        </div>)}
+                </Callout>
+            }
+
+
             {codeModal !== undefined
                 && <>
                     <div style={{ left: 0, top: 0, width: '100vw', height: '100vh', backgroundColor: '#20222a60', fontSize: 14, position: 'absolute', zIndex: 99998, }}></div>
