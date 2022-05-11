@@ -71,13 +71,13 @@ export const testPattern3 = {
 
 
 export const querySolvePattern = async (pattern: SolvePatternRequest) => {
-    const response = await axios.post<SolvePatternResponse>(`/api/solvePattern`, pattern)
+    const response = await axios.post<SolvePatternResponse>(`http://cc.qk0.cc:9160/solvePattern`, pattern)
     return response.data
 }
 
 export const querySolveCompositePattern = async (pattern: SolveCompositePatternRequest) => {
     // postMessage(pattern);
-    console.log(pattern)
-    const response = await axios.post<SolvePatternResponse>(`/api/solveCompositePattern`, pattern)
+    // console.log(pattern)
+    const response = await axios.post<SolvePatternResponse>(`http://cc.qk0.cc:9160/solveCompositePattern`, pattern)
     return response.data
 }

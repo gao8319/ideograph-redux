@@ -47,7 +47,7 @@ export namespace Schema {
 }
 
 export const fetchSchema = async () => {
-    const schema = await axios.get<Schema.Entry>('/api/schema')
+    const schema = await axios.get<Schema.Entry>('http://cc.qk0.cc:9160/schema')
     return schema.data;
 }
 
