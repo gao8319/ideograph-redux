@@ -6,6 +6,7 @@ import '../common/PanelCommon.css'
 import Draggable from 'react-draggable';
 import { ConceptPanelContent } from "./ConceptPanelContent";
 import { CommonModel } from "../../../utils/common/model";
+import { ConceptTreePanel } from "./ConceptTreePanel";
 
 interface IConceptPanelProps {
     
@@ -27,7 +28,7 @@ export const ConceptPanel = (props: IConceptPanelProps) => {
 
     const content = useMemo(
         () => {
-            return <ConceptPanelContent />
+            return <ConceptTreePanel />
         }, [])
 
     return <div className="concept-panel-root panel" ref={rootRef} style={{ width }}>

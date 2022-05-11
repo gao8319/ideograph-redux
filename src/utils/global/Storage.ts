@@ -19,13 +19,13 @@ export const initDatabase = async () => {
     // const dataSourceForage = localforage.createInstance({ name: "datasource" })
     // const patternHistoryForage = localforage.createInstance({ name: "history" })
 
-    if (!(await dataSourceForage.getItem<DataSourceForageItem>("162.105.88.139:27025"))) {
-        dataSourceForage.setItem<DataSourceForageItem>("162.105.88.139:27025", {
-            id: '162.105.88.139:27025',
-            name: '医疗数据库',
+    if (!(await dataSourceForage.getItem<DataSourceForageItem>("162.105.88.139:27035"))) {
+        dataSourceForage.setItem<DataSourceForageItem>("162.105.88.139:27035", {
+            id: '162.105.88.139:27035',
+            name: 'API图谱',
             mongo: {
                 hostAddress: '162.105.88.139',
-                port: 27025,
+                port: 27035,
                 userName: "rootxyx",
                 password: 'woxnsk!',
             },

@@ -11,7 +11,7 @@ import { usePatternEngine } from '../utils/usePatternEngine';
 import { Autocomplete, Grow, Input, Modal, Snackbar } from '@mui/material';
 import { Alert } from '../components/StyledMessage';
 import { Close20, Close24, Error20, FitToScreen20, Help20, Maximize16, Maximize20, Scale20 } from '@carbon/icons-react';
-import { edgesSelectors } from '../store/slice/edgeSlicer';
+import { deleteEdge, edgesSelectors } from '../store/slice/edgeSlicer';
 import { ActionButtonTiny, ActionButtonTinyDark } from '../components/Panels/common/ActionButton';
 import { CodeEditor } from '../components/CodeEditor/CodeEditor';
 import { PanelTitle } from '../components/Panels/common/PanelTitle';
@@ -28,6 +28,8 @@ import { EditMode } from '../engine/visual/EditMode';
 import { getConstraintContextFromQueryForage, patternHistoryForage, QueryForageItem } from '../utils/global/Storage';
 import _ from 'lodash';
 import { pangu } from '../utils/common/pangu';
+import { deleteNode } from '../store/slice/nodeSlicer';
+import { constraintsSelectors, deleteConstraint } from '../store/slice/constraintSlicer';
 
 
 export const EditView = () => {
@@ -39,6 +41,8 @@ export const EditView = () => {
     const lPanelWidth = useAppSelector(leftPanelWidthSelector);
     const rPanelWidth = useAppSelector(rightPanelWidthSelector);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const edges = useAppSelector(edgesSelectors.selectAll);
+    const constraints = useAppSelector(constraintsSelectors.selectAll);
     const [snackBarContent, setSnackBarContent] = useState<Parameters<RaiseMessageCallback> & { timestamp: number }>();
 
     // const {fileId} = useParams();
@@ -204,16 +208,41 @@ export const EditView = () => {
                         style={{}}>
                         <div style={{ fontSize: 13 }}>移除所有约束</div>
                     </div>
-                    <div className='contextual-callout-sep' />
+                    {/* <div className='contextual-callout-sep' />
                     <div className='contextual-callout-item'
                         style={{}}>
                         <div style={{ fontSize: 13 }}>缩小匹配范围</div>
-                    </div>
+                    </div> */}
 
                     <div className='contextual-callout-sep' />
 
                     <div className='contextual-callout-item'
-                        style={{}}>
+                        style={{}}
+                        onClick={() => {
+                            engineRef.current?.deleteElement(
+                                contextMenuTarget.node.asObject()
+                            )
+                            edges.forEach(e => {
+                                if (e.from === contextMenuTarget.node.uuid || e.to == contextMenuTarget.node.uuid) {
+                                    constraints.forEach(e => {
+                                        if (e.targetId === e.id) {
+                                            dispatch(deleteEdge(e.id))
+                                        }
+                                    })
+
+                                    dispatch(deleteEdge(e.id))
+
+                                }
+                            })
+
+                            constraints.forEach(e => {
+                                if (e.targetId === contextMenuTarget.node.uuid) {
+                                    dispatch(deleteConstraint(e.id))
+                                }
+                            })
+                            dispatch(deleteNode(contextMenuTarget.node.uuid))
+                            setContextMenuTarget(undefined)
+                        }}>
                         <div style={{ fontSize: 13 }}>移除节点</div>
                         <span className='contextual-callout-item-helper'></span>
                     </div>
@@ -234,22 +263,22 @@ export const EditView = () => {
                             padding: '8px 0'
                         }
                     }}>
-                        <div className='contextual-callout-item'
-                            style={{pointerEvents: 'none'}}>
-                            <div style={{ fontSize: 13 }}>选择关系类型</div>
-                            <span className='contextual-callout-item-helper'></span>
-                        </div>
+                    <div className='contextual-callout-item'
+                        style={{ pointerEvents: 'none' }}>
+                        <div style={{ fontSize: 13 }}>选择关系类型</div>
+                        <span className='contextual-callout-item-helper'></span>
+                    </div>
 
-                        <div className='contextual-callout-sep' />
-                        {elementPopup[1].map(relType => <div className='contextual-callout-item'
-                            style={{}}
-                            key={relType.id}
-                            onClick={() => {
-                                elementPopup[2](relType)
-                                setElementPopup(undefined)
-                            }}>
-                            {pangu.spacing(relType.name)}
-                        </div>)}
+                    <div className='contextual-callout-sep' />
+                    {elementPopup[1].map(relType => <div className='contextual-callout-item'
+                        style={{}}
+                        key={relType.id}
+                        onClick={() => {
+                            elementPopup[2](relType)
+                            setElementPopup(undefined)
+                        }}>
+                        {pangu.spacing(relType.name)}
+                    </div>)}
                 </Callout>
             }
 

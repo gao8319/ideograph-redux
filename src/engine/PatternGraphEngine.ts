@@ -119,6 +119,38 @@ export class PatternGraphEngine {
         }
     }
 
+    // private _onDeleteElement: (ele: IPatternEdge| IPatternNode) => void = ()=>{};
+    // public setOnDeleteElement = (cb: typeof this._onDeleteElement) => {
+    //     this._onDeleteElement = cb;
+    // }
+    public deleteElement = (ele: IPatternEdge | IPatternNode) => {
+
+        const node = this.nodeDict[ele.id]
+        if (node) {
+            this.focusedElement = null;
+            node.detach();
+            Object.keys(this.edgeDict).forEach(ek => {
+                const e = this.edgeDict[ek]
+                if (e?.from.uuid === node.uuid) {
+                    e.detach();
+                    delete this.edgeDict[e.uuid]
+                }
+                else if (e?.to.uuid === node.uuid) {
+                    e.detach();
+                    delete this.edgeDict[e.uuid]
+                }
+            })
+            delete this.nodeDict[ele.id];
+
+        }
+        else {
+            this.focusedElement = null;
+            const edge = this.edgeDict[ele.id];
+            edge.detach();
+            delete this.edgeDict[ele.id]
+        }
+    }
+
     public modifyAlias(alias: string | undefined, id: string) {
         this.nodeDict[id].alias = alias
     }
@@ -143,7 +175,11 @@ export class PatternGraphEngine {
             .attr('class', 'engine-core')
         this.nodeLayer = this.svgLayer.append('g')
             .attr('class', 'engine-core')
-        const mouseRoot = this.svgLayer.append('g');
+        const mouseRoot = d3.select(document.body)
+            .append('svg')
+            .classed('mouse-layer', true)
+            .append('g');
+
         this.mouseIndicatorLayer = mouseRoot.append('g')
             .attr('class', 'engine-mouse-indicator');
         this.eventProtecter = d3.select(this.renderContainer).append('div').node()!;
@@ -674,13 +710,13 @@ export class PatternGraphEngine {
 
 
                         const point = center(fromNode.logicPosition, toNode.logicPosition);
-                        
-                        const transformed = this.zoomTransform?.apply([point.x, point.y]) 
-                        const t = transformed? {
+
+                        const transformed = this.zoomTransform?.apply([point.x, point.y])
+                        const t = transformed ? {
                             x: transformed[0],
                             y: transformed[1] + 48,
                         } : point
-                        
+
                         this._onEdgeSelectTypeCallback?.(
                             t,
                             edgeTypes,

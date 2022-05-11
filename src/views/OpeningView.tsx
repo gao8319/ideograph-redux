@@ -306,7 +306,7 @@ export function FileManagementView() {
                                         f => <DocumentButton
                                             key={f.id}
                                             onClick={_ => {
-                                                navigate(`file?fileId=${f.id}`,  { state: { fileId: f.id } })
+                                                navigate(`file?fileId=${f.id}`, { state: { fileId: f.id } })
                                             }}
                                             onContextMenu={ev => {
                                                 setContextMenuTarget({ event: ev.nativeEvent, file: f });
@@ -316,8 +316,8 @@ export function FileManagementView() {
                                             <div style={{ background: 'var(--grey50)', width: 'calc(100% + 32px)', height: 'calc(100% + 8px)', margin: '-16px -16px 0 -16px' }}>
                                                 <FileThumbnail file={f} />
                                             </div>
-                                            <SpacedText>{f.name}</SpacedText>
-                                            <span style={{ fontSize: 12, fontWeight: 400, color: 'var(--grey200)' }}>
+                                            <SpacedText className="truncate">{f.name}</SpacedText>
+                                            <span className="truncate" style={{ fontSize: 12, fontWeight: 400, color: 'var(--grey200)' }}>
                                                 {pangu.spacing(`${f.lastEditTime === f.createTime ? "创建" : "修改"}于${dateFormatter.format(f.lastEditTime)}`)}
                                             </span>
                                         </DocumentButton>

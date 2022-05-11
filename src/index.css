@@ -204,3 +204,13 @@ tspan {
 text {
     user-select: none !important;
 }
+
+
+svg.mouse-layer {
+    width: 100vw;
+    height: calc(100vh - 48px);
+    pointer-events: none;
+    position: absolute;
+    z-index: 99999999999;
+    top: 48px;
+}

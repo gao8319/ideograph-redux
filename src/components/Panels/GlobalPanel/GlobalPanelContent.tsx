@@ -235,7 +235,7 @@ export const GlobalPanelContent = React.forwardRef<IGlobalPanelContentRef, IGlob
         </div>
         <div style={{display: 'flex', columnGap: 8, position: 'absolute', right: 8, bottom: 8, width: '100%', justifyContent: 'flex-end'}}>
 
-        <WorkspaceCommand activated={false}
+        {/* <WorkspaceCommand activated={false}
             // hint='匹配查询'
             // shortcut=' Enter'
             // cmd
@@ -244,8 +244,8 @@ export const GlobalPanelContent = React.forwardRef<IGlobalPanelContentRef, IGlob
             text='保存'
             style={{ color: '#fff', marginRight: 8, padding: '0 24px', }}
             onClick={_ => dispatch(applyQuery(true))}>
-            <Search16 fill="#fff" />
-        </WorkspaceCommand>
+            {/* <Search16 fill="#fff" /> 
+        </WorkspaceCommand> */}
         <WorkspaceCommand activated={false}
             hint='匹配查询'
             shortcut=' Enter'

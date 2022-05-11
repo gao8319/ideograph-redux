@@ -360,6 +360,8 @@ export const rightPanelWidthSelector = (state: RootState) => state.workspace.rig
 export const bottomPanelHeightSelector = (state: RootState) => state.workspace.bottomPanelHeight
 export const _focusElementSelector = (state: RootState) => state.workspace.focusElement
 
+export const classTreeSelector = (state: RootState) => state.workspace.model?.tree;
+
 export const focusElementSelector = createSelector(
     nodesSelectors.selectEntities,
     edgesSelectors.selectEntities,

@@ -1,5 +1,5 @@
 import { IConstraint, IPatternEdge, IPatternNode } from "./common/graph"
-import { BinaryLogicOperator, UnaryLogicOperator } from "./common/operator"
+import { BinaryLogicOperator, ComparisonOperator, UnaryLogicOperator } from "./common/operator"
 import { DisjointSet } from "./common/disjoint";
 import _ from "lodash";
 import { CommonModel } from "./common/model";
@@ -77,7 +77,7 @@ export class IdeographPatternContext implements IPatternContext {
         this.nodes = nodes;
         this.edges = edges;
         this.constraintContext = constraintContext;
-        debugger
+        // debugger
         this.nodeHashMap = _.keyBy(nodes, n => n.id);
     }
 
@@ -147,7 +147,7 @@ export class IdeographPatternContext implements IPatternContext {
 
     public generatePrunnedPattern = async (): Promise<Solution.Pattern> => {
         await this.findLargestConnectedNodes();
-        debugger
+        // debugger
         const validConstraints = this.constraintContext.constraints.filter(
             constraint => {
                 return (constraint.targetType === VisualElementType.Node && this._maxSubgraphNodeHashMap?.[constraint.targetId])
@@ -156,7 +156,7 @@ export class IdeographPatternContext implements IPatternContext {
         )
         this._maxSubgraphConstraints = validConstraints;
 
-        debugger    
+        // debugger    
         return {
             nodes: this._maxSubgraphNodes!.map(n => ({
                 patternId: n.id,
@@ -173,7 +173,14 @@ export class IdeographPatternContext implements IPatternContext {
                 targetType: c.targetType === VisualElementType.Node ? "Node" : "Edge",
                 targetPatternId: c.targetId,
                 property: c.property?.name!,
-                operator: "MatchRegex",
+                operator: c.operator === ComparisonOperator.Equal ? "Equal"
+                : c.operator === ComparisonOperator.Less ? "Less"
+                : c.operator === ComparisonOperator.Greater ? "Greater"
+                : c.operator === ComparisonOperator.LessOrEqual ? "LessOrEqual"
+                : c.operator === ComparisonOperator.GreaterOrEqual ? "GreaterOrEqual"
+                : c.operator === ComparisonOperator.NotEqual ? "NotEqual"
+                : c.operator === ComparisonOperator.MatchRegex ? "MatchRegex"
+                : "MatchRegex",
                 value: String(c.value)
             }))
         }

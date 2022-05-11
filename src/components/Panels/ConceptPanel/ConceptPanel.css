@@ -9,7 +9,7 @@
     }
 } */
 
-.concept-panel-root{
+.concept-panel-root {
     /* width: 320px; */
     height: calc(100vh - 48px);
     overflow-y: auto;
@@ -41,15 +41,55 @@
     background-color: var(--primary);
 }
 
-.ontology-create-button:hover{
+.ontology-create-button:hover {
     background-color: var(--grey50);
 }
 
-.ontology-create-button:hover>button, .ontology-create-button:hover>span>button{
+.ontology-create-button:hover>button, .ontology-create-button:hover>span>button {
     background-color: var(--grey50);
-    visibility: visible!important;
+    visibility: visible !important;
 }
 
-.ontology-create-button>button:hover, .ontology-create-button>span>button:hover{
+.ontology-create-button>button:hover, .ontology-create-button>span>button:hover {
     background-color: var(--grey50);
 }
+
+
+.concept-tree-node {
+    /* margin: 2px 4px 2px 4px; */
+    /* border-radius: 3px; */
+    height: 100%;
+    user-select: none;
+    cursor: pointer;
+    font-size: 13px;
+    padding: 8px 8px 8px 0;
+
+    /* transition: background-color 0.1s; */
+    display: flex;
+    align-items: center;
+
+}
+
+.concept-tree-node:hover {
+    background-color: var(--grey50);
+}
+
+
+.concept-tree-node-chev {
+    align-items: center;
+    display: flex;
+}
+
+.concept-tree-node-chev:hover {
+    background-color: var(--grey100);
+}
+
+.tree-node-circle>circle {
+    transition: r 0.2s;
+    r: 8px;
+}
+
+.concept-tree-node:hover>.tree-node-circle>circle {
+    r: 10px;
+}
+

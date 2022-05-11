@@ -1,4 +1,4 @@
-import { Close20 } from "@carbon/icons-react";
+import { Close20, Warning16 } from "@carbon/icons-react";
 import { Skeleton } from "@mui/material";
 import { useEffect, useState } from "react";
 import { Solution } from "../../services/PatternSolution";
@@ -8,11 +8,15 @@ import { constraintsSelectors } from "../../store/slice/constraintSlicer";
 import { edgesSelectors } from "../../store/slice/edgeSlicer";
 import { applyQuery } from "../../store/slice/modelSlicer";
 import { nodesSelectors } from "../../store/slice/nodeSlicer";
+import { pangu } from "../../utils/common/pangu";
 import { patternHistoryForage, PatternHistoryForageItem } from "../../utils/global/Storage";
 import { IConstraintContext, IdeographPatternContext } from "../../utils/PatternContext";
 import { ActionButtonTiny, ActionButtonTinyDark } from "../Panels/common/ActionButton";
 import { PanelTitle } from "../Panels/common/PanelTitle";
 import { SolutionDiagramGridView } from "../PatternSolutionDiagram/PatternSolutionDiagram";
+
+
+
 
 interface IQueryModalProps {
     getConstraintContext: () => Omit<IConstraintContext, "constraints"> | null,
@@ -36,10 +40,12 @@ export const QueryModal = (props: IQueryModalProps) => {
     const [solutions, setSolutions] = useState<SolvePatternResponse>();
 
 
+    const [warningMessage, setWarningMessage] = useState<string>();
+
     useEffect(
         () => {
             const partialConstraintContext = props.getConstraintContext();
-            console.log(partialConstraintContext)
+            // console.log(partialConstraintContext)
             const ipc = partialConstraintContext ?
                 new IdeographPatternContext(nodes, edges, {
                     constraints: constraints,
@@ -67,28 +73,39 @@ export const QueryModal = (props: IQueryModalProps) => {
                                 `这些属性约束中包含${ipc.maxSubgraphConstraintTreeCount
                                 }颗独立的逻辑树`
                                 + (ipc.maxSubgraphConstraintTreeCount > 1
-                                    ? "，它们将被以「与」逻辑运算符连接。"
+                                    ? "，结果中仅包含约束节点最多的一棵树。"
                                     : "。"
                                 )
                             ) : "";
+                        setWarningMessage(
+                            `搜索结果仅包含最大连通子图中的${ipc.maxSubgraphNodeCount
+                            }个节点、${ipc.maxSubgraphEdgeCount}条边和仅针对它们的属性约束。`
+                            + propertyWarning
+                        )
                     }
+
+                    console.log(pattern)
                     setStatus(PatternQueryStatus.SendingRequest)
                     // const sol = await querySolvePattern(pattern);
                     const compositePattern: Solution.CompositePattern = {
-                        ...pattern,
                         connections: partialConstraintContext?.connections ?? [],
                         logicOperators: partialConstraintContext?.logicOperators.map(
                             it => ({ patternId: it.id, type: Solution.LogicOperator2Literal[it.type] })
-                        ) ?? []
+                        ) ?? [],
+                        ...pattern,
                     }
-                    // console.log(compositePattern, top)
-                    top?.postMessage(compositePattern)
-                    const compositeSolution = await querySolveCompositePattern(
-                        compositePattern
-                    )
-                    props.onSaveHistory({ ...compositeSolution, queryTimestamp: new Date().getTime() });
-                    // setSolutions(compositeSolution)
-                    setStatus(PatternQueryStatus.SolvingResponse);
+                    if (top && top !== window) {
+                        top.postMessage(compositePattern)
+                    }
+                    else {
+                        const compositeSolution = await querySolveCompositePattern(
+                            compositePattern
+                        )
+                        props.onSaveHistory({ ...compositeSolution, queryTimestamp: new Date().getTime() });
+                        setSolutions(compositeSolution)
+                        setStatus(PatternQueryStatus.SolvingResponse);
+                    }
+
                 }
             )
         }, [nodes, edges, constraints, props.getConstraintContext]
@@ -123,6 +140,14 @@ export const QueryModal = (props: IQueryModalProps) => {
                     }
                 </div>
             }
+            {warningMessage && <div style={{
+                position: 'absolute', bottom: 0, height: 36, fontSize: 12,
+                display: 'flex', alignItems: 'center', width: '100%',
+                padding: '0 16px', columnGap: 8, background: 'rgb(208,82,32)', color: '#fff'
+            }}>
+                <Warning16 fill="#fff" />
+                {pangu.spacing(warningMessage)}
+            </div>}
         </div>
     </>
 }

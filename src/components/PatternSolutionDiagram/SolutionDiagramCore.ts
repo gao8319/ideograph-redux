@@ -21,6 +21,19 @@ const getBoundingBox = <T extends { position: IPoint }>(boxes: T[]): IOffsetRect
     return { top, bottom, left, right }
 }
 
+// todo: emoji
+const describeText = (text: string) => {
+    if (text.match(/[\x00-\xff]*/)) {
+        const texts = text.split(' ')
+        if (texts.length > 4) return texts.slice(0, 4).join(' ') + "..."
+        return text;
+    }
+    else {
+        if (text.length > 10) return text.slice(0, 10) + "..."
+        return text;
+    }
+}
+
 export class SolutionDiagramCore {
     // private solutions: Solution.PatternSolution[];
 
@@ -165,8 +178,11 @@ export class SolutionDiagramCore {
         }
     }
 
-    public paintOn = (svg: SVGSVGElement, solution: Solution.PatternSolution) => {
-        const workspaceNodesSorted = this.patternNodes.map(pn => solution.nodes[pn.id]);
+    public paintOn = (svg: SVGGElement, solution: Solution.PatternSolution, setCallout: (prop?: [SVGElement, Solution.WorkspaceEdge | Solution.WorkspaceNode]) => void) => {
+        const workspaceNodesSorted = this.patternNodes.map((pn, i) => [solution.nodes[pn.id], i] as [Solution.WorkspaceNode, number])
+        
+        const _workspaceNodesSorted = workspaceNodesSorted.filter(it => it[0] !== undefined);
+        // const __workspaceNodesSorted = workspaceNodesSorted.filter(it => it[0] === undefined);
 
         const svgSelection = d3.select(svg);
 
@@ -185,25 +201,37 @@ export class SolutionDiagramCore {
 
         svgSelection.append('g')
             .selectAll('circle')
-            .data(workspaceNodesSorted)
+            .data(_workspaceNodesSorted)
             .enter()
             .append('circle')
             .attr('r', 8)
-            .attr('cx', (_, i) => this.layouts[i].x)
-            .attr('cy', (_, i) => this.layouts[i].y)
-            .attr('fill', (_, i) => this.patternNodes[i].class.colorSlot.primary)
+            .attr('cx', (d, i) => this.layouts[d[1]].x)
+            .attr('cy', (d, i) => this.layouts[d[1]].y)
+            .attr('fill', (d, i) => this.patternNodes[d[1]].class.colorSlot.primary)
+            .on('mouseenter', (t, d) => {
+                setCallout([t, d[0]])
+            })
+            .on('mouseleave', (t, d) => {
+                setCallout(undefined)
+            })
 
 
         svgSelection.append('g')
             .selectAll('text')
-            .data(workspaceNodesSorted)
+            .data(_workspaceNodesSorted)
             .enter()
             .append('text')
             .classed('instance-text', true)
-            .attr('x', (_, i) => this.layouts[i].x)
-            .attr('y', (_, i) => this.layouts[i].y + 10)
-            .attr('fill', (_, i) => this.patternNodes[i].class.colorSlot.constrained)
-            .text(d => d.name)
+            .attr('x', (d, i) => this.layouts[d[1]].x)
+            .attr('y', (d, i) => this.layouts[d[1]].y + 10)
+            .attr('fill', (d, i) => this.patternNodes[d[1]].class.colorSlot.constrained)
+            .text(d => describeText(d[0].name))
+        // .on('mouseenter', (t, d) => {
+        //     setCallout([t, d])
+        // })
+        // .on('mouseleave', (t, d) => {
+        //     setCallout(undefined)
+        // })
 
         return () => {
             svgSelection.selectAll('*').remove();

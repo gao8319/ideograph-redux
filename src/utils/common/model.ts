@@ -41,11 +41,12 @@ export namespace CommonModel {
     export interface IClass extends IIdentifiable, INamable {
         properties: IProperty[],
         parent?: IdType,
-        children?: IdType[],
+        children?: IClass[],
     }
 
     export type IColoredClass = IClass & {
         colorSlot: IColorSlot,
+        // children?: IColoredClass[],
     }
 
     export interface IEdgeClass extends IIdentifiable, INamable {
@@ -143,7 +144,10 @@ export namespace CommonModel {
 
 
     export interface ISerializedRoot {
-        name: string, classes: IColoredClass[], relations: IRelation[]
+        name: string, 
+        classes: IColoredClass[], 
+        relations: IRelation[],
+        tree: IColoredClass[],
     }
 
     export const deserializeFromObject = (json: ISerializedRoot | null) => {

@@ -16,3 +16,13 @@
     user-select: none;
     -webkit-user-select: none;
 }
+
+.hover-only {
+    transition: opacity 0.2s;
+    opacity: 0;
+    cursor: pointer;
+}
+
+svg:hover>.hover-only {
+    opacity: 1;
+}

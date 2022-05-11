@@ -135,4 +135,8 @@ export class PatternEdge implements IFocusableElement<VisualElementType.Edge> {
 
         }
     }
+
+    public detach() {
+        this.renderElements?.root.remove();
+    }
 }
