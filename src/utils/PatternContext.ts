@@ -7,7 +7,8 @@ import { VisualElementType } from "../engine/visual/VisualElement";
 import { IdeographIR } from "./IR";
 import { Solution } from "../services/PatternSolution";
 import { ElementType } from "@fluentui/react";
-import { MaximumSubgraph } from "./common/maximumSubgraph";
+import { DisjointSubgraph, MaximumSubgraph } from "./common/maximumSubgraph";
+import { PatternGraphEngine } from "../engine/PatternGraphEngine";
 
 
 const MaybeUndefined = <T extends any>(value: T) => value as (T | undefined)
@@ -41,6 +42,84 @@ interface ICorePatternContext {
     constraintContext: IConstraintContext;
 }
 
+
+export class IdeographAggregatePatternContext {
+
+    private structureContext: ReturnType<PatternGraphEngine["generatePatternGraphContext"]>;
+    private constriantContext: IConstraintContext;
+
+    constructor(
+        structureContext: ReturnType<PatternGraphEngine["generatePatternGraphContext"]>,
+        constraintContext: IConstraintContext
+    ) {
+        this.structureContext = structureContext;
+        this.constriantContext = constraintContext;
+    }
+
+    public async buildCoreContext(): Promise<Solution.Pattern> {
+
+        const aggregateContainedElements = Object.values(this.structureContext.groups).map(it => it.getContainedElements());
+        const allNodes = Object.values(this.structureContext.nodes).concat(aggregateContainedElements.flatMap(it => it.nodes))
+        const allEdges = Object.values(this.structureContext.edges).concat(aggregateContainedElements.flatMap(it => it.edges))
+        const subgraph = new DisjointSubgraph(allNodes);
+        allEdges.forEach(e => {
+            subgraph.union(e);
+        })
+        const filteredNodes = subgraph.SolvedNodes();
+        const filteredEdges = allEdges.filter(e => filteredNodes.includes(e.from) || filteredNodes.includes(e.to))
+
+        const coreGraph = {
+            nodes: filteredNodes,
+            edges: filteredEdges,
+            aggregations: aggregateContainedElements.map(it => {
+                return {
+                    nodes: it.nodes.map(n => n.uuid),
+                    edges: it.edges.map(e => e.uuid),
+                    multiplier: it.multiplier,
+                }
+            })
+        }
+
+        const allNodeIds = coreGraph.nodes.map(it => it.uuid);
+        const allEdgeIds = coreGraph.edges.map(it => it.uuid)
+
+        const validConstraints = this.constriantContext.constraints.filter(
+            constraint => {
+                return (constraint.targetType === VisualElementType.Node && allNodeIds.includes(constraint.targetId))
+                    || (constraint.targetType === VisualElementType.Edge && allEdgeIds.includes(constraint.targetId))
+            }
+        )
+
+        return {
+            nodes: coreGraph.nodes.map(n => ({
+                patternId: n.uuid,
+                type: n.ontologyClass.name
+            })),
+            edges: coreGraph.edges.map(e => ({
+                patternId: e.uuid,
+                fromPatternId: e.from.uuid,
+                toPatternId: e.to.uuid,
+                type: e.name ?? `${e.from.ontologyClass.id}-->${e.to.ontologyClass.id}`
+            })),
+            constraints: validConstraints.map(c => ({
+                patternId: c.id,
+                targetType: c.targetType === VisualElementType.Node ? "Node" : "Edge",
+                targetPatternId: c.targetId,
+                property: c.property?.name!,
+                operator: c.operator === ComparisonOperator.Equal ? "Equal"
+                    : c.operator === ComparisonOperator.Less ? "Less"
+                        : c.operator === ComparisonOperator.Greater ? "Greater"
+                            : c.operator === ComparisonOperator.LessOrEqual ? "LessOrEqual"
+                                : c.operator === ComparisonOperator.GreaterOrEqual ? "GreaterOrEqual"
+                                    : c.operator === ComparisonOperator.NotEqual ? "NotEqual"
+                                        : c.operator === ComparisonOperator.MatchRegex ? "MatchRegex"
+                                            : "MatchRegex",
+                value: String(c.value)
+            })),
+            aggregations: coreGraph.aggregations
+        }
+    }
+}
 
 
 export class IdeographPatternContext implements IPatternContext {
@@ -174,13 +253,13 @@ export class IdeographPatternContext implements IPatternContext {
                 targetPatternId: c.targetId,
                 property: c.property?.name!,
                 operator: c.operator === ComparisonOperator.Equal ? "Equal"
-                : c.operator === ComparisonOperator.Less ? "Less"
-                : c.operator === ComparisonOperator.Greater ? "Greater"
-                : c.operator === ComparisonOperator.LessOrEqual ? "LessOrEqual"
-                : c.operator === ComparisonOperator.GreaterOrEqual ? "GreaterOrEqual"
-                : c.operator === ComparisonOperator.NotEqual ? "NotEqual"
-                : c.operator === ComparisonOperator.MatchRegex ? "MatchRegex"
-                : "MatchRegex",
+                    : c.operator === ComparisonOperator.Less ? "Less"
+                        : c.operator === ComparisonOperator.Greater ? "Greater"
+                            : c.operator === ComparisonOperator.LessOrEqual ? "LessOrEqual"
+                                : c.operator === ComparisonOperator.GreaterOrEqual ? "GreaterOrEqual"
+                                    : c.operator === ComparisonOperator.NotEqual ? "NotEqual"
+                                        : c.operator === ComparisonOperator.MatchRegex ? "MatchRegex"
+                                            : "MatchRegex",
                 value: String(c.value)
             }))
         }
@@ -393,9 +472,6 @@ export class IdeographPatternContext implements IPatternContext {
         else if (irProps.length === 1) {
             ir.propertyConstraint = irProps[0];
         }
-
-
-
         return ir;
     }
 

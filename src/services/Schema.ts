@@ -5,6 +5,7 @@ import { ColorSlot } from "../engine/visual/ColorSlot";
 import { PrimitiveTypeName } from "../utils/common/data";
 import { EdgeDirection } from "../utils/common/graph";
 import { CommonModel } from "../utils/common/model";
+import { serverUrl } from "./SolvePattern";
 
 export namespace Schema {
 
@@ -47,7 +48,7 @@ export namespace Schema {
 }
 
 export const fetchSchema = async () => {
-    const schema = await axios.get<Schema.Entry>('http://cc.qk0.cc:9160/schema')
+    const schema = await axios.get<Schema.Entry>(`${serverUrl}/schema`)
     return schema.data;
 }
 

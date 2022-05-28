@@ -5,8 +5,6 @@ import { IPoint } from "../../utils/common/layout";
 import { CommonModel } from "../../utils/common/model";
 import { IPatternNode } from "../../utils/common/graph";
 
-
-
 interface RenderElements {
     root: D3<SVGGElement>;
     ring: D3<SVGCircleElement>;
@@ -20,7 +18,6 @@ interface RenderElements {
 export class PatternNode implements IFocusableElement<VisualElementType.Node> {
     public readonly elementType = VisualElementType.Node;
 
-    // public constraints: PatternConstraint[] = []
     public connections: PatternEdge[] = []
     public _alias?: string;
     public get alias() { return this._alias }
@@ -58,8 +55,6 @@ export class PatternNode implements IFocusableElement<VisualElementType.Node> {
     // private constraints: Map<string, Constraint> = new Map();
 
     public renderElements?: RenderElements
-
-
 
     constructor(
         ontologyClass: CommonModel.IColoredClass,
@@ -115,13 +110,14 @@ export class PatternNode implements IFocusableElement<VisualElementType.Node> {
             .attr('height', 16)
             .attr('rx', 8)
             .attr('ry', 8)
-            .attr('fill', this.ontologyClass.colorSlot.constrained)
+            .attr('fill', 'transparent')//this.ontologyClass.colorSlot.constrained)
 
         const aliasTextString = this.alias ? this.getRenderedAlias(this.alias) : ''
         const aliasText = elementGroup.append('text')
             .attr('class', 'alias')
             .attr('y', 24)
-            .attr('fill', this.ontologyClass.colorSlot.foreground)
+            .attr('fill', this.ontologyClass.colorSlot.darkened)
+            .attr('font-weight', 700)
             .text(aliasTextString)
 
         const typeText = elementGroup.append('text')
@@ -160,7 +156,7 @@ export class PatternNode implements IFocusableElement<VisualElementType.Node> {
     }
 
     public detach() {
-        this.renderElements?.root.remove();
+        this.renderElements?.root.attr('opacity', 1).transition().attr('opacity', 0).duration(600).remove();
     }
 
     public getBoundingBox() {

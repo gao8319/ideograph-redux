@@ -4,9 +4,16 @@ import { Solution } from "./PatternSolution";
 
 export type SolvePatternRequest = Solution.Pattern
 export type SolveCompositePatternRequest = Solution.CompositePattern
+export type SolveCompositePatternRequestWithAggregation = Solution.CompositePatternWithAggregation
 
 export type SolvePatternResponse = {
     solutions: Solution.PatternSolution[],
+    elapsedTimeInMillis: number,
+    message: string | null | undefined
+}
+
+export type AggregatedSolvePatternResponse = {
+    solutions: Solution.AggregatedPatternSolution[],
     elapsedTimeInMillis: number,
     message: string | null | undefined
 }
@@ -69,15 +76,24 @@ export const testPattern3 = {
     ]
 }
 
+export const serverUrl = "/api"  //"http://cc.qk0.cc:9160"
 
 export const querySolvePattern = async (pattern: SolvePatternRequest) => {
-    const response = await axios.post<SolvePatternResponse>(`http://cc.qk0.cc:9160/solvePattern`, pattern)
+    const response = await axios.post<SolvePatternResponse>(`${serverUrl}/solvePattern`, pattern)
     return response.data
 }
 
 export const querySolveCompositePattern = async (pattern: SolveCompositePatternRequest) => {
     // postMessage(pattern);
     // console.log(pattern)
-    const response = await axios.post<SolvePatternResponse>(`http://cc.qk0.cc:9160/solveCompositePattern`, pattern)
+    const response = await axios.post<SolvePatternResponse>(`${serverUrl}/solveCompositePattern`, pattern)
+    return response.data
+}
+
+
+export const querySolveCompositePatternWithAggregation = async (pattern: SolveCompositePatternRequestWithAggregation) => {
+    // postMessage(pattern);
+    // console.log(pattern)
+    const response = await axios.post<AggregatedSolvePatternResponse>(`${serverUrl}/solveCompositePatternWithAggregation`, pattern)
     return response.data
 }

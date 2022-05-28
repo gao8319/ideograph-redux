@@ -8,7 +8,14 @@ export namespace Solution {
         nodes: PatternNode[];
         edges: PatternEdge[];
         constraints: PatternConstraint[];
+        aggregations?: {
+            nodes: string[];
+            edges: string[];
+            multiplier: number;
+        }[]
     }
+
+
 
     enum LogicOperator {
         And = "And",
@@ -33,6 +40,16 @@ export namespace Solution {
     export type CompositePattern = Pattern & {
         logicOperators: PatternLogicOperator[],
         connections: { from: string, to: string }[],
+    }
+
+    export type Aggregation = {
+        nodes: string[],
+        edges: string[],
+        multiplier: number,
+    }
+
+    export type CompositePatternWithAggregation = CompositePattern & {
+        aggregations: Aggregation[]
     }
 
     export interface PatternConstraint {
@@ -66,6 +83,10 @@ export namespace Solution {
         edges: Record<string, WorkspaceEdge>;
     }
 
+    export interface AggregatedPatternSolution {
+        pattern: Pattern,
+        solution: PatternSolution[]
+    }
 
 
     export interface WorkspaceEdge {

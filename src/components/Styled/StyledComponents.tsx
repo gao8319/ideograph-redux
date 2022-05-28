@@ -32,6 +32,24 @@ export const StyledInput = styled(InputBase)(t => ({
     },
 }))
 
+export const StyledInputDark = styled(InputBase)(t => ({
+    backgroundColor: '#414246',
+    width: '100%',
+    height: 36,
+    padding: '4px 8px',
+    fontSize: 13,
+    border: '1px solid transparent',
+    borderRadius: 3,
+    color: '#fff',
+    '&.Mui-focused': {
+        border: '1px solid var(--primary)'
+    },
+    '&>input': {
+        color: '#fff',
+        padding: '4px 0 4px 0!important',
+    },
+}))
+
 export const StyledSelect = styled(Select)(t =>({
     backgroundColor: 'var(--grey50)',
     width: '100%',
@@ -47,6 +65,7 @@ export const StyledSelect = styled(Select)(t =>({
         padding: '4px 0',
     },
 }))
+
 
 
 

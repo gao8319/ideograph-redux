@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from "react"
 import { PatternGraphEngine, RaiseMessageCallback } from "../engine/PatternGraphEngine";
+import { VisualElementType } from "../engine/visual/VisualElement";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { addEdge } from "../store/slice/edgeSlicer";
 import { editModeSelector, editPayloadSelector, elementConstraintsSelector, focusElementSelector, setEditModeWithPayload, setEditPayloadDangerously, setFocus, setModel, workspaceSelector } from "../store/slice/modelSlicer";
@@ -12,6 +13,7 @@ export const usePatternEngine = (
     modelObject: CommonModel.ISerializedRoot | null,
     raiseMessage: RaiseMessageCallback,
     layoutContextMenu: NonNullable<PatternGraphEngine["_onNodeContextMenu"]>,
+    layoutSelectionMenu: NonNullable<PatternGraphEngine["_onSelectionContextMenu"]>,
     layoutElementPopup: NonNullable<PatternGraphEngine["_onEdgeSelectTypeCallback"]>,
     deps?: React.DependencyList,
 ) => {
@@ -38,7 +40,9 @@ export const usePatternEngine = (
                 containerRef.current
             );
             engine.setFocusedElementChangedCallback(ele => {
-                if (ele) {
+                if (ele &&
+                    (ele.elementType == VisualElementType.Node
+                        || ele.elementType == VisualElementType.Edge)) {
                     dispatch(setFocus({
                         type: ele.elementType,
                         payload: ele.asObject(),
@@ -90,6 +94,7 @@ export const usePatternEngine = (
             // engine.setOnConstraintCreatedCallback(c => dispatch(addConstraint(c)))
 
             engine.setOnNodeContextMenu(layoutContextMenu);
+            engine.setOnSelectionContextMenu(layoutSelectionMenu);
             engine.setOnEdgeSelectTypeCallback(layoutElementPopup);
 
             engineRef.current = engine;

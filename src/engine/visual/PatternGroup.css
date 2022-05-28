@@ -1,0 +1,43 @@
+.captured {
+    pointer-events: none !important;
+}
+
+.group-g {
+    opacity: 1;
+    transition: opacity 0.3s;
+}
+
+.group-g[disabled=true] {
+    opacity: 0;
+}
+
+.group-g>path {
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    mix-blend-mode: multiply;
+}
+
+.group-g>g.edge-shadow {
+    opacity: 0.1 !important;
+}
+
+.group-g>g>.shadow1 {
+    opacity: 0.1 !important;
+}
+
+.group-g>g>.shadow2 {
+    opacity: 0.04 !important;
+}
+
+
+.aggr-hover {
+    stroke: #f1f2f400;
+    mix-blend-mode: multiply;
+    transition: stroke 0.3s;
+    cursor: pointer;
+}
+
+.aggr-hover:hover {
+
+    stroke: #f1f2f4ff;
+}

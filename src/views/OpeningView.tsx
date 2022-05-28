@@ -60,19 +60,23 @@ const OpenningTabActive = styled(OpenningTab)(t => ({
     },
 }))
 
-const tabs: any = [
-    // {
-    //     name: "项目和文件",
-    //     key: "files",
-    // },
-    // {
-    //     name: "查询历史",
-    //     key: "history",
-    // },
-    // {
-    //     name: "设置",
-    //     key: "settings",
-    // }
+const tabs = [
+    {
+        name: "文件",
+        key: "files",
+    },
+    {
+        name: "历史查询结果",
+        key: "history",
+    },
+    {
+        name: "数据源",
+        key: "database",
+    },
+    {
+        name: "设置",
+        key: "settings",
+    }
 ]
 
 
@@ -159,8 +163,8 @@ export function FileManagementView() {
         <OpeningViewHeader />
 
         <div style={{ backgroundColor: '#fff', height: 'calc(100vh - 48px)', width: '100vw', position: 'relative', display: 'grid', gridTemplateColumns: `${lPanelWidth + 1}px 1fr` }}>
-            {/* <div className="concept-panel-root panel opening-left-panel" style={{ width: lPanelWidth }}>
-                <div style={{ height: '100%', padding: '16px 0', gridTemplateRows: 'auto 1fr auto', display: 'grid' }}>
+            <div className="concept-panel-root panel opening-left-panel" style={{ width: lPanelWidth }}>
+                <div style={{ height: '100%', padding: '16px 0', gridTemplateRows: 'auto auto 1fr auto', display: 'grid' }}>
                     {
                         tabs.map((tab, index) => {
                             if (activeTab === index) return <OpenningTabActive key={tab.key} onClick={_ => setActiveTab(index)}>
@@ -172,7 +176,7 @@ export function FileManagementView() {
                         })
                     }
                 </div>
-            </div> */}
+            </div>
             {activeTab === 0 && <div className="opening-tab">
 
                 <div style={{ fontWeight: 600, fontSize: 14, height: 60, alignItems: 'center', display: 'inline-flex', paddingLeft: 24, columnGap: 8, paddingTop: 12 }}>
@@ -224,13 +228,13 @@ export function FileManagementView() {
                             <span className="truncate" style={{ display: 'block', color: 'var(--grey200)', fontSize: 12, fontWeight: 400 }}>从 JSON 文件导入查询条件</span>
                         </div>
                     </CreateNewButton>
-                    {/* <CreateNewButton onClick={_ => setDialog("connect")}>
+                    <CreateNewButton onClick={_ => setDialog("connect")}>
                         <img src="/static/database.svg" width={48} height={48} />
                         <div>
                             <span className="truncate" style={{ display: 'block' }}>连接数据源</span>
                             <span className="truncate" style={{ display: 'block', color: 'var(--grey200)', fontSize: 12, fontWeight: 400 }}>连接到 MongoDB 和 DGraph</span>
                         </div>
-                    </CreateNewButton> */}
+                    </CreateNewButton>
                 </div>
 
                 {contextMenuTarget &&
@@ -281,54 +285,55 @@ export function FileManagementView() {
 
                     </Callout>
                 }
-                {
-                    overviews.map(
-                        overview => <React.Fragment key={overview.dataSource.id}>
-                            <div style={{ fontWeight: 600, fontSize: 14, height: 72, alignItems: 'center', display: 'inline-flex', paddingLeft: 24, columnGap: 8, paddingTop: 24 }}>
-                                <SpacedText>
-                                    {overview.dataSource.name}
-                                </SpacedText>
-                                <SpacedText style={{ color: 'var(--grey200)', fontWeight: 600, fontFamily: 'var(--mono-font)' }}>
-                                    {`${overview.dataSource.mongo.hostAddress}:${overview.dataSource.mongo.port}`}
-                                </SpacedText>
-                            </div>
+                <div style={{ height: "calc(100vh - 260px)", overflow: 'auto', borderTop: '1px solid var(--grey100)',  }}>
+                    {
+                        overviews.map(
+                            overview => <React.Fragment key={overview.dataSource.id}>
+                                <div style={{ fontWeight: 600, fontSize: 14, height: 72, alignItems: 'center', display: 'inline-flex', paddingLeft: 24, columnGap: 8, paddingTop: 24 }}>
+                                    <SpacedText>
+                                        {overview.dataSource.name}
+                                    </SpacedText>
+                                    <SpacedText style={{ color: 'var(--grey200)', fontWeight: 600, fontFamily: 'var(--mono-font)' }}>
+                                        {`${overview.dataSource.mongo.hostAddress}:${overview.dataSource.mongo.port}`}
+                                    </SpacedText>
+                                </div>
 
-                            <div style={{
-                                display: 'grid',
-                                gridTemplateColumns: 'repeat(auto-fit, 280px)',
-                                rowGap: 16,
-                                width: '100%',
-                                columnGap: 16,
-                                padding: '8px 24px 24px',
-                            }}>
-                                {
-                                    _.sortBy(overview.queries, it => -it.createTime).map(
-                                        f => <DocumentButton
-                                            key={f.id}
-                                            onClick={_ => {
-                                                navigate(`file?fileId=${f.id}`, { state: { fileId: f.id } })
-                                            }}
-                                            onContextMenu={ev => {
-                                                setContextMenuTarget({ event: ev.nativeEvent, file: f });
-                                                ev.preventDefault();
-                                            }}
-                                        >
-                                            <div style={{ background: 'var(--grey50)', width: 'calc(100% + 32px)', height: 'calc(100% + 8px)', margin: '-16px -16px 0 -16px' }}>
-                                                <FileThumbnail file={f} />
-                                            </div>
-                                            <SpacedText className="truncate">{f.name}</SpacedText>
-                                            <span className="truncate" style={{ fontSize: 12, fontWeight: 400, color: 'var(--grey200)' }}>
-                                                {pangu.spacing(`${f.lastEditTime === f.createTime ? "创建" : "修改"}于${dateFormatter.format(f.lastEditTime)}`)}
-                                            </span>
-                                        </DocumentButton>
+                                <div style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: 'repeat(auto-fit, 280px)',
+                                    rowGap: 16,
+                                    width: '100%',
+                                    columnGap: 16,
+                                    padding: '8px 24px 24px',
+                                }}>
+                                    {
+                                        _.sortBy(overview.queries, it => -it.createTime).map(
+                                            f => <DocumentButton
+                                                key={f.id}
+                                                onClick={_ => {
+                                                    navigate(`file?fileId=${f.id}`, { state: { fileId: f.id } })
+                                                }}
+                                                onContextMenu={ev => {
+                                                    setContextMenuTarget({ event: ev.nativeEvent, file: f });
+                                                    ev.preventDefault();
+                                                }}
+                                            >
+                                                <div style={{ background: 'var(--grey50)', width: 'calc(100% + 32px)', height: 'calc(100% + 8px)', margin: '-16px -16px 0 -16px' }}>
+                                                    <FileThumbnail file={f} />
+                                                </div>
+                                                <SpacedText className="truncate">{f.name}</SpacedText>
+                                                <span className="truncate" style={{ fontSize: 12, fontWeight: 400, color: 'var(--grey200)' }}>
+                                                    {pangu.spacing(`${f.lastEditTime === f.createTime ? "创建" : "修改"}于${dateFormatter.format(f.lastEditTime)}`)}
+                                                </span>
+                                            </DocumentButton>
 
-                                    )
-                                }
-                            </div>
-                        </React.Fragment>
-                    )
-                }
-
+                                        )
+                                    }
+                                </div>
+                            </React.Fragment>
+                        )
+                    }
+                </div>
             </div>}
 
 

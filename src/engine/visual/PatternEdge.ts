@@ -24,7 +24,7 @@ export class PatternEdge implements IFocusableElement<VisualElementType.Edge> {
     private isDirected: boolean;
     public uuid: string;
 
-    protected renderElements?: RenderElements
+    public renderElements?: RenderElements
 
     constructor(
         from: PatternNode,
@@ -137,6 +137,7 @@ export class PatternEdge implements IFocusableElement<VisualElementType.Edge> {
     }
 
     public detach() {
-        this.renderElements?.root.remove();
+        // this.renderElements?.root.remove();
+        this.renderElements?.root.transition().attr('opacity', 0).duration(600).remove();
     }
 }

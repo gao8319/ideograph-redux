@@ -13,12 +13,9 @@ import { Dictionary } from "lodash";
 import { QueryForageItem } from "../utils/global/Storage";
 import { center, getDistanceSquared, IPoint } from "../utils/common/layout";
 import { nameCandidates } from "../utils/NameCandidates";
+import { PatternGroup } from "./visual/PatternGroup";
+import { ElementType } from "@fluentui/react";
 
-
-const applyCTM = (m: DOMMatrix, p: IPoint) => ({
-    x: m.a * p.x + m.c * p.y + m.e,
-    y: m.b * p.x + m.d * p.y + m.f
-})
 
 export enum RaiseMessageType {
     Error,
@@ -50,6 +47,7 @@ export class PatternGraphEngine {
         this.connectionIndicator = undefined;
         Object.values(this.nodeDict).forEach(_n => _n.setDisabled(false))
         Object.values(this.edgeDict).forEach(_n => _n.setDisabled(false))
+        Object.values(this.groupDict).forEach(_n => _n.setDisabled(false))
     }
     public editPayload: string | number | null = null
 
@@ -58,6 +56,7 @@ export class PatternGraphEngine {
     public svgLayer: D3<SVGSVGElement>
     public nodeLayer: D3<SVGGElement>
     public edgeLayer: D3<SVGGElement>
+    public groupLayer: D3<SVGGElement>
 
 
     /**
@@ -72,6 +71,9 @@ export class PatternGraphEngine {
     };
     public get focusedElement() { return this._focusedElement }
     public set focusedElement(e: IFocusableElement | null) {
+
+        this.clearElementSelection();
+
         if (this._focusedElement === e) return;
 
         this._focusedElementChangedCallback?.(e, this._focusedElement);
@@ -82,7 +84,46 @@ export class PatternGraphEngine {
     }
 
 
+    private _elementSelection = new Set<IFocusableElement>();
+    private _addElementToSelection(ele: IFocusableElement) {
+        if (this._focusedElement) {
+            this._elementSelection.add(this._focusedElement);
+
+            this._focusedElement = null;
+        }
+        this._elementSelection.add(ele);
+        ele.focus();
+    }
+    private _removeElementFromSelection(ele: IFocusableElement) {
+        ele.blur();
+        this._elementSelection.delete(ele);
+    }
+    public toggleElementSelection(ele: IFocusableElement) {
+        if (this._elementSelection.has(ele)) {
+            this._removeElementFromSelection(ele);
+        }
+        else {
+            this._addElementToSelection(ele);
+        }
+    }
+
+    public clearElementSelection() {
+        this._elementSelection.forEach(ele => {
+            ele.blur();
+        })
+        this._elementSelection = new Set<IFocusableElement>();
+    }
+
+
     private _onNodeContextMenu?: (n: PatternNode, event: MouseEvent) => void;
+
+    private _onSelectionContextMenu?: (
+        set: Set<IFocusableElement>,
+        firedAt: IFocusableElement,
+        event: MouseEvent
+    ) => void;
+
+
     private _onNodeCreatedCallback?: (n: IPatternNode) => void;
 
     private _onEdgeSelectTypeCallback?: (
@@ -104,25 +145,19 @@ export class PatternGraphEngine {
     public setOnConstraintCreatedCallback = (cb: typeof this._onConstraintCreatedCallback) => { this._onConstraintCreatedCallback = cb; }
     public setRaiseMessageCallback = (cb: typeof this._onRaiseMessageCallback) => { this._onRaiseMessageCallback = cb; }
     public setOnNodeContextMenu = (cb: typeof this._onNodeContextMenu) => { this._onNodeContextMenu = cb; }
-
-    public setOnEdgeSelectTypeCallback = (cb: typeof this._onEdgeSelectTypeCallback) => {
-        this._onEdgeSelectTypeCallback = cb;
-    }
+    public setOnSelectionContextMenu = (cb: typeof this._onSelectionContextMenu) => { this._onSelectionContextMenu = cb; }
+    public setOnEdgeSelectTypeCallback = (cb: typeof this._onEdgeSelectTypeCallback) => { this._onEdgeSelectTypeCallback = cb; }
 
     public notifyElementConstrained(ele: (IPatternNode | IPatternEdge) & {
         type: VisualElementType;
     }, isConstrained = true) {
         if (ele.type === VisualElementType.Node) {
             this.nodeDict[ele.id].isConstrained = isConstrained;
-        } else {
+        } else if (ele.type === VisualElementType.Edge) {
             this.edgeDict[ele.id].isConstrained = isConstrained;
         }
     }
 
-    // private _onDeleteElement: (ele: IPatternEdge| IPatternNode) => void = ()=>{};
-    // public setOnDeleteElement = (cb: typeof this._onDeleteElement) => {
-    //     this._onDeleteElement = cb;
-    // }
     public deleteElement = (ele: IPatternEdge | IPatternNode) => {
 
         const node = this.nodeDict[ele.id]
@@ -156,6 +191,7 @@ export class PatternGraphEngine {
     }
     private nodeDict: Dictionary<PatternNode> = {};
     private edgeDict: Dictionary<PatternEdge> = {};
+    private groupDict: Dictionary<PatternGroup> = {};
 
     private zoomTransform?: d3.ZoomTransform;
 
@@ -171,10 +207,15 @@ export class PatternGraphEngine {
         this.svgLayer.on('contextmenu', (ev) => {
             ev.preventDefault();
         })
+
+        this.groupLayer = this.svgLayer.append('g')
+            .attr('class', 'engine-core')
+
         this.edgeLayer = this.svgLayer.append('g')
             .attr('class', 'engine-core')
         this.nodeLayer = this.svgLayer.append('g')
             .attr('class', 'engine-core')
+
         const mouseRoot = d3.select(document.body)
             .append('svg')
             .classed('mouse-layer', true)
@@ -191,6 +232,7 @@ export class PatternGraphEngine {
                     this.zoomTransform = e.transform;
                     this.nodeLayer.attr('transform', t)
                     this.edgeLayer.attr('transform', t)
+                    this.groupLayer.attr('transform', t)
                     mouseRoot.attr('transform', t);
                 })
             }) as any
@@ -264,47 +306,6 @@ export class PatternGraphEngine {
             }
             case EditMode.CreatingEdgeTo: {
                 break;
-                if (!this.mouseIndicatorLayer) break;
-
-                // if (isNotEmpty(this.createEdgeFrom)) {
-                //     if (this.mouseHoveringAtNode && !this.mouseHoveringAtNode.getDisabled()) {
-                //         const newArrow = new Arrow(
-                //             this.createEdgeFrom!.logicPosition,
-                //             this.mouseHoveringAtNode.logicPosition,
-                //             18,
-                //             true);
-                //         if (!this.connectionIndicator) {
-                //             this.connectionIndicator = newArrow;
-                //             this.connectionIndicator
-                //                 .attachTo(this.mouseIndicatorLayer)
-                //                 .attr('opacity', 0.4)
-                //                 .attr('stroke-dasharray', 'none');
-                //         }
-                //         else {
-                //             this.connectionIndicator.applyAttributes(newArrow.getAttributes())
-                //             this.connectionIndicator
-                //                 .attr('stroke-dasharray', 'none');
-                //         }
-                //     }
-                //     else {
-                //         if (!this.connectionIndicator) {
-                //             this.connectionIndicator = new Arrow(
-                //                 this.createEdgeFrom!.logicPosition,
-                //                 { x: ev.offsetX, y: ev.offsetY },
-                //                 18, false);
-                //             this.connectionIndicator.attachTo(this.mouseIndicatorLayer)
-                //                 .attr('opacity', 0.4)
-                //                 .attr('stroke-dasharray', '8, 8');
-                //         }
-                //         else {
-                //             const newPoint = this.zoomTransform?.invert([ev.offsetX, ev.offsetY])
-                //             this.connectionIndicator.modifyEndpoint({ x: newPoint ? newPoint[0] : ev.offsetX, y: newPoint ? newPoint[1] : ev.offsetY })
-                //             this.connectionIndicator
-                //                 .attr('stroke-dasharray', '8, 8');
-                //         }
-                //     }
-                // }
-                break;
             }
             default: {
                 break;
@@ -358,7 +359,18 @@ export class PatternGraphEngine {
                             this.onNodePointerLeave(n, mouseEvent)
                         })
                         n.on('contextmenu', mouseEvent => {
-                            this._onNodeContextMenu?.(n, mouseEvent)
+                            if (this._elementSelection.size > 0) {
+                                if (this._elementSelection.has(n)) {
+                                    this._onSelectionContextMenu?.(this._elementSelection, n, mouseEvent);
+                                }
+                                else {
+                                    this.focusedElement = n;
+                                    this._onNodeContextMenu?.(n, mouseEvent)
+                                }
+                            }
+                            else {
+                                this._onNodeContextMenu?.(n, mouseEvent)
+                            }
                         })
                         n.renderElements?.root.call(
                             d3.drag<SVGGElement, any>()
@@ -387,6 +399,7 @@ export class PatternGraphEngine {
                     to.setDisabled(false);
                 })
                 Object.values(this.edgeDict).forEach(_n => _n.setDisabled(false))
+                Object.values(this.groupDict).forEach(_n => _n.setDisabled(false))
                 this.focusedElement = null;
                 this.editMode = EditMode.CreatingEdgeFrom;
                 break;
@@ -422,7 +435,7 @@ export class PatternGraphEngine {
                     to.setDisabled(true);
                 }
             })
-
+            Object.values(this.groupDict).forEach(_n => _n.setDisabled(true))
             Object.values(this.edgeDict).forEach(_n => _n.setDisabled(true))
         }
         else if (this.editMode === EditMode.CreatingEdgeTo) {
@@ -535,6 +548,7 @@ export class PatternGraphEngine {
             }
             Object.values(this.nodeDict).forEach(_n => _n.setDisabled(false))
             Object.values(this.edgeDict).forEach(_n => _n.setDisabled(false))
+            Object.values(this.groupDict).forEach(_n => _n.setDisabled(false))
 
             this.focusedElement = null;
             this.createEdgeFrom = null;
@@ -542,7 +556,12 @@ export class PatternGraphEngine {
             this.editMode = EditMode.CreatingEdgeFrom;
         }
         else {
-            this.focusedElement = n;
+            if (ev.metaKey) {
+                this.toggleElementSelection(n);
+            }
+            else {
+                this.focusedElement = n;
+            }
         }
         ev.stopPropagation();
     }
@@ -565,7 +584,12 @@ export class PatternGraphEngine {
             this.createEdgeFrom = null;
             this.editMode = EditMode.CreatingEdgeFrom;
         }
-        this.focusedElement = e;
+        if (ev.metaKey) {
+            this.toggleElementSelection(e);
+        }
+        else {
+            this.focusedElement = e;
+        }
         ev.stopPropagation();
     }
 
@@ -598,7 +622,7 @@ export class PatternGraphEngine {
                             to.setDisabled(true);
                         }
                     })
-
+                    Object.values(this.groupDict).forEach(_n => _n.setDisabled(true));
                     Object.values(this.edgeDict).forEach(_n => _n.setDisabled(true));
                     this.isDragNailed = true;
 
@@ -638,37 +662,6 @@ export class PatternGraphEngine {
                             .attr('stroke-dasharray', '8, 8');
                     }
                     else {
-                        // const inverted = this.zoomTransform?.invert([ev.sourceEvent.x, ev.sourceEvent.clientY]);
-
-                        // const ctm = this.mouseIndicatorLayer?.node()?.getCTM();
-                        // console.log(ctm && applyCTM(ctm, ev));
-
-                        // console.log(
-                        //     this.dragStartNode.logicPosition,
-                        //     this.zoomTransform?.invert([ev.sourceEvent.clientX, ev.sourceEvent.clientY]),
-                        //     this.zoomTransform?.invert([ev.sourceEvent.offsetX, ev.sourceEvent.offsetY]),
-                        //     this.zoomTransform?.invert([ev.sourceEvent.pageX, ev.sourceEvent.pageY]),
-                        //     this.zoomTransform?.invert([ev.x, ev.y]),
-                        //     // @ts-ignore
-                        //     this.zoomTransform?.invert([ev.subject.x, ev.subject.y]),
-
-                        //     this.zoomTransform?.apply([ev.sourceEvent.clientX, ev.sourceEvent.clientY]),
-                        //     this.zoomTransform?.apply([ev.sourceEvent.offsetX, ev.sourceEvent.offsetY]),
-                        //     this.zoomTransform?.apply([ev.sourceEvent.pageX, ev.sourceEvent.pageY]),
-                        //     this.zoomTransform?.apply([ev.x, ev.y]),
-                        //     // @ts-ignore
-                        //     this.zoomTransform?.apply([ev.subject.x, ev.subject.y]),
-
-
-                        //     ([ev.sourceEvent.clientX, ev.sourceEvent.clientY]),
-                        //     ([ev.sourceEvent.offsetX, ev.sourceEvent.offsetY]),
-                        //     ([ev.sourceEvent.pageX, ev.sourceEvent.pageY]),
-                        //     ([ev.x, ev.y]),
-                        //     // @ts-ignore
-                        //     ([ev.subject.x, ev.subject.y]),
-                        // )
-                        // console.log(inverted, ev)
-
                         this.connectionIndicator.modifyEndpoint(ev)
                         this.connectionIndicator
                             .attr('stroke-dasharray', '8, 8');
@@ -811,7 +804,19 @@ export class PatternGraphEngine {
                 this.onNodePointerLeave(patternNode, mouseEvent)
             })
             patternNode.on('contextmenu', mouseEvent => {
-                this._onNodeContextMenu?.(patternNode, mouseEvent)
+
+                if (this._elementSelection.size > 0) {
+                    if (this._elementSelection.has(patternNode)) {
+                        this._onSelectionContextMenu?.(this._elementSelection, patternNode, mouseEvent);
+                    }
+                    else {
+                        this.focusedElement = patternNode;
+                        this._onNodeContextMenu?.(patternNode, mouseEvent)
+                    }
+                }
+                else {
+                    this._onNodeContextMenu?.(patternNode, mouseEvent)
+                }
             })
 
             patternNode.renderElements?.root.call(
@@ -857,5 +862,45 @@ export class PatternGraphEngine {
                 type: VisualElementType.Node
             })
         })
+    }
+
+
+    public aggregateSelection(multiplier?: number) {
+        const group = new PatternGroup(nanoid(), this._elementSelection as Set<PatternEdge | PatternNode>);
+        this._elementSelection.forEach(ele => {
+            if (ele.elementType == VisualElementType.Node) {
+                delete this.nodeDict[(ele as PatternNode).uuid]
+            }
+            else if (ele.elementType == VisualElementType.Edge) {
+                delete this.edgeDict[(ele as PatternEdge).uuid]
+            }
+        })
+        this.groupDict[group.uuid] = group;
+        group.attachTo(this.groupLayer);
+        group.setMultiplier(multiplier);
+        group.on('click', () => {
+            this.focusedElement = group;
+        })
+        this.clearElementSelection();
+    }
+
+    public breakGroup(uuid: string) {
+        const breaked = this.groupDict[uuid].break();
+        breaked.forEach(ele => {
+            if (ele.elementType == VisualElementType.Node) {
+                this.nodeDict[ele.uuid] = ele;
+            }
+            else if (ele.elementType == VisualElementType.Edge) {
+                this.edgeDict[ele.uuid] = ele;
+            }
+        })
+    }
+
+    public generatePatternGraphContext() {
+        return {
+            nodes: this.nodeDict,
+            edges: this.edgeDict,
+            groups: this.groupDict,
+        }
     }
 }

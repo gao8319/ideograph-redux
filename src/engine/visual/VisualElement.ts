@@ -2,6 +2,7 @@
 export enum VisualElementType {
     Node,
     Edge,
+    Group
 }
 
 export interface IVisualElement<T extends VisualElementType = VisualElementType> {

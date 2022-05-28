@@ -6,8 +6,15 @@ export interface IPoint {
 
 export const center = (...args: IPoint[]): IPoint => {
     return {
-        x: d3.sum(args, p => p.x) /args.length,
-        y: d3.sum(args, p => p.y) /args.length,
+        x: d3.sum(args, p => p.x) / args.length,
+        y: d3.sum(args, p => p.y) / args.length,
+    }
+}
+
+export const addVector = (p: IPoint, vec: IVector): IPoint => {
+    return {
+        x: p.x + vec.x,
+        y: p.y + vec.y
     }
 }
 

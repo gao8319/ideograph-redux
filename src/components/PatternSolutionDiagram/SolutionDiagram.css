@@ -26,3 +26,11 @@
 svg:hover>.hover-only {
     opacity: 1;
 }
+
+
+.aggr-node-text {
+    font-size: 10px;
+    text-anchor: middle;
+    dominant-baseline: central;
+    
+}

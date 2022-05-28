@@ -84,7 +84,6 @@ export const QueryModal = (props: IQueryModalProps) => {
                         )
                     }
 
-                    console.log(pattern)
                     setStatus(PatternQueryStatus.SendingRequest)
                     // const sol = await querySolvePattern(pattern);
                     const compositePattern: Solution.CompositePattern = {
@@ -94,6 +93,10 @@ export const QueryModal = (props: IQueryModalProps) => {
                         ) ?? [],
                         ...pattern,
                     }
+
+                    
+
+
                     if (top && top !== window) {
                         top.postMessage(compositePattern)
                     }
