@@ -17,6 +17,8 @@ import { GlobalPanel } from "./GlobalPanel";
 import _ from "lodash";
 import { WorkspaceCommand } from "../../WorkspaceHeader/WorkspaceCommand";
 import { applyQuery } from "../../../store/slice/modelSlicer";
+import { createPortal } from "react-dom";
+import { ideographDarkTheme } from "../../../utils/ideographTheme";
 
 export interface IGlobalPanelContentRef {
     getConstraintContext: () => Omit<IConstraintContext, "constraints"> | null;
@@ -76,12 +78,30 @@ export const GlobalPanelContent = React.forwardRef<IGlobalPanelContentRef, IGlob
 
     const nodeDictRef = useRef<Map<string, Node>>(new Map());
 
+    const [contextMenuProps, setContextMenuProps] = useState<[MouseEvent, () => void]>();
+
     useEffect(() => {
         const container = x6ContainerRef.current;
         if (container) {
             const g = createLogicComposingGraph(container);
             x6Ref.current = g;
             logicOperatorSet.current = new Set();
+            x6Ref.current.on("node:contextmenu", event => {
+                setContextMenuProps(
+                    [event.e as any as MouseEvent,
+                    () => {
+                        event.node.remove();
+                    }]
+                )
+            })
+            x6Ref.current.on("edge:contextmenu", event => {
+                setContextMenuProps(
+                    [event.e as any as MouseEvent,
+                    () => {
+                        event.edge.remove();
+                    }]
+                )
+            })
             return () => {
                 g?.dispose();
                 x6Ref.current = undefined;
@@ -161,6 +181,7 @@ export const GlobalPanelContent = React.forwardRef<IGlobalPanelContentRef, IGlob
                     rects[0].contentRect.width,
                     rects[0].contentRect.height,
                 )
+
             }, 200))
             ro.observe(observedRef.current)
             return () => {
@@ -233,9 +254,9 @@ export const GlobalPanelContent = React.forwardRef<IGlobalPanelContentRef, IGlob
         <div className="constraint-pool-root" ref={observedRef}>
             <div className="x6-container" ref={x6ContainerRef} />
         </div>
-        <div style={{display: 'flex', columnGap: 8, position: 'absolute', right: 8, bottom: 8, width: '100%', justifyContent: 'flex-end'}}>
+        <div style={{ display: 'flex', columnGap: 8, position: 'absolute', right: 8, bottom: 8, width: '100%', justifyContent: 'flex-end' }}>
 
-        {/* <WorkspaceCommand activated={false}
+            {/* <WorkspaceCommand activated={false}
             // hint='匹配查询'
             // shortcut=' Enter'
             // cmd
@@ -246,17 +267,17 @@ export const GlobalPanelContent = React.forwardRef<IGlobalPanelContentRef, IGlob
             onClick={_ => dispatch(applyQuery(true))}>
             {/* <Search16 fill="#fff" /> 
         </WorkspaceCommand> */}
-        <WorkspaceCommand activated={false}
-            hint='匹配查询'
-            shortcut=' Enter'
-            cmd
-            autoLength
-            forcedHighlight
-            text='查询'
-            style={{ color: '#fff', marginRight: 8, padding: '0 24px', }}
-            onClick={_ => dispatch(applyQuery(true))}>
-            <Search16 fill="#fff" />
-        </WorkspaceCommand>
+            <WorkspaceCommand activated={false}
+                hint='匹配查询'
+                shortcut=' Enter'
+                cmd
+                autoLength
+                forcedHighlight
+                text='查询'
+                style={{ color: '#fff', marginRight: 8, padding: '0 24px', }}
+                onClick={_ => dispatch(applyQuery(true))}>
+                <Search16 fill="#fff" />
+            </WorkspaceCommand>
         </div>
 
         <Callout
@@ -280,7 +301,10 @@ export const GlobalPanelContent = React.forwardRef<IGlobalPanelContentRef, IGlob
                             id: nanoid(),
                         }
                         logicOperatorSet.current?.add(newAndOperator)
-                        x6Ref.current && addLogicAndNode(x6Ref.current, newAndOperator.id);
+                        if (x6Ref.current) {
+                            const node = addLogicAndNode(x6Ref.current, newAndOperator.id);
+                            // node.
+                        }
                         setLogicOperatorMenuOpen(false)
                     }}>
                     <span>与</span>
@@ -321,5 +345,32 @@ export const GlobalPanelContent = React.forwardRef<IGlobalPanelContentRef, IGlob
 
 
         </Callout>
+
+        {
+            contextMenuProps && createPortal(
+                <Callout
+                    target={contextMenuProps[0]}
+                    directionalHint={DirectionalHint.bottomLeftEdge}
+                    onDismiss={ev => setContextMenuProps(undefined)}
+                    theme={ideographDarkTheme}
+                    beakWidth={0}
+                    calloutMaxWidth={320}
+                    styles={{
+                        calloutMain: {
+                            borderRadius: 0,
+                            padding: '8px 0'
+                        }
+                    }}>
+                    <div className='contextual-callout-item' onClick={ev => {
+                        contextMenuProps[1]()
+                        setContextMenuProps(undefined)
+                    }}>
+                        <div style={{ fontSize: 13 }}>移除</div>
+                    </div>
+                </Callout>,
+                document.body
+            )
+        }
+
     </GlobalPanel>
 })

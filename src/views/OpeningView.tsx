@@ -17,15 +17,26 @@ import { deleteFile, initOverviewAsync, loadFileAsync, overviewSelectors, setOve
 import { pangu } from "../utils/common/pangu";
 import { useNavigate } from 'react-router-dom';
 import { ConnectDialog } from "../components/Dialogs/ConnectDialog";
-import { useTitle } from "react-use";
+import { useTitle, useWindowSize } from "react-use";
 import { FileThumbnail } from "../components/Thumbnail/FileThumbnail";
 import _ from "lodash";
 import { Callout, DirectionalHint } from "@fluentui/react";
 import { ideographDarkTheme } from "../utils/ideographTheme";
 import { nanoid } from "@reduxjs/toolkit";
 import { SolutionDiagramGridView } from "../components/PatternSolutionDiagram/PatternSolutionDiagram";
+import { ImportFileIcon, NewFileIcon } from "../components/Icons/NewFile";
 
+const layout = {
+    margin: 24,
+    columnGap: 16
+}
 
+const calcBlockSize = (width: number) => {
+    const approximateBlockCount = Math.floor(width / 290)
+    const blockWidth = (width - ((approximateBlockCount - 1) * layout.columnGap) - (2 * layout.margin)) / approximateBlockCount
+
+    return blockWidth
+}
 
 const OpenningTab = styled(Button)(t => ({
     fontSize: 13,
@@ -158,26 +169,15 @@ export function FileManagementView() {
     const [history, setHistory] = useState<Record<string, PatternHistoryForageItem>>({});
 
 
+    const windowSize = useWindowSize();
+
 
     return <>
-        <OpeningViewHeader />
+        {/* <OpeningViewHeader /> */}
 
-        <div style={{ backgroundColor: '#fff', height: 'calc(100vh - 48px)', width: '100vw', position: 'relative', display: 'grid', gridTemplateColumns: `${lPanelWidth + 1}px 1fr` }}>
-            <div className="concept-panel-root panel opening-left-panel" style={{ width: lPanelWidth }}>
-                <div style={{ height: '100%', padding: '16px 0', gridTemplateRows: 'auto auto 1fr auto', display: 'grid' }}>
-                    {
-                        tabs.map((tab, index) => {
-                            if (activeTab === index) return <OpenningTabActive key={tab.key} onClick={_ => setActiveTab(index)}>
-                                {tab.name}
-                            </OpenningTabActive>
-                            return <OpenningTab key={tab.key} onClick={_ => setActiveTab(index)}>
-                                {tab.name}
-                            </OpenningTab>
-                        })
-                    }
-                </div>
-            </div>
-            {activeTab === 0 && <div className="opening-tab">
+        <div style={{ backgroundColor: '#fff', height: '100vh', width: '100vw', position: 'relative', }}>
+
+            {activeTab === 0 && <div className="opening-tab" style={{ height: '100vh' }}>
 
                 <div style={{ fontWeight: 600, fontSize: 14, height: 60, alignItems: 'center', display: 'inline-flex', paddingLeft: 24, columnGap: 8, paddingTop: 12 }}>
                     <SpacedText>
@@ -211,9 +211,9 @@ export function FileManagementView() {
                             }
                         }
                     } />
-                <div style={{ display: 'grid', columnGap: 16, rowGap: 16, padding: '8px 24px 24px 24px', gridTemplateColumns: 'repeat(auto-fit, 280px)' }}>
+                <div style={{ display: 'grid', columnGap: 16, rowGap: 16, padding: '8px 24px 24px 24px', gridTemplateColumns: `repeat(auto-fit, ${calcBlockSize(windowSize.width)}px)` }}>
                     <CreateNewButton onClick={_ => setDialog("create")}>
-                        <img src="/static/file.svg" width={48} height={48} />
+                        <NewFileIcon style={{ width: 48, height: 48 }} />
                         <div>
                             <span className="truncate" style={{ display: 'block' }}>新建查询</span>
                             <span className="truncate" style={{ display: 'block', color: 'var(--grey200)', fontSize: 12, fontWeight: 400 }}>构建新的查询条件</span>
@@ -222,19 +222,19 @@ export function FileManagementView() {
                     <CreateNewButton onClick={_ => {
                         fileInputRef?.current?.click();
                     }}>
-                        <img src="/static/import.svg" width={48} height={48} />
+                        <ImportFileIcon style={{ width: 48, height: 48 }} />
                         <div>
                             <span className="truncate" style={{ display: 'block' }}>从文件导入</span>
                             <span className="truncate" style={{ display: 'block', color: 'var(--grey200)', fontSize: 12, fontWeight: 400 }}>从 JSON 文件导入查询条件</span>
                         </div>
                     </CreateNewButton>
-                    <CreateNewButton onClick={_ => setDialog("connect")}>
+                    {/* <CreateNewButton onClick={_ => setDialog("connect")}>
                         <img src="/static/database.svg" width={48} height={48} />
                         <div>
                             <span className="truncate" style={{ display: 'block' }}>连接数据源</span>
                             <span className="truncate" style={{ display: 'block', color: 'var(--grey200)', fontSize: 12, fontWeight: 400 }}>连接到 MongoDB 和 DGraph</span>
                         </div>
-                    </CreateNewButton>
+                    </CreateNewButton> */}
                 </div>
 
                 {contextMenuTarget &&
@@ -285,22 +285,20 @@ export function FileManagementView() {
 
                     </Callout>
                 }
-                <div style={{ height: "calc(100vh - 260px)", overflow: 'auto', borderTop: '1px solid var(--grey100)',  }}>
+                <div style={{ height: "calc(100vh - 212px)", overflow: 'auto', borderTop: '1px solid var(--grey100)', }}>
+                    <div style={{ fontWeight: 600, fontSize: 14, height: 72, alignItems: 'center', display: 'inline-flex', paddingLeft: 24, columnGap: 8, paddingTop: 8 }}>
+                        <SpacedText>
+                            历史查询
+                        </SpacedText>
+                    </div>
+
                     {
                         overviews.map(
                             overview => <React.Fragment key={overview.dataSource.id}>
-                                <div style={{ fontWeight: 600, fontSize: 14, height: 72, alignItems: 'center', display: 'inline-flex', paddingLeft: 24, columnGap: 8, paddingTop: 24 }}>
-                                    <SpacedText>
-                                        {overview.dataSource.name}
-                                    </SpacedText>
-                                    <SpacedText style={{ color: 'var(--grey200)', fontWeight: 600, fontFamily: 'var(--mono-font)' }}>
-                                        {`${overview.dataSource.mongo.hostAddress}:${overview.dataSource.mongo.port}`}
-                                    </SpacedText>
-                                </div>
 
                                 <div style={{
                                     display: 'grid',
-                                    gridTemplateColumns: 'repeat(auto-fit, 280px)',
+                                    gridTemplateColumns: `repeat(auto-fit, ${calcBlockSize(windowSize.width)}px)`,
                                     rowGap: 16,
                                     width: '100%',
                                     columnGap: 16,
@@ -337,37 +335,7 @@ export function FileManagementView() {
             </div>}
 
 
-            {
-                activeTab === 1 && <div className="opening-tab">
-                    <div style={{ fontWeight: 600, fontSize: 14, height: 60, alignItems: 'center', display: 'flex', paddingLeft: 24, columnGap: 8, paddingTop: 24 }}>
-                        <SpacedText>
-                            查询历史
-                        </SpacedText>
-                    </div>
-                    {
-                        Object.keys(history).map(
-                            hist => <>
-                                <div style={{ fontWeight: 500, fontSize: 14, height: 72, alignItems: 'center', display: 'flex', paddingLeft: 24, columnGap: 42, paddingTop: 24 }}>
-                                    <SpacedText>
-                                        {overviews.flatMap(it => it.queries).find(it => it.id === hist)?.name ?? ""}
-                                    </SpacedText>
-                                    <SpacedText style={{ color: 'var(--grey200)', fontWeight: 500 }}>
-                                        {`${dateFormatter.format(history[hist].queryTimestamp)}，${history[hist].solutions.length}个结果`}
-                                    </SpacedText>
-                                </div>
-                            </>
-                        )
-                    }
-                </div>
-            }
 
-            {
-                activeTab === 2 && <div className="opening-tab">
-                    <div>
-
-                    </div>
-                </div>
-            }
         </div>
 
 

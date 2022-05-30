@@ -2,7 +2,7 @@
 import _ from "lodash";
 import { Solution } from "../../services/PatternSolution";
 import { IPatternEdge, IPatternNode } from "../../utils/common/graph";
-import { IBox, IOffsetRect, IPoint, IRect } from "../../utils/common/layout";
+import { IBox, IOffsetRect, IPoint } from "../../utils/common/layout";
 import * as d3 from 'd3';
 import { Arrow } from "../../engine/elements/Arrow";
 // import './SolutionDiagram.css'
@@ -21,7 +21,7 @@ const getBoundingBox = <T extends { position: IPoint }>(boxes: T[]): IOffsetRect
     return { top, bottom, left, right }
 }
 
-// todo: emoji
+// todo: emoji split
 const describeText = (text: string) => {
     if (text.match(/[\x00-\xff]*/)) {
         const texts = text.split(' ')

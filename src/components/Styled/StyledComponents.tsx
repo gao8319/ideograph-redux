@@ -87,6 +87,25 @@ export const StyledButton = styled(Button)(
 )
 
 
+export const StyledDefaultButton2 = styled(Button)(
+    theme => ({
+        minHeight: 0,
+        backgroundColor: 'var(--grey100)',
+        padding: '0 16px',
+        minWidth: 0,
+        borderRadius: 3,
+        fontSize: 13,
+        height: 36,
+        color: '#000',
+        lineHeight: 1,
+        
+        '&:hover': {
+            backgroundColor: 'var(--grey200)'
+        },
+    })
+)
+
+
 export const StyledDefaultButton = styled(Button)(
     theme => ({
         minHeight: 0,

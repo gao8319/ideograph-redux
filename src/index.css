@@ -214,3 +214,12 @@ svg.mouse-layer {
     z-index: 99999999999;
     top: 48px;
 }
+
+.grid-hover>div {
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.grid-hover:hover>div {
+    opacity: 1;
+}

@@ -19,41 +19,13 @@ export const initDatabase = async () => {
     // const dataSourceForage = localforage.createInstance({ name: "datasource" })
     // const patternHistoryForage = localforage.createInstance({ name: "history" })
 
-    if (!(await dataSourceForage.getItem<DataSourceForageItem>("162.105.88.139:27026"))) {
+    if (!(await dataSourceForage.getItem<DataSourceForageItem>("162.105.88.139:27035"))) {
         dataSourceForage.setItem<DataSourceForageItem>("162.105.88.139:27035", {
             id: '162.105.88.139:27035',
             name: 'API图谱',
             mongo: {
                 hostAddress: '162.105.88.139',
                 port: 27035,
-                userName: "rootxyx",
-                password: 'woxnsk!',
-            },
-            dgraph: {
-                hostAddress: '162.105.88.139',
-                port: 19482,
-            }
-        })
-        dataSourceForage.setItem<DataSourceForageItem>("162.105.88.139:27026", {
-            id: '162.105.88.139:27035',
-            name: '深圳市医疗数据集',
-            mongo: {
-                hostAddress: '162.105.88.139',
-                port: 27026,
-                userName: "rootxyx",
-                password: 'woxnsk!',
-            },
-            dgraph: {
-                hostAddress: '162.105.88.139',
-                port: 19482,
-            }
-        })
-        dataSourceForage.setItem<DataSourceForageItem>("162.105.88.139:27025", {
-            id: '162.105.88.139:27035',
-            name: '企业股权数据集',
-            mongo: {
-                hostAddress: '162.105.88.139',
-                port: 27025,
                 userName: "rootxyx",
                 password: 'woxnsk!',
             },

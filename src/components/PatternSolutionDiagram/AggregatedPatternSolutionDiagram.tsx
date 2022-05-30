@@ -17,6 +17,9 @@ import { useStateWithHistory } from "react-use"
 import { ForceDirectedSolutionDiagram } from "./ForceDirectedSolutionDiagram"
 import { modelSelector, workspaceSelector } from "../../store/slice/modelSlicer"
 import { createPortal } from "react-dom"
+import { StyledButton, StyledDefaultButton, StyledDefaultButton2 } from "../Styled/StyledComponents"
+import { pangu } from "../../utils/common/pangu"
+import FileSaver from "file-saver"
 interface ISolutionDiagramProps {
     onPaint: (svg: SVGGElement, setCallouProps: (prop?: [SVGElement, Solution.WorkspaceEdge | Solution.WorkspaceNode]) => void) => (() => void),
     style?: React.CSSProperties;
@@ -42,11 +45,36 @@ const FDSolutionRenderer = (props: {
     useEffect(() => {
         if (svgRef.current) {
             props.coreRef.attachTo(svgRef.current, props.index, debounce(setCallouProps, 300))
+
         }
     }, [svgRef])
 
     return <>
-        <svg ref={svgRef} width={320} height={240} style={{ borderRadius: 3, backgroundColor: 'var(--grey50)' }} />
+        <div style={{ width: 320, height: 240, position: 'relative' }} className="grid-hover">
+            <svg ref={svgRef} width={320} height={240} style={{ borderRadius: 3, backgroundColor: 'var(--grey50)' }} />
+
+            <div style={{ width: '100%', display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: 8, padding: 8, position: 'absolute', bottom: 0 }}>
+                <StyledDefaultButton2 onClick={ev => {
+                    var blob = new Blob([JSON.stringify({
+                        pattern: props.coreRef.pattern,
+                        data: props.coreRef.solutions[props.index]
+                    })], { type: "text/plain;charset=utf-8" });
+                    FileSaver.saveAs(blob, `子图检索结果-${new Date().toISOString()}.json`);
+                }}>
+                    {pangu.spacing("导出JSON")}
+                </StyledDefaultButton2>
+                <StyledButton onClick={ev => {
+                    if (top && top !== window) {
+                        postMessage({
+                            pattern: props.coreRef.pattern,
+                            data: props.coreRef.solutions[props.index]
+                        })
+                    }
+                }}>
+                    查看详情
+                </StyledButton>
+            </div>
+        </div>
         {
             createPortal(<> {calloutProps && <Callout
                 target={calloutProps[0]}
