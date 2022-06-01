@@ -3,6 +3,11 @@
 import { BinaryLogicOperator, UnaryLogicOperator } from "../utils/common/operator";
 
 export namespace Solution {
+    
+    export type MessageType = {
+        pattern: Solution.Pattern;
+        data: Solution.PatternSolution;
+    }
 
     export interface Pattern {
         nodes: PatternNode[];
