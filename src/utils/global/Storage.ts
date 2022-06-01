@@ -1,4 +1,5 @@
 import { EntityAdapter, EntityState } from "@reduxjs/toolkit";
+import axios from "axios";
 import localforage from "localforage";
 import _ from "lodash";
 import { Solution } from "../../services/PatternSolution";
@@ -15,27 +16,15 @@ export const patternHistoryForage = localforage.createInstance({ name: "history"
 
 
 export const initDatabase = async () => {
-    // const queryForage = localforage.createInstance({ name: "query" })
-    // const dataSourceForage = localforage.createInstance({ name: "datasource" })
-    // const patternHistoryForage = localforage.createInstance({ name: "history" })
 
-    if (!(await dataSourceForage.getItem<DataSourceForageItem>("162.105.88.139:27035"))) {
-        dataSourceForage.setItem<DataSourceForageItem>("162.105.88.139:27035", {
-            id: '162.105.88.139:27035',
-            name: 'API图谱',
-            mongo: {
-                hostAddress: '162.105.88.139',
-                port: 27035,
-                userName: "rootxyx",
-                password: 'woxnsk!',
-            },
-            dgraph: {
-                hostAddress: '162.105.88.139',
-                port: 19482,
-            }
-        })
-    }
+    const conf = await axios.get<Record<string, DataSourceForageItem>>("static/databaseConfiguration.json")
 
+    Object.entries(conf.data).forEach(async entry => {
+        if (!(await dataSourceForage.getItem<DataSourceForageItem>(entry[0]))) {
+            dataSourceForage.setItem<DataSourceForageItem>(entry[0], entry[1])
+        }
+    })
+    
     return {
         query: queryForage,
         dataSource: dataSourceForage,
@@ -125,7 +114,7 @@ export interface DataSourceForageItem {
     id: string,
     mongo: MongoDbConnectable,
     name: string,
-    dgraph: DGraphConnectable,
+    dgraph?: DGraphConnectable,
 }
 
 export type PatternHistoryForageItem = SolvePatternResponse & {

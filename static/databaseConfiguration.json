@@ -1,0 +1,12 @@
+{
+    "162.105.88.139:27035": {
+        "id": "162.105.88.139:27035",
+        "name": "API 图谱",
+        "mongo": {
+            "hostAddress": "162.105.88.139",
+            "port": 27035,
+            "userName": "(optional field)",
+            "password": "(optional field)"
+        }
+    }
+}
