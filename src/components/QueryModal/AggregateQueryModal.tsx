@@ -88,17 +88,17 @@ export const AggregateQueryModal = (props: IAggergateQueryModalProps) => {
                         aggregations: context.aggregations ?? []
                     }
 
-                    if (top && top !== window) {
-                        top.postMessage(compositePattern)
-                    }
-                    else {
-                        const compositeSolution = await querySolveCompositePatternWithAggregation(
-                            compositePattern
-                        )
-                        // props.onSaveHistory({ ...compositeSolution, queryTimestamp: new Date().getTime() });
-                        setSolutions(compositeSolution)
-                        setStatus(PatternQueryStatus.SolvingResponse);
-                    }
+                    // if (top && top !== window) {
+                    //     top.postMessage(compositePattern)
+                    // }
+                    // else {
+                    const compositeSolution = await querySolveCompositePatternWithAggregation(
+                        compositePattern
+                    )
+                    // props.onSaveHistory({ ...compositeSolution, queryTimestamp: new Date().getTime() });
+                    setSolutions(compositeSolution)
+                    setStatus(PatternQueryStatus.SolvingResponse);
+                    // }
 
                 }
             )

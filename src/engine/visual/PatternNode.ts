@@ -22,7 +22,7 @@ export class PatternNode implements IFocusableElement<VisualElementType.Node> {
     public _alias?: string;
     public get alias() { return this._alias }
 
-    public set alias(value: string | undefined) {
+    public setAlias(value: string | undefined, scale: number) {
         this._alias = value;
         if (value !== undefined) {
             this.renderElements?.root.attr('aliased', true);
@@ -30,15 +30,15 @@ export class PatternNode implements IFocusableElement<VisualElementType.Node> {
             if (this.renderElements) {
                 this.renderElements.aliasText.text(aliasTextString)
                 if (aliasTextString.length > 0) {
-                    const aliasWidth = this.renderElements.aliasText.node()?.getBoundingClientRect().width ?? 0;
-                    const typeWidth = this.renderElements.typeText.node()?.getBoundingClientRect().width ?? 0;
+                    const aliasWidth = (this.renderElements.aliasText.node()?.getBoundingClientRect().width ?? 0) / scale;
+                    const typeWidth = (this.renderElements.typeText.node()?.getBoundingClientRect().width ?? 0) / scale;
                     this.renderElements.typeText.attr('x', -(typeWidth + aliasWidth + 12) / 2)
                     this.renderElements.aliasText.attr('x', -(typeWidth + aliasWidth + 12) / 2 + typeWidth + 8)
                     this.renderElements.aliasContainer.attr('width', aliasTextString.length > 0 ? (aliasWidth + 12) : 0)
                         .attr('x', -(typeWidth + aliasWidth + 12) / 2 + typeWidth + 2)
                 }
                 else {
-                    const typeWidth = this.renderElements.typeText.node()?.getBoundingClientRect().width ?? 0;
+                    const typeWidth = (this.renderElements.typeText.node()?.getBoundingClientRect().width ?? 0) / scale;
                     this.renderElements.typeText.attr('x', -typeWidth / 2)
                     this.renderElements.aliasContainer.attr('width', 0)
                 }
@@ -80,7 +80,8 @@ export class PatternNode implements IFocusableElement<VisualElementType.Node> {
     }
 
     public attachTo(
-        parent: D3<SVGGElement>
+        parent: D3<SVGGElement>,
+        scale: number
     ) {
         const elementGroup = parent.append('g')
             .attr('class', 'p-n')
@@ -110,7 +111,9 @@ export class PatternNode implements IFocusableElement<VisualElementType.Node> {
             .attr('height', 16)
             .attr('rx', 8)
             .attr('ry', 8)
-            .attr('fill', 'transparent')//this.ontologyClass.colorSlot.constrained)
+            .attr('fill', 'transparent')
+            .attr('stroke', this.ontologyClass.colorSlot.darkened)
+            .attr('stroke-width', 1.25)
 
         const aliasTextString = this.alias ? this.getRenderedAlias(this.alias) : ''
         const aliasText = elementGroup.append('text')
@@ -127,8 +130,8 @@ export class PatternNode implements IFocusableElement<VisualElementType.Node> {
             .text(this.ontologyClass.name)
 
         if (aliasTextString.length > 0) {
-            const aliasWidth = aliasText.node()?.getBoundingClientRect().width ?? 0;
-            const typeWidth = typeText.node()?.getBoundingClientRect().width ?? 0;
+            const aliasWidth = (aliasText.node()?.getBoundingClientRect().width ?? 0) / scale;
+            const typeWidth = (typeText.node()?.getBoundingClientRect().width ?? 0) / scale;
 
             typeText.attr('x', -(typeWidth + aliasWidth + 12) / 2)
             aliasText.attr('x', -(typeWidth + aliasWidth + 12) / 2 + typeWidth + 8)
@@ -136,11 +139,9 @@ export class PatternNode implements IFocusableElement<VisualElementType.Node> {
                 .attr('x', -(typeWidth + aliasWidth + 12) / 2 + typeWidth + 2)
         }
         else {
-            const typeWidth = typeText.node()?.getBoundingClientRect().width ?? 0;
+            const typeWidth = (typeText.node()?.getBoundingClientRect().width ?? 0) / scale;
             typeText.attr('x', -typeWidth / 2)
         }
-
-
 
         elementGroup.attr('aliased', Boolean(this._alias));
 

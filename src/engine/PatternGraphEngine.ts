@@ -117,6 +117,9 @@ export class PatternGraphEngine {
 
     private _onNodeContextMenu?: (n: PatternNode, event: MouseEvent) => void;
 
+    private _onEdgeContextMenu?: (n: PatternEdge, event: MouseEvent) => void;
+
+
     private _onSelectionContextMenu?: (
         set: Set<IFocusableElement>,
         firedAt: IFocusableElement,
@@ -145,6 +148,7 @@ export class PatternGraphEngine {
     public setOnConstraintCreatedCallback = (cb: typeof this._onConstraintCreatedCallback) => { this._onConstraintCreatedCallback = cb; }
     public setRaiseMessageCallback = (cb: typeof this._onRaiseMessageCallback) => { this._onRaiseMessageCallback = cb; }
     public setOnNodeContextMenu = (cb: typeof this._onNodeContextMenu) => { this._onNodeContextMenu = cb; }
+    public setOnEdgeContextMenu = (cb: typeof this._onEdgeContextMenu) => { this._onEdgeContextMenu = cb; }
     public setOnSelectionContextMenu = (cb: typeof this._onSelectionContextMenu) => { this._onSelectionContextMenu = cb; }
     public setOnEdgeSelectTypeCallback = (cb: typeof this._onEdgeSelectTypeCallback) => { this._onEdgeSelectTypeCallback = cb; }
 
@@ -187,7 +191,7 @@ export class PatternGraphEngine {
     }
 
     public modifyAlias(alias: string | undefined, id: string) {
-        this.nodeDict[id].alias = alias
+        this.nodeDict[id].setAlias(alias, this.zoomTransform?.k ?? 1)
     }
     private nodeDict: Dictionary<PatternNode> = {};
     private edgeDict: Dictionary<PatternEdge> = {};
@@ -343,7 +347,7 @@ export class PatternGraphEngine {
                         this._onNodeCreatedCallback?.(n.asObject())
                         this.nodeDict[n.uuid] = n;
 
-                        n.attachTo(this.nodeLayer);
+                        n.attachTo(this.nodeLayer, this.zoomTransform?.k ?? 1);
                         setTimeout(
                             () => {
                                 this.focusedElement = n;
@@ -481,6 +485,9 @@ export class PatternGraphEngine {
                                 e.on('click', clickEvent => {
                                     this.onEdgeClick(e, clickEvent)
                                 });
+                                e.on('contextmenu', ev => {
+                                    this._onEdgeContextMenu?.(e, ev);
+                                })
                                 setTimeout(
                                     () => {
                                         this.focusedElement = e;
@@ -512,6 +519,10 @@ export class PatternGraphEngine {
                                     e.on('click', clickEvent => {
                                         this.onEdgeClick(e, clickEvent)
                                     });
+
+                                    e.on('contextmenu', ev => {
+                                        this._onEdgeContextMenu?.(e, ev);
+                                    })
                                     setTimeout(
                                         () => {
                                             this.focusedElement = e;
@@ -537,6 +548,10 @@ export class PatternGraphEngine {
                             e.on('click', clickEvent => {
                                 this.onEdgeClick(e, clickEvent)
                             });
+
+                            e.on('contextmenu', ev => {
+                                this._onEdgeContextMenu?.(e, ev);
+                            })
                             setTimeout(
                                 () => {
                                     this.focusedElement = e;
@@ -729,6 +744,10 @@ export class PatternGraphEngine {
                                 e.on('click', clickEvent => {
                                     this.onEdgeClick(e, clickEvent)
                                 });
+
+                                e.on('contextmenu', ev => {
+                                    this._onEdgeContextMenu?.(e, ev);
+                                })
                                 setTimeout(
                                     () => {
                                         this.focusedElement = e;
@@ -754,6 +773,10 @@ export class PatternGraphEngine {
                         e.on('click', clickEvent => {
                             this.onEdgeClick(e, clickEvent)
                         });
+
+                        e.on('contextmenu', ev => {
+                            this._onEdgeContextMenu?.(e, ev);
+                        })
                         setTimeout(
                             () => {
                                 this.focusedElement = e;
@@ -792,7 +815,7 @@ export class PatternGraphEngine {
             this._onNodeCreatedCallback?.(patternNode.asObject())
             this.nodeDict[patternNode.uuid] = patternNode;
 
-            patternNode.attachTo(this.nodeLayer);
+            patternNode.attachTo(this.nodeLayer,  this.zoomTransform?.k ?? 1);
 
             patternNode.on('click', clickEvent => {
                 this.onNodeClick(patternNode, clickEvent)
@@ -854,6 +877,10 @@ export class PatternGraphEngine {
             patternEdge.on('click', clickEvent => {
                 this.onEdgeClick(patternEdge, clickEvent)
             });
+
+            patternEdge.on('contextmenu', ev => {
+                this._onEdgeContextMenu?.(patternEdge, ev);
+            })
         })
 
         Object.values(file.constraints.entities).forEach(c => {

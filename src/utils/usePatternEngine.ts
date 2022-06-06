@@ -13,6 +13,7 @@ export const usePatternEngine = (
     modelObject: CommonModel.ISerializedRoot | null,
     raiseMessage: RaiseMessageCallback,
     layoutContextMenu: NonNullable<PatternGraphEngine["_onNodeContextMenu"]>,
+    layoutEdgeContextMenu: NonNullable<PatternGraphEngine["_onEdgeContextMenu"]>,
     layoutSelectionMenu: NonNullable<PatternGraphEngine["_onSelectionContextMenu"]>,
     layoutElementPopup: NonNullable<PatternGraphEngine["_onEdgeSelectTypeCallback"]>,
     deps?: React.DependencyList,
@@ -94,6 +95,9 @@ export const usePatternEngine = (
             // engine.setOnConstraintCreatedCallback(c => dispatch(addConstraint(c)))
 
             engine.setOnNodeContextMenu(layoutContextMenu);
+            
+            engine.setOnEdgeContextMenu(layoutEdgeContextMenu);
+            
             engine.setOnSelectionContextMenu(layoutSelectionMenu);
             engine.setOnEdgeSelectTypeCallback(layoutElementPopup);
 

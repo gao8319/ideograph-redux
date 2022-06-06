@@ -1,6 +1,9 @@
 import java.io.*
 
-val confName = "databaseConfiguration.json"
+val confNames = listOf(
+    "databaseConfiguration.json",
+    "apiConfiguration.json"
+)
 
 File("./dist/index.html").let { f ->
     val replaced = f.readLines().map {
@@ -12,6 +15,8 @@ File("./dist/index.html").let { f ->
 val staticFolder = File("./dist/static/")
 staticFolder.mkdir()
 
-File("./static/$confName").copyTo(
-    File("./dist/static/$confName"), true
-)
+confNames.forEach {
+    File("./static/$it").copyTo(
+        File("./dist/static/$it"), true
+    )
+}

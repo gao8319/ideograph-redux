@@ -30,7 +30,7 @@ import _ from 'lodash';
 import { pangu } from '../utils/common/pangu';
 import { deleteNode } from '../store/slice/nodeSlicer';
 import { constraintsSelectors, deleteConstraint } from '../store/slice/constraintSlicer';
-import { IVisualElement } from '../engine/visual/VisualElement';
+import { IVisualElement, VisualElementType } from '../engine/visual/VisualElement';
 import { PatternEdge } from '../engine/visual/PatternEdge';
 import { AggregateQueryModal } from '../components/QueryModal/AggregateQueryModal';
 import { StyledButton, StyledDefaultButton, StyledInput, StyledInputDark } from '../components/Styled/StyledComponents';
@@ -61,6 +61,7 @@ export const EditView = () => {
     }>();
 
 
+
     const [fileCache, setFileCache] = useState<QueryForageItem>();
 
     const [elementPopup, setElementPopup] = useState<Parameters<NonNullable<PatternGraphEngine["_onEdgeSelectTypeCallback"]>>>();
@@ -77,6 +78,9 @@ export const EditView = () => {
         },
         (node, event) => {
             setContextMenuTarget({ node, event });
+        },
+        (edge, event) => {
+            setContextMenuTarget({ node: edge, event });
         },
         (selection, firedAt, event) => {
             setContextMenuTarget({ selection, node: firedAt as (PatternEdge | PatternNode), event });
@@ -250,29 +254,44 @@ export const EditView = () => {
                     <div className='contextual-callout-item'
                         style={{}}
                         onClick={() => {
-                            engineRef.current?.deleteElement(
-                                contextMenuTarget.node.asObject()
-                            )
-                            edges.forEach(e => {
-                                if (e.from === contextMenuTarget.node.uuid || e.to == contextMenuTarget.node.uuid) {
-                                    constraints.forEach(e => {
-                                        if (e.targetId === e.id) {
-                                            dispatch(deleteEdge(e.id))
-                                        }
-                                    })
+                            if (contextMenuTarget.node.elementType === VisualElementType.Node) {
+                                engineRef.current?.deleteElement(
+                                    contextMenuTarget.node.asObject()
+                                )
+                                edges.forEach(e => {
+                                    if (e.from === contextMenuTarget.node.uuid || e.to == contextMenuTarget.node.uuid) {
+                                        constraints.forEach(e => {
+                                            if (e.targetId === e.id) {
+                                                dispatch(deleteEdge(e.id))
+                                            }
+                                        })
 
-                                    dispatch(deleteEdge(e.id))
+                                        dispatch(deleteEdge(e.id))
 
-                                }
-                            })
+                                    }
+                                })
 
-                            constraints.forEach(e => {
-                                if (e.targetId === contextMenuTarget.node.uuid) {
-                                    dispatch(deleteConstraint(e.id))
-                                }
-                            })
-                            dispatch(deleteNode(contextMenuTarget.node.uuid))
-                            setContextMenuTarget(undefined)
+                                constraints.forEach(e => {
+                                    if (e.targetId === contextMenuTarget.node.uuid) {
+                                        dispatch(deleteConstraint(e.id))
+                                    }
+                                })
+                                dispatch(deleteNode(contextMenuTarget.node.uuid))
+                                setContextMenuTarget(undefined)
+                            }
+                            else {
+                                engineRef.current?.deleteElement(
+                                    contextMenuTarget.node.asObject()
+                                )
+
+                                constraints.forEach(e => {
+                                    if (e.targetId === contextMenuTarget.node.uuid) {
+                                        dispatch(deleteConstraint(e.id))
+                                    }
+                                })
+                                dispatch(deleteEdge(contextMenuTarget.node.uuid))
+                                setContextMenuTarget(undefined)
+                            }
                         }}>
                         <div style={{ fontSize: 13 }}>移除节点</div>
                         <span className='contextual-callout-item-helper'></span>
@@ -334,7 +353,7 @@ export const EditView = () => {
                         <div style={{ fontSize: 13 }}>输入匹配的子图数量</div>
                         <span className='contextual-callout-item-helper'></span>
                     </div>
-                    <StyledInputDark onChange={ev=>{
+                    <StyledInputDark onChange={ev => {
                         setMultiplier(Number(ev.target.value))
                     }} value={multiplier} style={{ height: 32, margin: '8px 16px 8px 16px', width: 'calc(100% - 32px)' }} />
                     <div style={{ padding: '8px 16px 8px 16px', width: '100%', columnGap: 16, display: 'grid', gridTemplateRows: '32px', gridTemplateColumns: '1fr 1fr' }}>

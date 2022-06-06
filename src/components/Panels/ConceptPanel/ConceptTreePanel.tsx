@@ -28,7 +28,8 @@ const _flattenTreeClasses = (c: TreeLikeClass, indentLevel = 0): TreeLikeClass[]
 }
 
 const flattenTreeClasses = (c: TreeLikeClass[]): TreeLikeClass[] => {
-    return c.flatMap(it => _flattenTreeClasses(it))
+    const res = c.flatMap(it => _flattenTreeClasses(it));
+    return res;
 }
 
 export const ConceptTreePanel = (
@@ -53,11 +54,11 @@ export const ConceptTreePanel = (
     }, [conceptTree]);
 
 
-    return <div style={{ display: 'grid', gridTemplateRows: '44px 1fr', height: '100%' }}>
+    return <div style={{ display: 'grid', gridTemplateRows: '44px 1fr', height: 'calc(100% - 44px)' }}>
         <PanelTitle text="添加概念" />
         <AutoSizer style={{ width: '100%', height: '100%' }}>
             {
-                size => <List itemCount={flattenedConceptTreeRef.length} itemSize={40} width={size.width} height={size.height}>
+                size => <List itemKey={(i, d) => flattenedConceptTreeRef[i].id} itemCount={flattenedConceptTreeRef.length} itemSize={40} width={size.width} height={size.height}>
                     {
                         (prop) => {
                             const itemRef = flattenedConceptTreeRef[prop.index]
@@ -65,6 +66,7 @@ export const ConceptTreePanel = (
                             return <div style={prop.style} key={itemRef.id}>
                                 {
                                     trueItem && <div className='concept-tree-node'
+
                                         onClick={
                                             () => {
                                                 dispatch(setEditModeWithPayload(
@@ -91,7 +93,6 @@ export const ConceptTreePanel = (
                                                         setFlattenedConceptTreeRef(flattenTreeClasses(conceptTreeClone ?? []));
                                                         ev.stopPropagation();
                                                     }
-
                                                 }} >
                                                 {itemRef.collapsed ? <ChevronRight16 /> : <ChevronDown16 />}
                                             </div>
