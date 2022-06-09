@@ -64,12 +64,26 @@ const FDSolutionRenderer = (props: {
                     {pangu.spacing("导出JSON")}
                 </StyledDefaultButton2>
                 <StyledButton onClick={ev => {
-                    if (top && top !== window) {
-                        postMessage({
-                            pattern: props.coreRef.pattern,
-                            data: props.coreRef.solutions[props.index]
-                        })
+                    const msg = {
+                        pattern: props.coreRef.pattern,
+                        data: props.coreRef.solutions[props.index]
                     }
+
+                    
+                    // console.log(window.parent.location.href)
+                    // console.log("window", window, window.postMessage)
+                    // console.log("parent", window.parent.postMessage)
+                    // console.log("top", top?.postMessage)
+
+                    // postMessage(msg)
+
+                    // window.postMessage(msg)
+                    window.parent.postMessage(msg, "*")
+                    // top?.postMessage(msg)
+
+                    // // window.postMessage({...msg, s:"window"}, "*")
+                    // window.parent.postMessage(msg, "*")
+                    // top?.postMessage({...msg, s:"top"}, "*")
                 }}>
                     查看详情
                 </StyledButton>

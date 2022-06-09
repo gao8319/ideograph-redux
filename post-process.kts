@@ -20,3 +20,6 @@ confNames.forEach {
         File("./dist/static/$it"), true
     )
 }
+
+
+File("./dist/test.html").writeText("""<script>window.addEventListener("message", ev=>console.log(ev.data))</script>   <iframe src="index.html" width="1440" height="800"></iframe>""")

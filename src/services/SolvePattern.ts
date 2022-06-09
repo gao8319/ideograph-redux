@@ -76,9 +76,7 @@ export const testPattern3 = {
     ]
 }
 
-// export const serverUrl = "/api"  //"http://cc.qk0.cc:9160" await 
-
-export const serverUrl = '/api' //"http://cc.qk0.cc:9160";
+export const serverUrl = "http://cc.qk0.cc:9160";
 
 export const querySolvePattern = async (pattern: SolvePatternRequest) => {
     const response = await axios.post<SolvePatternResponse>(`${serverUrl}/solvePattern`, pattern)
