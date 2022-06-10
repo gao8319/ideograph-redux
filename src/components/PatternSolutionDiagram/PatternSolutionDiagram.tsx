@@ -25,7 +25,11 @@ interface ISolutionDiagramGridViewProps {
     columnCount: number,
 }
 
-
+/**
+ * 一格子图
+ * @param props 
+ * @returns 
+ */
 const SolutionDiagram = (
     props: ISolutionDiagramProps,
 ) => {
@@ -110,6 +114,11 @@ const SolutionDiagram = (
     </div>
 }
 
+/**
+ * 搜索结果（子图列表）
+ * @param props 
+ * @returns 
+ */
 export const SolutionDiagramGridView = (
     props: ISolutionDiagramGridViewProps
 ) => {

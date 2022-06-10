@@ -23,6 +23,10 @@ export type ConstraintsState<T extends constraintsAdapterOpType = constraintsAda
 
 const initialState: ConstraintsState = constraintsAdapter.getInitialState();
 
+
+/**
+ * 存储当前编辑中的查询的所有 constraint
+ */
 const constraintsSlicer = createSlice({
     name: 'constraint',
     initialState: initialState,

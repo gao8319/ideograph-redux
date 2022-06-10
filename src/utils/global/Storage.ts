@@ -10,11 +10,14 @@ import { IConstraintContext } from "../PatternContext";
 
 type TypedForage<T> = LocalForage;
 
+
 export const queryForage: TypedForage<QueryForageItem> = localforage.createInstance({ name: "query" })
 export const dataSourceForage = localforage.createInstance({ name: "datasource" })
 export const patternHistoryForage = localforage.createInstance({ name: "history" })
 
-
+/**
+ * 初始化本地存储
+ */
 export const initDatabase = async () => {
 
     const conf = await axios.get<Record<string, DataSourceForageItem>>("static/databaseConfiguration.json")
@@ -33,6 +36,7 @@ export const initDatabase = async () => {
 }
 
 // const ideographDatabase: IdeographDatabase = await initDatabase();
+
 
 export type IdeographDatabase = Awaited<ReturnType<typeof initDatabase>>
 
@@ -59,6 +63,9 @@ export const getHashMap = async <T>(forage: LocalForage): Promise<Record<string,
     return Object.fromEntries(await Promise.all(promises));
 }
 
+/**
+ * 一个【查询】
+ */
 export interface QueryForageItem {
 
     id: string,
@@ -110,6 +117,10 @@ interface MongoDbConnectable extends IConnectableDatabase {
 
 interface DGraphConnectable extends IConnectableDatabase { }
 
+/**
+ * @deprecate
+ * 数据库配置
+ */
 export interface DataSourceForageItem {
     id: string,
     mongo: MongoDbConnectable,
@@ -117,6 +128,9 @@ export interface DataSourceForageItem {
     dgraph?: DGraphConnectable,
 }
 
+/**
+ * 查询结果
+ */
 export type PatternHistoryForageItem = SolvePatternResponse & {
     queryTimestamp: number,
 }

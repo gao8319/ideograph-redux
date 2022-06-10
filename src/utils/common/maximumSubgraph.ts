@@ -3,6 +3,9 @@ import { PatternEdge } from "../../engine/visual/PatternEdge";
 import { PatternNode } from "../../engine/visual/PatternNode";
 import { IConstraint, IPatternEdge, IPatternNode } from "./graph";
 
+/**
+ * 求最大子图
+ */
 export class MaximumSubgraph {
 
     nodes: IPatternNode[];
@@ -58,7 +61,9 @@ export class MaximumSubgraph {
 }
 
 
-
+/**
+ * 并查集
+ */
 export class DisjointSubgraph {
 
     nodes: PatternNode[];

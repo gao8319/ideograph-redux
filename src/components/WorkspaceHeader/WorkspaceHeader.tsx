@@ -33,6 +33,11 @@ export interface IWorkspaceHeaderProps {
 
 const statisticPillStyle: React.CSSProperties = { backgroundColor: 'var(--grey700)', padding: '2px 4px', borderRadius: 2, color: '#000' }
 
+/**
+ * 编辑页面的 Header
+ * @param props 
+ * @returns 
+ */
 export const WorkspaceHeader = (props: IWorkspaceHeaderProps) => {
     // const [workspaceName, setWorkspaceHeader] = useState<string>(props.profile.name);
     const editMode = useAppSelector(editModeSelector);

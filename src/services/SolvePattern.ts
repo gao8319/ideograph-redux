@@ -78,6 +78,11 @@ export const testPattern3 = {
 
 export const serverUrl = "http://cc.qk0.cc:9160";
 
+
+/**
+ * 和后端通信的接口
+ */
+
 export const querySolvePattern = async (pattern: SolvePatternRequest) => {
     const response = await axios.post<SolvePatternResponse>(`${serverUrl}/solvePattern`, pattern)
     return response.data

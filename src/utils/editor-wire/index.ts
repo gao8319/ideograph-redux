@@ -2,6 +2,11 @@ import { Registry, StackElement, INITIAL } from 'monaco-textmate'
 import * as monacoNsps from 'monaco-editor'
 import { TMToMonacoToken } from './tmMonaco';
 
+
+/**
+ * 把 monaco editor 的 token 和 vscode 的 textmate 绑定
+ * 这样就可以直接使用 从vscode cypher插件上扒下来的 syntax highlight 配置
+ */
 class TokenizerState implements monacoNsps.languages.IState {
 
     constructor(

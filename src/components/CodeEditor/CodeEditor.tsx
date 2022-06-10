@@ -17,7 +17,11 @@ export interface ICodeEditorProps {
 
 
 
-
+/**
+ * 显示生成的 JSON
+ * @param props ·
+ * @returns 
+ */
 export const CodeEditor = (
     props: ICodeEditorProps
 ) => {

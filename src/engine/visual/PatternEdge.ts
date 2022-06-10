@@ -14,6 +14,9 @@ interface RenderElements {
     // labelContainer: D3<SVGPathElement>;
 }
 
+/**
+ * 模式边
+ */
 export class PatternEdge implements IFocusableElement<VisualElementType.Edge> {
     public readonly elementType = VisualElementType.Edge;
 
@@ -50,6 +53,10 @@ export class PatternEdge implements IFocusableElement<VisualElementType.Edge> {
         }
     }
 
+    /**
+     * 把自己画到 SVG 上
+     * @param parent 
+     */
     public attachTo(
         parent: D3<SVGGElement>
     ) {
@@ -118,6 +125,10 @@ export class PatternEdge implements IFocusableElement<VisualElementType.Edge> {
     }
     public get isConstrained() { return this._isConstrained }
 
+    /**
+     * 转换成 Plain Object
+     * @returns 
+     */
     public asObject(): IPatternEdge {
         return {
             id: this.uuid,
@@ -136,6 +147,9 @@ export class PatternEdge implements IFocusableElement<VisualElementType.Edge> {
         }
     }
 
+    /**
+     * 把自己从 SVG 上删掉
+     */
     public detach() {
         // this.renderElements?.root.remove();
         this.renderElements?.root.transition().attr('opacity', 0).duration(600).remove();

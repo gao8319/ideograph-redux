@@ -1,5 +1,6 @@
 import { Button, styled } from "@mui/material";
 
+
 export const TextedSectionCommand = styled(Button)(theme => ({
     background: 'transparent',
     height: '100%',

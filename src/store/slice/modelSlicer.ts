@@ -159,6 +159,10 @@ type NewWorkspaceState = {
 
 export type AcceptableQueryLanguage = "AskGraph API" | "Cypher" | "GraphQL" | "SQL" | "JSON"
 
+
+/**
+ * 存储当前编辑的查询的工作区中的信息
+ */
 const workspaceSlicer = createSlice({
     name: 'workspace',
     initialState,

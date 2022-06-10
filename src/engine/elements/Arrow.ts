@@ -12,6 +12,9 @@ const a = d3.select('g')
 
 const arrowHeadPath = "M-9,6L0,0L-9,-6"
 
+/**
+ * 在 SVG 上绘制一个箭头
+ */
 export class Arrow {
     public from: IPoint;
     public to: IPoint;

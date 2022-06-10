@@ -8,6 +8,9 @@ export interface IColorSlot {
     foreground: string,
 }
 
+/**
+ * 根据分配的颜色生成一些微调过后的颜色
+ */
 export class ColorSlot implements IColorSlot {
     private _primary: string;
     public constrained: string;

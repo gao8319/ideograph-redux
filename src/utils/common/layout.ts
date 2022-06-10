@@ -1,4 +1,9 @@
 import * as d3 from 'd3';
+
+/**
+ * 一些和二维图形有关的计算 utils
+ */
+
 export interface IPoint {
     x: number,
     y: number,

@@ -1,3 +1,7 @@
+/**
+ * 配色方案
+ */
+
 export type ColorScheme = string[]
 
 export const spectrumColorScheme: ColorScheme = []

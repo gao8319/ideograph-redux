@@ -5,7 +5,9 @@ import { EditMode } from "../engine/visual/EditMode";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { applyQuery, editModeSelector, exportToJson, setEditMode } from "../store/slice/modelSlicer";
 
-
+/**
+ * @deprecated
+ */
 export const useShortcutSet = () => {
 //     const dispatch = useAppDispatch();
 //     const editMode = useAppSelector(editModeSelector);

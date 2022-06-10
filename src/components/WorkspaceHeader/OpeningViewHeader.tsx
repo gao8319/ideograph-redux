@@ -36,6 +36,10 @@ const HeaderSearchInput = styled(InputBase)(t => ({
     }
 }))
 
+/**
+ * 起始页的 header
+ * @returns 
+ */
 export const OpeningViewHeader = () => {
     const lPanelWidth = useAppSelector(leftPanelWidthSelector);
 

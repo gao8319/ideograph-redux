@@ -28,9 +28,15 @@ export type RaiseMessageCallback = (message: string, type: RaiseMessageType, asI
 export class PatternGraphEngine {
 
     // TODO: Inject History Manager
+    /**
+     * 本体模型
+     */
     public readonly model: CommonModel.Root
     // public colorSlots: Record<string, ColorSlot>
 
+    /**
+     * 编辑器状态
+     */
     private _editMode = EditMode.Default;
     public get editMode(): EditMode {
         return this._editMode;
@@ -40,11 +46,16 @@ export class PatternGraphEngine {
         if (this._editMode === e) return;
         this._editMode = e;
 
-        //Clean up
+        // 把编辑状态产生的 指示器全都清理掉
         this.mouseIndicatorLayer?.attr('transform', 'translate(0,0)');
         this.mouseIndicatorLayer?.selectChildren('*').remove();
         this.nodeIndicator = undefined;
         this.connectionIndicator = undefined;
+
+        /**
+         * 在创建边的过程中，元素的样式会发生改变，
+         * 这里把样式复原
+         */
         Object.values(this.nodeDict).forEach(_n => _n.setDisabled(false))
         Object.values(this.edgeDict).forEach(_n => _n.setDisabled(false))
         Object.values(this.groupDict).forEach(_n => _n.setDisabled(false))
@@ -57,6 +68,8 @@ export class PatternGraphEngine {
     public nodeLayer: D3<SVGGElement>
     public edgeLayer: D3<SVGGElement>
     public groupLayer: D3<SVGGElement>
+
+    
 
 
     /**
@@ -84,6 +97,9 @@ export class PatternGraphEngine {
     }
 
 
+    /**
+     * 多选的元素集合
+     */
     private _elementSelection = new Set<IFocusableElement>();
     private _addElementToSelection(ele: IFocusableElement) {
         if (this._focusedElement) {
@@ -106,7 +122,6 @@ export class PatternGraphEngine {
             this._addElementToSelection(ele);
         }
     }
-
     public clearElementSelection() {
         this._elementSelection.forEach(ele => {
             ele.blur();
@@ -115,26 +130,23 @@ export class PatternGraphEngine {
     }
 
 
+    /**
+     * 一些事件的回调，通过这里可以把 React/Vue 框架里的回调注入进来
+     */
+
     private _onNodeContextMenu?: (n: PatternNode, event: MouseEvent) => void;
-
     private _onEdgeContextMenu?: (n: PatternEdge, event: MouseEvent) => void;
-
-
     private _onSelectionContextMenu?: (
         set: Set<IFocusableElement>,
         firedAt: IFocusableElement,
         event: MouseEvent
     ) => void;
-
-
     private _onNodeCreatedCallback?: (n: IPatternNode) => void;
-
     private _onEdgeSelectTypeCallback?: (
         position: IPoint,
         types: CommonModel.IRelation[],
         onSelectEdgeType: (type: CommonModel.IRelation) => void
     ) => void;
-
     private _onEdgeCreatedCallback?: (e: IPatternEdge) => void;
     private _onConstraintCreatedCallback?: (c: IConstraint) => void;
     private _onRaiseMessageCallback?: RaiseMessageCallback;
@@ -163,7 +175,6 @@ export class PatternGraphEngine {
     }
 
     public deleteElement = (ele: IPatternEdge | IPatternNode) => {
-
         const node = this.nodeDict[ele.id]
         if (node) {
             this.focusedElement = null;
@@ -197,6 +208,10 @@ export class PatternGraphEngine {
     private edgeDict: Dictionary<PatternEdge> = {};
     private groupDict: Dictionary<PatternGroup> = {};
 
+    /**
+     * 画布的缩放， 参见 d3-zoom
+     * zoom 的时候是 3 个 layer 一起 zoom
+     */
     private zoomTransform?: d3.ZoomTransform;
 
 
@@ -260,6 +275,9 @@ export class PatternGraphEngine {
         )
     }
 
+    /**
+     * 回收整个 PatternGraphEngine 在 html 上画的东西
+     */
     public detach() {
         this.renderContainer.innerHTML = ''
     }
@@ -582,6 +600,9 @@ export class PatternGraphEngine {
     }
 
 
+    /**
+     * 鼠标 hover 在哪个 node 上
+     */
     private mouseHoveringAtNode: PatternNode | null = null;
     private onNodePointerEnter = (n: PatternNode, ev: PointerEvent) => {
         if (this.editMode === EditMode.CreatingEdgeTo && this.createEdgeFrom) {
@@ -594,21 +615,35 @@ export class PatternGraphEngine {
         }
     }
 
+    /**
+     * 点击边，
+     * 
+     * @param e 
+     * @param ev 
+     */
     private onEdgeClick = (e: PatternEdge, ev: MouseEvent) => {
         if (this.editMode >= 2) {
             this.createEdgeFrom = null;
             this.editMode = EditMode.CreatingEdgeFrom;
         }
         if (ev.metaKey) {
+            // 多选
             this.toggleElementSelection(e);
         }
         else {
+            // 单选，获取焦点
             this.focusedElement = e;
         }
         ev.stopPropagation();
     }
 
+    /**
+     * 拖拽的起始 node，没在拖拽为空
+     */
     private dragStartNode?: PatternNode;
+    /**
+     * 正在拖拽
+     */
     private isDragNailed = false;
     private _onNodeDrag = (ev: DragEvent & { sourceEvent: MouseEvent }) => {
         if (this.dragStartNode) {
@@ -689,6 +724,10 @@ export class PatternGraphEngine {
     }
 
 
+    /**
+     * 鼠标拖拽到 node 上的回调
+     * @param ev 
+     */
     private _onNodeDragEnd = (ev: DragEvent) => {
         if (this.dragStartNode && this.isDragNailed) {
             const n = this.mouseHoveringAtNode;
@@ -802,6 +841,10 @@ export class PatternGraphEngine {
 
 
 
+    /**
+     * 从历史查询（JSON）中恢复整个画布
+     * @param file 
+     */
     public restoreFromFile = (file: QueryForageItem) => {
 
         Object.values(file.nodes.entities).forEach((n) => {
@@ -892,6 +935,10 @@ export class PatternGraphEngine {
     }
 
 
+    /**
+     * 把多选的 nodes 和 edges 编组
+     * @param multiplier 编组之后 这个子图 在最终结果中需要重复出现的次数
+     */
     public aggregateSelection(multiplier?: number) {
         const group = new PatternGroup(nanoid(), this._elementSelection as Set<PatternEdge | PatternNode>);
         this._elementSelection.forEach(ele => {
@@ -911,6 +958,10 @@ export class PatternGraphEngine {
         this.clearElementSelection();
     }
 
+    /**
+     * 打破一个编组
+     * @param uuid 
+     */
     public breakGroup(uuid: string) {
         const breaked = this.groupDict[uuid].break();
         breaked.forEach(ele => {
@@ -923,6 +974,10 @@ export class PatternGraphEngine {
         })
     }
 
+    /**
+     * 获取编辑的数据结构，交给 PatternContext 算出要给后端的结构
+     * @returns 
+     */
     public generatePatternGraphContext() {
         return {
             nodes: this.nodeDict,

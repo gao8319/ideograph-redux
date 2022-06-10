@@ -85,12 +85,21 @@ export namespace CommonModel {
         nullable?: boolean
     }
 
+    /**
+     * 使用的本体模型数据结构
+     */
     export class Root implements IRoot {
         public readonly name: string;
         public readonly classes: IClass[];
         public readonly relations: IRelation[];
 
+        /**
+         * key 所有可以连接到（to）的 id，被连接（from）的 id
+         * 先算好，之后就快了
+         * 
+         */
         public connectable: Record<IdType, { to: IdType[], from: IdType[] }>;
+
         public colorSlots: Record<IdType, IColoredClass>;
 
         constructor(name: string, classes: IClass[], relations: IRelation[]) {
@@ -114,7 +123,6 @@ export namespace CommonModel {
                 c => ({ from: _.uniq(c?.from), to: _.uniq(c?.to) })
             )
 
-
             this.colorSlots = Object.fromEntries(classes.map(
                 (c, index) => [c.id, { colorSlot: new ColorSlot(figmaColorScheme[index]).asObject(), ...c }]
             ))
@@ -122,6 +130,9 @@ export namespace CommonModel {
 
         private $classIdSelector = (c: IClass) => c.id;
 
+        /**
+         * @deprecate
+         */
         public get classesByTreeView() {
             const disjointSet = new DisjointSet(this.$classIdSelector);
             disjointSet.makeSetByArray(this.classes);
@@ -143,6 +154,12 @@ export namespace CommonModel {
     }
 
 
+    /**
+     * 序列化的 Root
+     * 序列化的作用：
+     *   - 存储 JSON
+     *   - Redux 只接受 Plain Object
+     */
     export interface ISerializedRoot {
         name: string, 
         classes: IColoredClass[], 
@@ -150,11 +167,21 @@ export namespace CommonModel {
         tree: IColoredClass[],
     }
 
+    /**
+     * 从序列化结构生成 Root
+     * @param json 
+     * @returns 
+     */
     export const deserializeFromObject = (json: ISerializedRoot | null) => {
         if (json)
             return new Root(json.name, json.classes, json.relations)
         return null
     }
 
+    /**
+     * 序列化之后给 Redux
+     * @param root 
+     * @returns 
+     */
     export const serializeToObject = (root: Root) => ({ name: root.name, classes: Object.values(root.colorSlots), relations: root.relations })
 }

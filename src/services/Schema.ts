@@ -7,6 +7,9 @@ import { EdgeDirection } from "../utils/common/graph";
 import { CommonModel } from "../utils/common/model";
 import { serverUrl } from "./SolvePattern";
 
+/**
+ * 和后端通信的接口
+ */
 export namespace Schema {
 
     export interface Entry {

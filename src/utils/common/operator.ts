@@ -9,7 +9,7 @@ export enum ComparisonOperator {
     MatchRegex,
 }
 
-export const literal2ComparisonOperator: Record<string, ComparisonOperator|undefined> = {
+export const literal2ComparisonOperator: Record<string, ComparisonOperator | undefined> = {
     "==": ComparisonOperator.Equal,
     "<": ComparisonOperator.Less,
     ">": ComparisonOperator.Greater,
@@ -19,7 +19,7 @@ export const literal2ComparisonOperator: Record<string, ComparisonOperator|undef
     "~=": ComparisonOperator.MatchRegex,
 }
 
-export const comparisonOperator2Literal: Record<ComparisonOperator, string|undefined> = {
+export const comparisonOperator2Literal: Record<ComparisonOperator, string | undefined> = {
     [ComparisonOperator.Equal]: "==",
     [ComparisonOperator.Less]: "<",
     [ComparisonOperator.Greater]: ">",

@@ -7,6 +7,9 @@ import { CommonModel } from "../../utils/common/model";
 import { Arrow } from "../../engine/elements/Arrow";
 import { addVector } from "../../utils/common/layout";
 
+/**
+ * 使用 d3-force 绘制子图的力导向图
+ */
 export class ForceDirectedSolutionDiagram {
 
     public layout: {

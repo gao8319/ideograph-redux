@@ -5,6 +5,10 @@ import { EdgeDirection, IConstraint } from "./common/graph";
 import { CommonModel } from "./common/model";
 import { BinaryLogicOperator, ComparisonOperator, LogicOperator, UnaryLogicOperator } from "./common/operator";
 
+/**
+ * @deprecate
+ * 编辑产生的数据结构转Cypher用的类
+ */
 export namespace IdeographIR {
 
     export interface IRepresentation {

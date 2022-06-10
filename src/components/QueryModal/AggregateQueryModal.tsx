@@ -37,6 +37,11 @@ enum PatternQueryStatus {
     SolvingResponse = 2
 }
 
+/**
+ * 支持群聚的查询对话框
+ * @param props 
+ * @returns 
+ */
 export const AggregateQueryModal = (props: IAggergateQueryModalProps) => {
     const dispatch = useAppDispatch();
     const nodes = useAppSelector(nodesSelectors.selectAll);

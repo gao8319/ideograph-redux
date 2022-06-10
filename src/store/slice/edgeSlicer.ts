@@ -10,7 +10,9 @@ import { RootState } from '../store'
 const edgesAdapter = createEntityAdapter<IPatternEdge>({
     selectId: e => e.id
 })
-
+/**
+ * 存储当前编辑中的查询的所有 edge
+ */
 const edgesSlicer = createSlice({
     name: 'edges',
     initialState: edgesAdapter.getInitialState(),

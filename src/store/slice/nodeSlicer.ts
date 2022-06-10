@@ -11,6 +11,10 @@ const nodesAdapter = createEntityAdapter<IPatternNode>({
     selectId: n => n.id
 })
 
+
+/**
+ * 存储当前编辑中的查询的所有 node
+ */
 const nodesSlicer = createSlice({
     name: 'nodes',
     initialState: nodesAdapter.getInitialState(),

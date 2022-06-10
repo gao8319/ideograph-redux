@@ -30,7 +30,11 @@ interface IAggregatedSolutionDiagramGridViewProps {
     solutions: Solution.AggregatedPatternSolution[],
     columnCount: number,
 }
-
+/**
+ * 一格子图 （带群聚）
+ * @param props 
+ * @returns 
+ */
 const FDSolutionRenderer = (props: {
     // onRender: (svgRef: SVGSVGElement) => void
     coreRef: ForceDirectedSolutionDiagram,
@@ -136,6 +140,11 @@ const FDSolutionRenderer = (props: {
     </>
 }
 
+/**
+ * 子图列表 （带群聚）
+ * @param props 
+ * @returns 
+ */
 export const AggregatedSolutionDiagramGridView = (
     props: IAggregatedSolutionDiagramGridViewProps
 ) => {

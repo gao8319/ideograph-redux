@@ -59,6 +59,12 @@ const StyledInput = styled(InputBase)(t => ({
     // width: 'min-content!important',
 }))
 
+/**
+ * 编辑页面 header 中间右半边（查询名） 的组件
+ * 点击可以修改查询名
+ * @param props 
+ * @returns 
+ */
 export const TextableCommand = (props: ITextableCommandProps) => {
     const [activated, setActivated] = useState(false);
     const [isCalloutOpen, setCalloutOpen] = useState(false);

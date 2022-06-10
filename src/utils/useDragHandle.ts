@@ -1,6 +1,11 @@
 import React, { useRef, useState } from "react"
 import { useNumber } from "react-use";
 
+/**
+ * @deprecated
+ * @returns 
+ * 
+ */
 export const useDragHandleProps = <T extends HTMLElement>(): Partial<React.HTMLProps<T>> => {
     const handleRef= useRef<T>(null);
 

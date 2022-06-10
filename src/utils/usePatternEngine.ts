@@ -9,6 +9,17 @@ import { CommonModel } from "./common/model";
 import { isNotEmpty } from "./common/utils";
 import { nameCandidates } from "./NameCandidates";
 
+/**
+ * Pattern Engine 钩子函数
+ * @param modelObject 本体模型
+ * @param raiseMessage 显示不可连接、不能自环等错误消息的回调
+ * @param layoutContextMenu 显示顶点右键菜单的回调
+ * @param layoutEdgeContextMenu 显示边右键菜单的回调
+ * @param layoutSelectionMenu 在多选了元素之后的右键菜单回调
+ * @param layoutElementPopup 遇到可能的边的类型有多种时显示的选择对话框
+ * @param deps PatternEngine的依赖，变化时会重新构造PatternEngine
+ * @returns 
+ */
 export const usePatternEngine = (
     modelObject: CommonModel.ISerializedRoot | null,
     raiseMessage: RaiseMessageCallback,
@@ -34,6 +45,12 @@ export const usePatternEngine = (
 
     const nodes = useAppSelector(nodesSelectors.selectAll)
 
+    /**
+     * 在依赖变化时更新 PatternGraphEngine 的实例，
+     * 包括：
+     *   - 更新本体模型
+     *   - 重新绑定所有交互事件
+     */
     useEffect(() => {
         if (containerRef.current && modelInstance) {
             const engine = new PatternGraphEngine(
@@ -102,6 +119,10 @@ export const usePatternEngine = (
             engine.setOnEdgeSelectTypeCallback(layoutElementPopup);
 
             engineRef.current = engine;
+
+            /**
+             * 回收 PatternEngineGraph
+             */
             return () => {
                 engine.detach();
                 engineRef.current = undefined;
@@ -110,6 +131,10 @@ export const usePatternEngine = (
         }
     }, deps)
 
+
+    /**
+     * 绑定修改顶点名称的回调
+     */
     useEffect(() => {
         engineRef.current?.setAssignNewName(
             c => {
@@ -122,6 +147,9 @@ export const usePatternEngine = (
     }, [engineRef, nodes])
 
 
+    /**
+     * 将 PatternGraphEngine 内部的编辑状态暴露出来
+     */
     useEffect(() => {
         if (engineRef.current) {
             engineRef.current.editPayload = isNotEmpty(editPayload) ? editPayload! : null;
@@ -129,6 +157,9 @@ export const usePatternEngine = (
         }
     }, [editMode, editPayload, engineRef])
 
+    /**
+     * 将 PatternGraphEngine 内 focus 的元素对应的约束暴露出来
+     */
     const elementConstraints = useAppSelector(elementConstraintsSelector);
     const focusElement = useAppSelector(focusElementSelector);
     useEffect(() => {

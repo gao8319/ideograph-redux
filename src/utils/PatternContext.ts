@@ -42,7 +42,10 @@ interface ICorePatternContext {
     constraintContext: IConstraintContext;
 }
 
-
+/**
+ * 可以接受 Aggregate 的 PatternContext
+ * 用于将编辑 直接产生的数据结构 转换成 后端接受的数据结构
+ */
 export class IdeographAggregatePatternContext {
 
     private structureContext: ReturnType<PatternGraphEngine["generatePatternGraphContext"]>;
@@ -121,7 +124,10 @@ export class IdeographAggregatePatternContext {
     }
 }
 
-
+/**
+ * 用于将编辑 直接产生的数据结构 转换成 后端接受的数据结构，
+ * 不接受 Aggregate
+ */
 export class IdeographPatternContext implements IPatternContext {
 
     public nodes: IPatternNode[];

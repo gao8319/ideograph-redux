@@ -16,8 +16,16 @@ import * as monaco from 'monaco-editor';
 const App = () => {
     return <MemoryRouter>
         <Routes>
+
+
+            {/* 历史查询、新建页面 */}
             <Route path="/" element={<FileManagementView />} />
+
+
+            {/* 编辑图的页面 */}
             <Route path="file" element={<EditView />} />
+
+            
         </Routes>
     </MemoryRouter>
 };

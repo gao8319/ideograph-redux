@@ -1,5 +1,9 @@
 import _ from "lodash"
 
+/**
+ * 一些树形数据的 utils
+ */
+
 type ILinkedTree<T> = {
     children?: ILinkedTree<T>[],
     // parent: ITree<T>,
@@ -11,6 +15,12 @@ type IIdentifiableTree<T, K extends PropertyKey> = {
     // parent: ITree<T>,
 } & T
 
+
+/**
+ * 把树摊平成一维数组（children的引用不变）
+ * @param node 
+ * @returns 
+ */
 export const flattenTree = <T>(node: ILinkedTree<T>): T[] => {
     const curr = node //_.omit(node, 'children')
     if (node.children && node.children.length > 0) {

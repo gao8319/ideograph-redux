@@ -1,21 +1,8 @@
-// CJK is an acronym for Chinese, Japanese, and Korean.
-//
-// CJK includes the following Unicode blocks:
-// \u2e80-\u2eff CJK Radicals Supplement
-// \u2f00-\u2fdf Kangxi Radicals
-// \u3040-\u309f Hiragana
-// \u30a0-\u30ff Katakana
-// \u3100-\u312f Bopomofo
-// \u3200-\u32ff Enclosed CJK Letters and Months
-// \u3400-\u4dbf CJK Unified Ideographs Extension A
-// \u4e00-\u9fff CJK Unified Ideographs
-// \uf900-\ufaff CJK Compatibility Ideographs
-//
-// For more information about Unicode blocks, see
-// http://unicode-table.com/en/
-// https://github.com/vinta/pangu
-//
-// all J below does not include \u30fb
+/**
+ * 给中文和英文之间插入空格
+ * 从 pangu.js 修改而来，把空格（space） 换成了瘦空格 （thin space）
+ */
+
 const CJK = '\u2e80-\u2eff\u2f00-\u2fdf\u3040-\u309f\u30a0-\u30fa\u30fc-\u30ff\u3100-\u312f\u3200-\u32ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff';
 
 // ANS is short for Alphabets, Numbers, and Symbols.

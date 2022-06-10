@@ -3,7 +3,10 @@ import { Registry } from 'monaco-textmate' // peer dependency
 import * as monaco from 'monaco-editor';
 import monacoGithubTheme from './editor-wire/github-monaco.json'
 
-
+/**
+ * 为 Cypher 提供 monaco-editor 的 syntax highlight
+ * @returns 
+ */
 export async function prepareCypherSyntaxHighlights() {
     await loadWASM(`/static/onigasm.wasm`) // See https://www.npmjs.com/package/onigasm#light-it-up
     const registry = new Registry({

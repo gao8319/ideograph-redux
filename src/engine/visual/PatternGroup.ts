@@ -19,6 +19,9 @@ interface RenderElements {
     mouse: D3<SVGPathElement>;
 }
 
+/**
+ * 多个元素构成的子图群组，对应着查询里的 Aggregation
+ */
 export class PatternGroup implements IFocusableElement<VisualElementType.Group>  {
     public readonly elementType = VisualElementType.Group;
 
@@ -35,6 +38,9 @@ export class PatternGroup implements IFocusableElement<VisualElementType.Group> 
         })
     }
 
+    /**
+     * 群组所包含的元素
+     */
     public elementRefSet?: GroupableElements;
 
     public getContainedElements(): {
@@ -76,6 +82,9 @@ export class PatternGroup implements IFocusableElement<VisualElementType.Group> 
         const edgeShadows = group.append("g").attr("class", "edge-shadow").attr('opacity', 0);
         const nodeShadows = group.append("g").attr("class", "node-shadow").attr('opacity', 0.8);
 
+        /**
+         * 产生一些类似阴影的视觉效果，包括 node 和 arrow
+         */
         this.elementRefSet?.forEach(ele => {
             if (ele.elementType == VisualElementType.Edge) {
                 path += `M${ele.from.logicPosition.x} ${ele.from.logicPosition.y}L${ele.to.logicPosition.x} ${ele.to.logicPosition.y} `
@@ -240,6 +249,9 @@ export class PatternGroup implements IFocusableElement<VisualElementType.Group> 
         return this.renderElements?.root.on(eventName, listener)
     }
 
+    /**
+     * 匹配时需要重复的次数
+     */
     public _multipiler?: number
     public setMultiplier(multiplier?: number) {
         this._multipiler = multiplier;

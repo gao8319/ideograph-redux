@@ -8,6 +8,11 @@ interface IFileThumbnailProps {
 }
 
 
+/**
+ * 绘制起始页上的一格历史查询
+ * @param props 
+ * @returns 
+ */
 export const FileThumbnail = (props:
     IFileThumbnailProps
 ) => {

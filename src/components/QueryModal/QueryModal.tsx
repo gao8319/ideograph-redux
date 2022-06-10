@@ -29,6 +29,11 @@ enum PatternQueryStatus {
     SolvingResponse = 2
 }
 
+/**
+ * @deprecate 不支持群聚的对话框，已废弃
+ * @param props 
+ * @returns 
+ */
 export const QueryModal = (props: IQueryModalProps) => {
     const dispatch = useAppDispatch();
     const nodes = useAppSelector(nodesSelectors.selectAll);

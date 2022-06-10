@@ -54,6 +54,12 @@ const acceptableOperatorDict: Required<Record<PrimitiveTypeName, ComparisonOpera
 }
 
 
+/**
+ * 添加属性约束的输入框
+ * 内部包含 属性名、运算符、实际值 3 个 input
+ * @param props 
+ * @returns 
+ */
 export const ConstraintDialog = (props: IConstraintDialogProps) => {
 
     const rootRef = useRef<HTMLDivElement>(null);
@@ -73,6 +79,10 @@ export const ConstraintDialog = (props: IConstraintDialogProps) => {
     const [value, setValue] = useState<PrimitiveType<PrimitiveTypeName> | undefined>(props.constraint?.value);
 
 
+    /**
+     * 在输入时自动补全，
+     * 见 mui useAutocomplete
+     */
     const {
         getInputProps,
         getListboxProps,

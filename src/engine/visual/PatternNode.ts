@@ -15,6 +15,9 @@ interface RenderElements {
     aliasContainer: D3<SVGRectElement>;
 }
 
+/**
+ * 模式顶点
+ */
 export class PatternNode implements IFocusableElement<VisualElementType.Node> {
     public readonly elementType = VisualElementType.Node;
 
@@ -22,6 +25,11 @@ export class PatternNode implements IFocusableElement<VisualElementType.Node> {
     public _alias?: string;
     public get alias() { return this._alias }
 
+    /**
+     * 修改元素名称时的回调，会修改画布上 patternnode 显示的名字
+     * @param value 名字
+     * @param scale 整个画布的缩放
+     */
     public setAlias(value: string | undefined, scale: number) {
         this._alias = value;
         if (value !== undefined) {
@@ -79,6 +87,11 @@ export class PatternNode implements IFocusableElement<VisualElementType.Node> {
         return alias
     }
 
+    /**
+     * 把自己画到 SVG 上
+     * @param parent 
+     * @param scale 
+     */
     public attachTo(
         parent: D3<SVGGElement>,
         scale: number
@@ -156,6 +169,9 @@ export class PatternNode implements IFocusableElement<VisualElementType.Node> {
         }
     }
 
+    /**
+     * 把自己从 SVG 上删掉
+     */
     public detach() {
         this.renderElements?.root.attr('opacity', 1).transition().attr('opacity', 0).duration(600).remove();
     }
@@ -222,6 +238,10 @@ export class PatternNode implements IFocusableElement<VisualElementType.Node> {
     // }
 
 
+    /**
+     * 转换成 PlainObject
+     * @returns 
+     */
     public asObject(): IPatternNode {
         return {
             id: this.uuid,

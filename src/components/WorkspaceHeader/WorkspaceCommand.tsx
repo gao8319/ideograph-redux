@@ -66,6 +66,11 @@ const WorkspaceCommandButton = styled(Button)(theme => ({
 
 // export 
 
+/**
+ * header 上的按钮
+ * @param props 
+ * @returns 
+ */
 export const WorkspaceCommand = (props: IWorkspaceCommandProps) => {
     // const [activated, setActivated] = useState(false);
     return (props.hint || props.shortcut)

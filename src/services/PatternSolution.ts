@@ -2,6 +2,9 @@
 
 import { BinaryLogicOperator, UnaryLogicOperator } from "../utils/common/operator";
 
+/**
+ * 和后端通信的接口
+ */
 export namespace Solution {
     
     export type MessageType = {

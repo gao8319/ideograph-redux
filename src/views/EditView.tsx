@@ -38,7 +38,6 @@ import { StyledButton, StyledDefaultButton, StyledInput, StyledInputDark } from 
 
 export const EditView = () => {
 
-    // useIdeographShortcuts();
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const model = useAppSelector(modelSelector);
@@ -61,7 +60,6 @@ export const EditView = () => {
     }>();
 
 
-
     const [fileCache, setFileCache] = useState<QueryForageItem>();
 
     const [elementPopup, setElementPopup] = useState<Parameters<NonNullable<PatternGraphEngine["_onEdgeSelectTypeCallback"]>>>();
@@ -69,6 +67,9 @@ export const EditView = () => {
     const [multiplierPopup, setMultiplierPopup] = useState<{ position: PopoverPosition, onMultiplierCommit: (multi: number) => void }>();
 
 
+    /**
+     * 和 画布 通信
+     */
     const { engineRef, containerRef } = usePatternEngine(
         model,
         (...args) => {
@@ -151,8 +152,7 @@ export const EditView = () => {
         }
     }, [])
 
-    return (
-        <>
+    return (<>
 
             <WorkspaceHeader />
             <div className='workspace-container'>

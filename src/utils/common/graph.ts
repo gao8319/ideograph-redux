@@ -4,6 +4,10 @@ import { IPoint } from "./layout"
 import { CommonModel } from "./model"
 import { ComparisonOperator, Operator } from "./operator"
 
+/**
+ * 基本数据类
+ */
+
 type NodeID = string
 type EdgeID = string
 type ConstraintID = string
