@@ -20,6 +20,7 @@ import { nameCandidates } from "./NameCandidates";
  * @param deps PatternEngine的依赖，变化时会重新构造PatternEngine
  * @returns 
  */
+
 export const usePatternEngine = (
     modelObject: CommonModel.ISerializedRoot | null,
     raiseMessage: RaiseMessageCallback,
@@ -170,7 +171,6 @@ export const usePatternEngine = (
             );
         }
     }, [elementConstraints, engineRef])
-
 
     return {
         engineRef,

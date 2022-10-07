@@ -61,6 +61,8 @@ export const ConceptTreePanel = (
                 size => <List itemKey={(i, d) => flattenedConceptTreeRef[i].id} itemCount={flattenedConceptTreeRef.length} itemSize={40} width={size.width} height={size.height}>
                     {
                         (prop) => {
+                            //console.log("1");
+                            //console.log(prop);
                             const itemRef = flattenedConceptTreeRef[prop.index]
                             const trueItem = model?.classes.find(it => it.id === itemRef.id);
                             return <div style={prop.style} key={itemRef.id}>
@@ -74,6 +76,8 @@ export const ConceptTreePanel = (
                                                 ))
                                             }
                                         }>
+
+                                        {/*这个svg是为了调节高度的（猜测）*/}
                                         <svg width={(itemRef.indentLevel ?? 0) * 16} height={40} style={{ transform: 'translateY(-2px)' }}>
                                             {
                                                 new Array(itemRef.indentLevel).fill(null).map(
@@ -85,7 +89,7 @@ export const ConceptTreePanel = (
                                             }
                                         </svg>
 
-                                        {
+                                        {   //圆形图标左边的一点点空白
                                             <div style={{ margin: '0 -2px 0 2px', opacity: itemRef.children ? 1 : 0, width: 16, height: 40 }} className="concept-tree-node-chev"
                                                 onClick={(ev) => {
                                                     if (itemRef.children) {
@@ -97,6 +101,7 @@ export const ConceptTreePanel = (
                                                 {itemRef.collapsed ? <ChevronRight16 /> : <ChevronDown16 />}
                                             </div>
                                         }
+                                        {/*圆型图标*/}
                                         <svg width={28} height={24} className="tree-node-circle">
                                             <circle className={selectedPayload === itemRef.id ? "active" : ""} cx={12} cy={12} fill={trueItem.colorSlot.primary} />
                                         </svg>

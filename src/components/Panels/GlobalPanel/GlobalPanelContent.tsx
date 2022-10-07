@@ -252,7 +252,7 @@ export const GlobalPanelContent = React.forwardRef<IGlobalPanelContentRef, IGlob
             {/* </ClickAwayListener> */}
         </PanelTitle>
         <div className="constraint-pool-root" ref={observedRef}>
-            <div className="x6-container" ref={x6ContainerRef} />
+            <div className="x6-container"  ref={x6ContainerRef} />
         </div>
         <div style={{ display: 'flex', columnGap: 8, position: 'absolute', right: 8, bottom: 8, width: '100%', justifyContent: 'flex-end' }}>
 
