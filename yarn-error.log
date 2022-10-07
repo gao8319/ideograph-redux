@@ -1,0 +1,105 @@
+Arguments: 
+  D:\node.js\node.exe C:\Users\14732\AppData\Roaming\npm\node_modules\yarn\bin\yarn.js add @emotion/react
+
+PATH: 
+  C:\Program Files\Common Files\Oracle\Java\javapath;F:\virtul\bin\;C:\Program Files (x86)\Common Files\Intel\Shared Libraries\redist\intel64\compiler;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\iCLS\;C:\Program Files\Intel\Intel(R) Management Engine Components\iCLS\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;D:\微信小程序\GIT\Git\cmd;D:\java16\bin;D:\java16\jre\bin;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;F:\MATLAB\runtime\win64;F:\MATLAB\bin;C:\Program Files\Intel\WiFi\bin\;C:\Program Files\Common Files\Intel\WirelessCommon\;d:\quartus\quartus\bin;D:\git\Git\cmd;D:\node.js\;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\Program Files\dotnet\;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;D:\putty\;D:\apache-maven-3.8.1-bin\apache-maven-3.8.1\bin;C:\Program Files\Bandizip\;D:\Anaconda\Anaconda3;D:\Anaconda\Anaconda3\Scripts;D:\Anaconda\Anaconda3\Library\bin;D:\Anaconda\Anaconda3\Library\mingw-w64\bin;D:\Anaconda\Anaconda3\Library\mingw-w64;C:\Users\14732\AppData\Local\Microsoft\WindowsApps;D:\vs code\Microsoft VS Code\bin;C:\Users\14732\AppData\Roaming\npm;C:\Users\14732\AppData\Local\Google\Chrome\Application\;C:\Users\14732\.dotnet\tools;D:\opencv\opencv\build\x64\vc15\bin;D:\mingw_64\mingw64\bin\;D:\IJ\IntelliJ IDEA Community Edition 2021.1.3\bin;;D:\webstorm\WebStorm 2021.3.1\bin;;D:\texlive\2021\bin\win32;D:\xmake\xmake-v2.7.1.win64\xmake;D:\MSYS2\clang64\bin;;D:\kg\node_modules\.bin
+
+Yarn version: 
+  1.22.19
+
+Node version: 
+  12.18.1
+
+Platform: 
+  win32 x64
+
+Trace: 
+  Error: https://registry.npmmirror.com/@types/carbon__icons-react/-/carbon__icons-react-10.31.2.tgz: ESOCKETTIMEDOUT
+      at ClientRequest.<anonymous> (C:\Users\14732\AppData\Roaming\npm\node_modules\yarn\lib\cli.js:141517:19)
+      at Object.onceWrapper (events.js:421:28)
+      at ClientRequest.emit (events.js:315:20)
+      at TLSSocket.emitRequestTimeout (_http_client.js:709:9)
+      at Object.onceWrapper (events.js:421:28)
+      at TLSSocket.emit (events.js:327:22)
+      at TLSSocket.Socket._onTimeout (net.js:481:8)
+      at listOnTimeout (internal/timers.js:549:17)
+      at processTimers (internal/timers.js:492:7)
+
+npm manifest: 
+  {
+    "name": "ideograph-redux",
+    "version": "0.0.0",
+    "scripts": {
+      "dev": "vite",
+      "build": "tsc && vite build",
+      "build!": "tsc && vite build && kotlin post-process.kts",
+      "preview": "vite preview"
+    },
+    "dependencies": {
+      "@antv/x6": "^1.30.1",
+      "@carbon/icons-react": "^10.45.0",
+      "@emotion/styled": "^11.6.0",
+      "@fluentui/react": "^8.52.3",
+      "@mui/material": "^5.4.0",
+      "@reduxjs/toolkit": "^1.7.1",
+      "@types/carbon__icons-react": "^10.31.2",
+      "@types/color": "^3.0.3",
+      "@types/d3": "^7.1.0",
+      "@types/d3-drag": "^3.0.1",
+      "@types/d3-force": "^3.0.3",
+      "@types/d3-zoom": "^3.0.1",
+      "@types/file-saver": "^2.0.5",
+      "@types/graphlib": "^2.1.8",
+      "@types/jquery": "^3.5.14",
+      "@types/jquery-mousewheel": "^3.1.9",
+      "@types/jsoneditor": "^9.5.1",
+      "@types/lodash": "^4.14.178",
+      "@types/lodash-es": "^4.17.6",
+      "@types/mousetrap": "^1.6.9",
+      "@types/pinyin": "^2.10.0",
+      "@types/react-redux": "^7.1.22",
+      "@types/react-virtualized-auto-sizer": "^1.0.1",
+      "@types/react-window": "^1.8.5",
+      "ajv": "^8.9.0",
+      "axios": "^0.26.1",
+      "color": "^4.2.0",
+      "d3": "^7.3.0",
+      "d3-drag": "^3.0.0",
+      "d3-force": "^3.0.0",
+      "d3-zoom": "^3.0.0",
+      "file-saver": "^2.0.5",
+      "graphlib": "^2.1.8",
+      "jquery": "^3.6.0",
+      "jquery-mousewheel": "^3.1.13",
+      "jsoneditor": "^9.7.2",
+      "localforage": "^1.10.0",
+      "lodash": "^4.17.21",
+      "lodash-es": "^4.17.21",
+      "monaco-editor": "^0.32.1",
+      "monaco-textmate": "^3.0.1",
+      "onigasm": "^2.2.5",
+      "react": "^17.0.2",
+      "react-dom": "^17.0.2",
+      "react-draggable": "^4.4.4",
+      "react-hotkeys-hook": "^3.4.4",
+      "react-redux": "^7.2.6",
+      "react-router-dom": "^6.2.2",
+      "react-use": "^17.3.2",
+      "react-virtualized-auto-sizer": "^1.0.6",
+      "react-window": "^1.8.6",
+      "redux-thunk": "^2.4.1"
+    },
+    "devDependencies": {
+      "@types/react": "^17.0.33",
+      "@types/react-dom": "^17.0.10",
+      "@vitejs/plugin-react": "^1.0.7",
+      "typescript": "^4.4.4",
+      "vite": "^2.7.2"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
