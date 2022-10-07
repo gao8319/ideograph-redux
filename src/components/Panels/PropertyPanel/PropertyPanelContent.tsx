@@ -148,7 +148,7 @@ export const PropertyPanelContent = (props: IPropertyPanelContentProps) => {
 
             <PanelTitle text="已添加的属性约束" topBordered />
 
-            <div className="panel-constraints" style={{ maxHeight: 'calc(100vh - 480px)' }}>
+            <div className="panel-constraints" style={{ height:'100%',maxHeight: 'calc(100vh - 480px)' ,overflow:'auto'} } >
                 {
                     constraints.map(
                         c => {

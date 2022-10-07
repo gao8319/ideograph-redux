@@ -167,7 +167,9 @@ export const EditView = () => {
                         <div dangerouslySetInnerHTML={{ __html: snackBarContent?.[0] ?? "" }} />
                     </div>
                 </Snackbar>}
+
                 <div ref={containerRef} className="engine-root-container" />
+
                 <ConceptPanel />
                 <PropertyPanel engineRef={engineRef} />
                 <GlobalPanelContent ref={globalConstraintPoolRef} initialContext={
